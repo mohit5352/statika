@@ -24,3 +24,4 @@ npm-debug.log*
 
 # Temp OCR / extraction artifacts
 /tmp/
+package-lock.json
