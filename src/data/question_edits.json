@@ -1,0 +1,9 @@
+{
+  "paper1": {
+    "comp": {
+      "2025": {
+        "31": "{\"text\": \"In which of the following topology, all the nodes are connected to a single backbone cable?\\nTest\", \"topic\": \"[Topic: Network Topology]- Test\", \"options\": [{\"label\": \"a\", \"text\": \"Mesh- Test\"}, {\"label\": \"b\", \"text\": \"Star\"}, {\"label\": \"c\", \"text\": \"Hybrid\"}, {\"label\": \"d\", \"text\": \"Bus\"}]}"
+      }
+    }
+  }
+}

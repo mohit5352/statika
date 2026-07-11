@@ -1,0 +1,8 @@
+{
+  "name": "UPSC ISS Statistics Question Bank",
+  "description": "An optimized previous year questions bank (2016-2025) and comprehensive revision notes for UPSC Indian Statistical Service (ISS) Statistics exams with instant answers, explanations, and server-side Gemini AI study assistance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

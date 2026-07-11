@@ -1,0 +1,965 @@
+[
+  {
+    "year": 2016,
+    "paper": 3,
+    "exam": "UPSC Indian Statistical Service (ISS) Examination 2016",
+    "subject": "Statistics Paper III",
+    "sections": [
+      {
+        "section_name": "Section A",
+        "questions": [
+          {
+            "number": 1,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Define Des Raj's ordered estimator for population mean on the basis of a sample of size 2 and show that it is unbiased."
+              },
+              {
+                "letter": "b",
+                "text": "Let $\\pi_i$ and $\\pi_{ij} (j \\neq i)$ be the inclusion probabilities of first and second order respectively in a simple random sample of size $n$, selected from a finite population of size $N$. Then show that (i) $\\sum_{i=1}^{N} \\pi_i = n$ and (ii) $\\sum_{j \\neq i} \\pi_{ij} = n(n-1)$."
+              },
+              {
+                "letter": "c",
+                "text": "Give a practical example where two-stage sampling scheme may be adopted. For equal size first-stage units, obtain an estimator for population mean in two-stage sampling and its variance. Discuss the problem of allocation of first and second-stage sample sizes for a fixed cost."
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Describe the problem of multicollinearity in general linear model and explain how will you detect it."
+              },
+              {
+                "letter": "b",
+                "text": "In usual notation consider the standard linear model: $Y = X\\beta + U; U \\sim N(0, \\sigma^2I)$. Show that the MLE $\\hat{\\beta}$ of $\\beta$ have the distribution $N(\\beta, \\sigma^2(X'X)^{-1})$, assuming $X'X$ to be an invertible matrix."
+              },
+              {
+                "letter": "c",
+                "text": "(i) Explain the identification problem in a system of simultaneous equations. State, without proof, the rank and order conditions for identifiability of an equation. (ii) Identify the following system: $Y_1 = 3Y_2 - 2X_1 + X_2 + U_1$, $Y_2 = Y_3 + X_3 + U_2$, $Y_3 = -Y_2 - 2X_3 + U_3$."
+              }
+            ]
+          },
+          {
+            "number": 3,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Construct the price index number for 2010 with 2005 as base year from the following data by using (i) Laspeyre's (ii) Paasche's and (iii) Fisher's method. Verify whether the Time Reversal Test is satisfied by the abovementioned index numbers."
+              },
+              {
+                "letter": "b",
+                "text": "Define price elasticity of demand ($\\eta_p$) and interpret when $\\eta_p$ is (i) < 1, (ii) > 1 and (iii) = 1. If the demand function is $p = 10 - 5x^2$, for what value of $x$ elasticity of demand will be unity? ($x$ is the quantity demanded and $p$ is the price)."
+              },
+              {
+                "letter": "c",
+                "text": "Define autocorrelation of lag $K$ of a stationary process. Consider the time series model defined by $X_t = \\alpha_1 X_{t-1} + \\alpha_2 X_{t-2} + \\alpha_3 X_{t-3} + \\epsilon_t$ where $\\epsilon_t$ is white noise. (i) Show that the autocorrelation coefficient with lag 1 for the process is $\\rho_1 = \\frac{\\alpha_1 + \\alpha_2\\alpha_3}{1 - \\alpha_2 - \\alpha_1\\alpha_3 - \\alpha_3^2}$. (ii) Consider the case where $\\alpha_1 = \\alpha_2 = \\alpha_3 = \\alpha$. Comment on the stationarity of this model. Calculate $\\rho_1$ and $\\rho_2$."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "Section B",
+        "questions": [
+          {
+            "number": 4,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "A finite population of size 100 is divided into two strata. In the usual notations, it is given that $N_1=60, N_2=40, S_1=2S_2$. If a sample of size 24 is to be selected from the population, obtain the number of units to be selected from each of the stratum under Neyman allocation."
+              },
+              {
+                "letter": "b",
+                "text": "For the model $y = X\\beta + u$ if $X$ and $u$ are correlated show that the OLS estimator for $\\beta$ is not consistent. Discuss the use of instrumental variable technique to obtain a consistent estimator of $\\beta$."
+              },
+              {
+                "letter": "c",
+                "text": "Consider a time series $y_t = T_t + C_t + I_t$, where $T_t$ a trend, $C_t$ a cyclical component and $I_t$ a random component. Discuss the effect of moving averages on cyclical and random components assuming $C_t = a \\sin(2\\pi t/k)$."
+              }
+            ]
+          },
+          {
+            "number": 5,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Explain Koyck's approach to distributed geometric lag model."
+              },
+              {
+                "letter": "b",
+                "text": "What is a chain index number? Discuss its advantages and disadvantages over fixed-base index number."
+              },
+              {
+                "letter": "c",
+                "text": "In what sense cluster sampling is different from simple random sampling? Define an unbiased estimator for population mean in case of cluster sampling with equal cluster size. Compare the efficiency of cluster sampling in terms of intra-class correlation coefficient with respect to simple random sampling without replacement."
+              }
+            ]
+          },
+          {
+            "number": 6,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "You believe that a set of data is the realization of an MA(1) process $X_t = e_t + \\beta e_{t-1}$, where the errors $e_t$ are standard normal. You have calculated the sample auto-covariance function and found that $\\gamma_0=1$ and $\\gamma_1 = -0.25$. Estimate the parameter $\\beta$. Which value of $\\beta$ do you think you should choose and why?"
+              },
+              {
+                "letter": "b",
+                "text": "Describe the Lahiri's method of selecting a probability proportional to size sample from a finite population of size $N$."
+              },
+              {
+                "letter": "c",
+                "text": "Describe lag model and distributed lag model. What are the different lag schemes? How would you estimate lags by applying ordinary least square?"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "downloadUrl": "https://drive.google.com/file/d/1ZZNrrrWh2iGgYOgsgqJg8GOAXBuECdsU/view?usp=sharing"
+  },
+  {
+    "year": 2016,
+    "paper": 4,
+    "exam": "UPSC Indian Statistical Service (ISS) Examination 2016",
+    "subject": "Statistics Paper IV",
+    "sections": [
+      {
+        "section_name": "Section A (Operations Research and Reliability)",
+        "questions": [
+          {
+            "number": 1,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Solve the following two-person zero-sum game using graphical procedure: \n\\begin{pmatrix} 1 & -3 \\\\ 3 & 5 \\\\ -1 & 6 \\\\ 4 & 1 \\\\ 2 & 2 \\\\ -5 & 0 \\end{pmatrix}"
+              },
+              {
+                "letter": "b",
+                "text": "If the demand for a certain product has a rectangular distribution between 4000 and 5000, then find the optimal order quantity if the storage cost is \\( ₹1 \\) per unit and the shortage cost is \\( ₹2 \\) per unit."
+              },
+              {
+                "letter": "c",
+                "text": "A supermarket has two salesgirls at the counter. If the service time for each customer is exponential with mean 4 minutes and if people arrive in a Poisson fashion at 10 per hour, then find the expected percentage of idle time for each salesgirl."
+              },
+              {
+                "letter": "d",
+                "text": "Find out ML estimators of the parameters in the density \\( f(x) = \\frac{1}{b} e^{-x/b}, x > 0, b > 0 \\) based on the following censored scheme: [Text indicates missing data regarding specific scheme parameters; transcription follows raw text] where n and r are respectively the sample size and number of censored observations."
+              },
+              {
+                "letter": "e",
+                "text": "Defining a location-scale family, outline the procedure for obtaining the coefficient of BLUEs."
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "A computer contains 10000 resistors. When any resistor fails, it is replaced. The cost of replacing a resistor individually is \\( ₹1 \\) only. If all the resistors are replaced at the same time, the cost per resistor comes down to 35 paise. The percent of surviving, \\( S(t) \\), at the end of t-th month is given by the table: t=0, S(t)=100; t=1, S(t)=97; t=2, S(t)=90; t=3, S(t)=70; t=4, S(t)=32; t=5, S(t)=15; t=6, S(t)=0. Derive the optimum replacement plan."
+              },
+              {
+                "letter": "b",
+                "text": "A random sample of 25 observations drawn from Weibull model (with shape parameter 2 and scale parameter = 4) is given. Obtain the moment estimates of the parameters. [Data provided in table: 1.8487, 0.3761, 0.7500, 3.0530, 1.3545; 1.8802, 1.5700, 1.7708, 1.3592, 3.0466; 1.7961, 1.5319, 0.5903, 0.6288, 0.6461; 1.6560, 1.7172, 1.9310, 1.0509, 1.6173; 1.3162, 0.7705, 1.8889, 1.8889, 4.1505]"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "Section B (Demography and Vital Statistics)",
+        "questions": [
+          {
+            "number": 3,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Discuss the sources of demographic data in India and also point out the uses and limitations of these data."
+              },
+              {
+                "letter": "b",
+                "text": "Explain the stationary and stable models. Discuss the population situation when stationary and stable populations are identical."
+              },
+              {
+                "letter": "c",
+                "text": "Explain briefly the uses of life table. In usual notation, prove that \\( d_x = -l_x \\cdot \\frac{d}{dx} \\ln(l_x) \\)."
+              },
+              {
+                "letter": "d",
+                "text": "Define crude death rate, specific death rate and standardized death rate. Interpret these rates."
+              },
+              {
+                "letter": "e",
+                "text": "State the general procedure and steps for the construction of life tables."
+              }
+            ]
+          },
+          {
+            "number": 4,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Explain an abridged life table and discuss its different columns. Discuss the King's method for its construction."
+              },
+              {
+                "letter": "b",
+                "text": "What do you mean by fertility? Define crude birthrate, general fertility rate, specific fertility rate and age-specific fertility rate. How are these rates computed in practice?"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "Section C (Survival Analysis and Clinical Trials)",
+        "questions": [
+          {
+            "number": 5,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Define hazard function and survival function. Obtain the same for an exponential distribution."
+              },
+              {
+                "letter": "b",
+                "text": "If \\( f(t) \\), \\( F(t) \\) and \\( h(t) \\) are the density, distribution and hazard functions of a random variable \\( T \\), then show that \\( h(t) = \\frac{f(t)}{1-F(t)} \\). Also establish a suitable relationship between \\( h(t) \\) and reliability function."
+              },
+              {
+                "letter": "c",
+                "text": "If \\( p_x \\) is the probability that a person aged x will survive to age x+1, then show that \\( p_x + nq_x = 1 \\), where \\( _np_x \\) [context implies notation]."
+              },
+              {
+                "letter": "d",
+                "text": "Discuss some specific situations in which it would be difficult or inefficient to perform clinical trials."
+              },
+              {
+                "letter": "e",
+                "text": "What are the principles for ethical clinical trials?"
+              }
+            ]
+          },
+          {
+            "number": 6,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Define Type-I and Type-II censoring schemes. Obtain the maximum likelihood estimator of parameter \\( \\theta \\) in exponential distribution under the above censoring schemes. Also obtain Fisher information for the parameter."
+              },
+              {
+                "letter": "b",
+                "text": "Discuss various phases involved in a clinical trial. Also discuss the pros and cons of each phase."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "Section D (Quality Control)",
+        "questions": [
+          {
+            "number": 7,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Distinguish between process control and product control. Discuss the situations where they are used."
+              },
+              {
+                "letter": "b",
+                "text": "Discuss various sources of assignable causes and random causes of variations. Also state how they are detected in a manufacturing process."
+              },
+              {
+                "letter": "c",
+                "text": "Define the terms ASN, AOQ, ATI and ARL for an acceptance sampling plan."
+              },
+              {
+                "letter": "d",
+                "text": "What is an acceptance sampling plan? Discuss a single sampling plan \\( (n, c) \\), where the sampling is carried out using a binomial model. Find \\( P_a \\), if n=10, c=3 and p=0.05."
+              },
+              {
+                "letter": "e",
+                "text": "State the importance of exponentially weighted moving average charts. How are these used in practical situations?"
+              }
+            ]
+          },
+          {
+            "number": 8,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Discuss the importance of control charts for variables."
+              },
+              {
+                "letter": "b",
+                "text": "Obtain the control limits for \\( (\\bar{X}, R) \\) and \\( (\\bar{X}, S) \\) charts when standards are known and unknown."
+              },
+              {
+                "letter": "c",
+                "text": "In usual notation, show that \\( c_2 = \\sqrt{\\frac{2}{n-1}} \\frac{\\Gamma(n/2)}{\\Gamma((n-1)/2)} \\), where \\( c_2 \\) is a constant used for constructing control limits."
+              },
+              {
+                "letter": "d",
+                "text": "Discuss in detail the double sampling plan \\( (N, n_1, c_1, n_2, c_2) \\) stating the assumptions followed in both the stages. Hence or otherwise, obtain the ASN function of this sampling procedure."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "Section E (Multivariate Analysis)",
+        "questions": [
+          {
+            "number": 9,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Define p-variate normal distribution and obtain its characteristic function. Assume mean vector \\( \\mu \\) and dispersion matrix \\( \\Sigma \\)."
+              },
+              {
+                "letter": "b",
+                "text": "Define Hotelling's \\( T^2 \\) and mention its application. Show that \\( T^2(p, m) = \\frac{mp}{m-p+1} F(p, m-p+1) \\)."
+              },
+              {
+                "letter": "c",
+                "text": "Explain the importance of principal components and discuss the method for extraction of principal components."
+              },
+              {
+                "letter": "d",
+                "text": "Define Wishart distribution and obtain its characteristic function."
+              },
+              {
+                "letter": "e",
+                "text": "Define canonical variates and canonical correlation. Give your interpretation."
+              }
+            ]
+          },
+          {
+            "number": 10,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "State the chief properties of Wishart distribution. If \\( A_i \\sim W_p(\\Sigma, n_i), i=1, 2, \\dots, k \\), then show that \\( A = \\sum_{i=1}^k A_i \\) has the Wishart distribution with parameters \\( \\Sigma \\) and \\( n \\), where \\( n = \\sum_{i=1}^k n_i \\), assuming the independence of \\( A_i \\)'s."
+              },
+              {
+                "letter": "b",
+                "text": "Define multiple correlation coefficient and obtain its non-null distribution."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "Section F (Design and Analysis of Experiments)",
+        "questions": [
+          {
+            "number": 11,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "What are the basic principles of design of experiments? Explain them and their roles."
+              },
+              {
+                "letter": "b",
+                "text": "Define completely randomized design, and mention its merits and demerits. Also give its statistical analysis."
+              },
+              {
+                "letter": "c",
+                "text": "Define Latin square design with its applications, advantages and disadvantages."
+              },
+              {
+                "letter": "d",
+                "text": "Explain analysis of covariance with its applications. Give an illustration for the use of analysis of covariance in identifying the response variable (y) and concomitant variable (x)."
+              },
+              {
+                "letter": "e",
+                "text": "Explain split-plot design and give some situations where split-plot design can be suitably adopted."
+              }
+            ]
+          },
+          {
+            "number": 12,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "What are factorial experiments? The table provided gives the layout and the results of a \\( 2^3 \\)-factorial design laid out in four replicates to determine the effect of Nitrogen (N), Potash (K) and Phosphate (P) on potato crop yield. Analyze the design and draw conclusions."
+              },
+              {
+                "letter": "b",
+                "text": "What is confounding? A \\( 2^3 \\)-factorial experiment is conducted in 2 blocks of size 4 each, in 3 replicates. Identify the confounded effect in each replicate."
+              },
+              {
+                "letter": "c",
+                "text": "Define a Randomized Block Design (RBD) specifying the statistical model associated with the design. Carry out a complete analysis of RBD with one missing observation."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "Section G (Computing with C and R)",
+        "questions": [
+          {
+            "number": 13,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Given a five-digit positive integer, write a C program to find the sum of individual digits."
+              },
+              {
+                "letter": "b",
+                "text": "Write a C program to pick up the largest tender from a set of tenders assuming that Tender-id and Tender-value for each tender are specified."
+              },
+              {
+                "letter": "c",
+                "text": "Express \\( (A-B)*C \\) in infix and postfix forms."
+              },
+              {
+                "letter": "d",
+                "text": "Write a program in R to plot Q-Q plot assuming that the two samples (\\( X_i, i=1, 2, \\dots, 25 \\) and \\( Y_i, i=1, 2, \\dots, 250 \\)) are drawn from normal population."
+              },
+              {
+                "letter": "e",
+                "text": "Given n positive integers, write R code to find their ranks."
+              }
+            ]
+          },
+          {
+            "number": 14,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Illustrate call by value and call by reference, and advantages as well as disadvantages of each method. Write a C function to evaluate the series without using a built-in function: \\( \\sin(x) = x - \\frac{x^3}{3!} + \\frac{x^5}{5!} - \\dots \\)"
+              },
+              {
+                "letter": "b",
+                "text": "Given \\( X \\sim N(\\mu, \\sigma) \\), where \\( \\mu \\) and \\( \\sigma \\) are specified, write a C program to compute \\( P(X) = \\int_{-\\infty}^x \\text{Density of } N(\\mu, \\sigma) dt \\)."
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "downloadUrl": "https://drive.google.com/file/d/1q6Yj4rDvyZBLyXG-F3nA7-Y4RcaRUPdM/view?usp=sharing"
+  },
+  {
+    "year": 2017,
+    "paper": 3,
+    "exam": "UPSC Indian Statistical Service (ISS) Examination 2017",
+    "subject": "Statistics Paper III",
+    "sections": [
+      {
+        "section_name": "Section A",
+        "questions": [
+          {
+            "number": 1,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "For SRSWOR (N, n), show that the sample proportion p is unbiased for the population proportion P. Also derive the sampling variance of this estimator."
+              },
+              {
+                "letter": "b",
+                "text": "What is the problem in estimating a linear regression model in presence of multicollinearity? How is multicollinearity detected? Explain how ridge estimation tackles this issue."
+              },
+              {
+                "letter": "c",
+                "text": "Consider the MA(1) process $e_t + \\beta e_{t-1}$ where $e_t \\sim N(0, 1)$. For a data set it is noted that autocovariances are $\\gamma_0 = 1$ and $\\gamma_1 = -0.25$. (i) Estimate $\\beta$. Which value of the estimate do you think we should choose and why? (ii) What problem do we have if $\\gamma_1 = -0.5$? How would the variance of the error have affected the change?"
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Given below are the figures on production (in thousand metric tons) of a cooperative sugar factory: Year: 2010, 2011, 2012, 2013, 2014, 2015, 2016; Production: 77, 88, 84, 85, 91, 98, 90. (i) Fit a linear trend by least squares method. Tabulate the trend values. (ii) Compute the monthly estimated increase in production during the period."
+              },
+              {
+                "letter": "b",
+                "text": "If, in every stratum, the simple estimator $\\bar{y}_h$ is unbiased, then show that $\\bar{y}_{st} = \\sum_{h=1}^L W_h \\bar{y}_h$ is unbiased for population mean $\\bar{y}$, where $W_h$ is the proportion of population units in the strata and $L$ denotes the total number of strata in the population. Derive the sampling variance of $\\bar{y}_{st}$ and state how you would unbiasedly estimate the same."
+              },
+              {
+                "letter": "c",
+                "text": "In the context of a finitely distributed lag model, discuss the problem of OLS estimation and suggest how to obtain good (consistent) estimates of the parameters in such a model by bringing in some restrictions on lag weights."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "Section B",
+        "questions": [
+          {
+            "number": 3,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Explain and illustrate the following: (i) Two-stage sampling; (ii) Two-phase sampling. Pinpoint the difference between the two types of sampling schemes."
+              },
+              {
+                "letter": "b",
+                "text": "Write briefly on: (i) Sample size determination in surveys; (ii) Cumulative total method for PPSWR sampling; (iii) Rao-Hartley-Cochran Scheme."
+              },
+              {
+                "letter": "c",
+                "text": "Discuss the following allocations of the sample size in stratified random sampling: (i) Proportional allocation; (ii) Neyman allocation; (iii) Optimum allocation with a linear cost function. Explain the practical implications of these methods."
+              }
+            ]
+          },
+          {
+            "number": 4,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Discuss Koyck approach to an infinitely distributed lag model and obtain the mean lag for Koyck's model. What are the basic features of Koyck's transformed model?"
+              },
+              {
+                "letter": "b",
+                "text": "For the following linear regression model $Y_i = \\beta_1 + \\beta_2 X_i + u_i$, $i = 1, ..., n$, $E(u_i) = 0$, $Cov(u_i, u_j) = 0$ ($i \\neq j$), $E(u_i^2) = \\sigma_i^2$, obtain the OLS estimates of $\\beta_1$ and $\\beta_2$ when $\\sigma_i^2$, $i = 1, ..., n$ are known. Discuss what steps could be taken when $\\sigma_i^2$, $i = 1, ..., n$ are unknown. Revise the least squares estimates of $\\beta_1$ and $\\beta_2$ when $\\sigma_i^2 = \\sigma^2 E(Y_i)^2$ where $\\sigma$ is unknown."
+              },
+              {
+                "letter": "c",
+                "text": "Discuss the problem of estimating parameters by OLS in the presence of serial correlation in the following model: $Y_t = \\beta_1 + \\beta_2 X_t + u_t$, $u_t = \\rho u_{t-1} + \\epsilon_t$, $|\\rho| < 1$, $\\rho$ is known. $E(\\epsilon_t) = 0$, $V(\\epsilon_t) = \\sigma^2$, $Cov(\\epsilon_t, \\epsilon_s) = 0$ ($s \\neq t$). Propose suitable estimates of $\\beta_1$ and $\\beta_2$. Also calculate the variance of the estimate of $\\beta_2$. How can this estimate be modified when $\\rho$ is unknown?"
+              }
+            ]
+          },
+          {
+            "number": 5,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Demand and supply functions of a certain commodity are respectively: $x_t = 240 + 10 \\frac{dp}{dt}$ kg per month; $x_t = 100 + 6p_t - 60$ kg per month, where $p$ is price of the commodity at time $t$. Find the time path of $p$ for dynamic equilibrium if the initial price is $72 per kg."
+              },
+              {
+                "letter": "b",
+                "text": "Explain briefly the methods of computing price index numbers: (i) by simple average of price relatives; (ii) by simple aggregate of prices; and (iii) by weighted aggregate of prices."
+              },
+              {
+                "letter": "c",
+                "text": "Discuss the different forms of the Engel curve that are usually employed for fitting to family-budget data. In such fitting, how would you tackle the following complications? (i) Household expenditure on a particular item depends, besides depending on income, on the number of persons per family. (ii) Consumption of families of the same size differs because of varying age and sex consumption."
+              }
+            ]
+          },
+          {
+            "number": 6,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Give an illustration for linear systematic sampling. Show that, under this method, a positive correlation between units in the same sample inflates the sampling variance of the estimator of population total."
+              },
+              {
+                "letter": "b",
+                "text": "Consider a population of $N = 6$ units with values 1, 2, 3, 4, 5 and 6. (i) Write down all possible samples of size 2 drawn by SRSWOR scheme. Verify that the sample mean is unbiased for the population mean. (ii) Also compute the sampling variance of the sample mean."
+              },
+              {
+                "letter": "c",
+                "text": "Explain the ratio method of estimation for estimating a population total. Show that it is generally biased. Evaluate the mean squared error of the estimator to the first order of approximation. Assume SRSWOR of $n$ units from the population."
+              }
+            ]
+          },
+          {
+            "number": 7,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Using standard notations, briefly explain the instrumental variable technique in the context of estimating the coefficients in a linear regression model. State the situations when this technique is applicable."
+              },
+              {
+                "letter": "b",
+                "text": "State the rank and order conditions for identifiability of parameters in a system of structural equations. Which one of these two conditions is sufficient for identifiability? Establish this condition mathematically."
+              },
+              {
+                "letter": "c",
+                "text": "Discuss the estimation of parameters of an equation appearing in a simultaneous equation system by Limited Information Maximum Likelihood method. State whether the estimator (if it exists) is unique. (An outline of the approach is adequate)"
+              }
+            ]
+          },
+          {
+            "number": 8,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Show that the relationship $X_t = 0.7 X_{t-1} + 0.3 X_{t-2} + e_t - 0.7 e_{t-1}$ (where $e$ denotes white noise) defines ARIMA(1, 1, 1) model."
+              },
+              {
+                "letter": "b",
+                "text": "What do you understand by the seasonal variations in a time series? Give example. Explain the method of link relatives of computing the seasonal indices."
+              },
+              {
+                "letter": "c",
+                "text": "Define correlogram. For an infinite series generated by the average of a random component with equal weights, show that the correlogram is $\\rho_k = \\frac{m-k}{m}$ for $k \\leq m$, and $\\rho_k = 0$ for $k > m$."
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "downloadUrl": "https://drive.google.com/file/d/1zB3wOkhpOBpBNIPdHIahBSurjJiKOQfn/view?usp=sharing"
+  },
+  {
+    "year": 2017,
+    "paper": 4,
+    "exam": "UPSC Indian Statistical Service (ISS) Examination 2017",
+    "subject": "Statistics Paper IV",
+    "sections": [
+      {
+        "section_name": "Section A (Operations Research and Reliability)",
+        "questions": [
+          {
+            "number": 1,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "A newspaper boy has the following probabilities of selling a magazine:\nNo. of copies sold: 10, 11, 12, 13, 14\nProbabilities: 0.10, 0.15, 0.20, 0.25, 0.30\nCost of a copy is 30 paise and sale price is 50 paise. He cannot return unsold copies. How many copies should he order? Solve by EOL criterion."
+              },
+              {
+                "letter": "b",
+                "text": "Find an optimum solution to the following transportation problem:\nSupply: A (50), B (70), C (30), D (50)\nDemand: S1 (25), S2 (35), S3 (105), S4 (20)\nCosts: A(4,6,8,13), B(13,11,10,8), C(14,4,10,13), D(9,11,13,8)"
+              },
+              {
+                "letter": "c",
+                "text": "A supermarket has two salesgirls at the sales counters. If the service time for each customer is exponential with a mean of 4 minutes, and if the people arrive in a Poisson fashion at the rate of 10 an hour, then calculate (i) the probability that a customer has to wait for being served and (ii) the expected percentage of idle time for each salesgirl. (iii) If a customer has to wait, what is the expected length of his waiting time?"
+              },
+              {
+                "letter": "d",
+                "text": "Let $h$ be the reliability function of a coherent system. Then prove that $h(p \\cdot p') \\ge h(p) h(p')$ and $h(p \\amalg p') \\le h(p) \\amalg h(p')$ for all $0 \\le p \\le 1$, $0 \\le p' \\le 1$."
+              },
+              {
+                "letter": "e",
+                "text": "Obtain the reliability function and the hazard function for the Weibull distribution."
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "An electronic device consists of four components, each of which must function for the system to function. The system reliability can be improved by installing parallel units in one or more of the components. The reliability ($R$) of a component with one, two or three parallel units and the corresponding cost ($C$) are given. The maximum amount available for this device is 100. Determine the number of parallel units in each component. Use dynamic programming to solve."
+              },
+              {
+                "letter": "b",
+                "text": "The network diagram represents activities associated with a project. Determine (i) critical path, (ii) total and free floats and (iii) duration of the project that will have 95 percent chance of being completed."
+              },
+              {
+                "letter": "c",
+                "text": "25 items were placed on test and the test was terminated after a pre-assigned time $t_p = 20$ hours from the starting time. 10 items failed before time $t_p$ at 3.8, 5.9, 6.3, 6.5, 7.5, 7.7, 10.5, 13.2, 13.5 and 14.0 hours. If the underlying distribution is Weibull with shape parameter equal to 2, then compute the m.l.e. of the scale parameter and the estimated standard error of it."
+              },
+              {
+                "letter": "d",
+                "text": "(i) Develop an exact test statistic for testing the shape parameter of the gamma distribution when scale parameter is known. (ii) For a prototype test vehicle, electrical failures for the engine operation occurred at the following kilometers: 28820, 36707, 46128 and 68345. The total test schedule was 72000 kilometers. Estimate the reliability function assuming exponential failures."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "Section B (Demography and Vital Statistics)",
+        "questions": [
+          {
+            "number": 3,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Discuss hospital records and ad hoc surveys in relation to vital statistics information."
+              },
+              {
+                "letter": "b",
+                "text": "Discuss internal migrations, rural-urban migrations and international migrations."
+              },
+              {
+                "letter": "c",
+                "text": "Define crude and specific death rates. Explain clearly the purpose of standardizing death rates."
+              },
+              {
+                "letter": "d",
+                "text": "Given that the complete expectations of life at ages 25 and 26 for a specific group are 22.08 and 21.93 years, respectively. The number of people living at age 25 is 45324. Find the number that attains age 26."
+              },
+              {
+                "letter": "e",
+                "text": "Describe intercensal and postcensal estimates of population growth assuming linear growth and exponential growth."
+              }
+            ]
+          },
+          {
+            "number": 4,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Write a critical note on the salient features of Indian Censuses 1991 and 2001."
+              },
+              {
+                "letter": "b",
+                "text": "Explain the Pearl and Reed method of fitting a logistic curve for population projection."
+              },
+              {
+                "letter": "c",
+                "text": "Find the missing values in the life table columns for age 30 and 31: l_30 = 762227, l_31 = 758580."
+              },
+              {
+                "letter": "d",
+                "text": "What is meant by fertility? How is it measured? Describe the various fertility rates commonly used. Discuss their relative merits."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "Section C (Survival Analysis and Clinical Trials)",
+        "questions": [
+          {
+            "number": 5,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "A random variable $T \\ge 0$ has hazard rate at time $t$ which is given by $h(t) = a \\lambda t^{\\lambda-1}; t \\ge 0$. Derive the distribution function $F(t)$ and survival function $S(t)$."
+              },
+              {
+                "letter": "b",
+                "text": "Define gamma distribution as a failure time model. Discuss the monotonicity property of its hazard rate."
+              },
+              {
+                "letter": "c",
+                "text": "Explain the log-rank test in a two-sample problem."
+              },
+              {
+                "letter": "d",
+                "text": "Which quality control processes are to be used by the data analysis centre to assess the data quality?"
+              },
+              {
+                "letter": "e",
+                "text": "Describe the general principles to be observed in the preparation of the Case-Report Form."
+              }
+            ]
+          },
+          {
+            "number": 6,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "The survival times (in months) of 12 patients who have undergone a treatment are given. Obtain the maximum likelihood estimate for the mean of the exponential distribution."
+              },
+              {
+                "letter": "b",
+                "text": "The following data represents the survival times of extremely ill AIDS patients observed in days. Compute the Kaplan-Meier estimate of the survival function $S(t)$."
+              },
+              {
+                "letter": "c",
+                "text": "Explain briefly the key categories of clinical trials data that are to be collected."
+              },
+              {
+                "letter": "d",
+                "text": "Explain Phase I and Phase II clinical trials. What are MTD and DLT related to Phase I trials?"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "Section D (Quality Control)",
+        "questions": [
+          {
+            "number": 7,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Explain the basic differences among the chance and special causes of variation that affect process results."
+              },
+              {
+                "letter": "b",
+                "text": "State your agreement or disagreement to the statement: \"A statistically controlled process will always produce 100% results within tolerance limits.\""
+              },
+              {
+                "letter": "c",
+                "text": "Derive the control limits for the control chart for defects in a constant and varying number of sample units."
+              },
+              {
+                "letter": "d",
+                "text": "Explain the chart which describes the sensitivity of the sampling plan to detect the lot quality level for acceptance."
+              },
+              {
+                "letter": "e",
+                "text": "What is Cusum chart? Explain the methodology of using it for process control."
+              }
+            ]
+          },
+          {
+            "number": 8,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Evaluate the ARL to detect a shift in the process average by one unit of standard deviation in the higher side."
+              },
+              {
+                "letter": "b",
+                "text": "Explain the exponentially weighted moving average chart with at least one example of its potential application."
+              },
+              {
+                "letter": "c",
+                "text": "Describe the variable sampling scheme and compare it with the attribute sampling scheme."
+              },
+              {
+                "letter": "d",
+                "text": "An improvement in the process has resulted in an increase of $C_{pk}$ from 0.6 to 0.95. Estimate the reduction in % of nonconforming products."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "Section E (Multivariate Analysis)",
+        "questions": [
+          {
+            "number": 9,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "In the ISS examination of a certain year, the distribution of scores in Statistics Papers I, II, III and IV is found to follow a 4-variate normal distribution. Indicate how you would estimate the percentage of candidates faring better in Papers I and II compared to Papers III and IV."
+              },
+              {
+                "letter": "b",
+                "text": "In multivariate analysis, often the issue of handling too many variables poses a big problem. How would you propose to solve the problem? Indicate the procedure."
+              },
+              {
+                "letter": "c",
+                "text": "Derive the expression for the conditional mean of $X_1$ when $X_2 = x_2, \\dots, X_p = x_p$ under multivariate normal law."
+              },
+              {
+                "letter": "d",
+                "text": "Define Fisher's linear discriminant function. Give a classifier rule for classifying an individual into one of two mutually exclusive classes."
+              },
+              {
+                "letter": "e",
+                "text": "Show that in random sampling from a $p$-variate normal distribution, the sample variances and covariances follow Wishart distribution. Identify the parameters."
+              }
+            ]
+          },
+          {
+            "number": 10,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Show that if $X_{p \\times 1}$ follows $N_p(\\mu, \\Sigma)$ then $(X-\\mu)'\\Sigma^{-1}(X-\\mu)$ follows central chi-square distribution with $p$ degrees of freedom."
+              },
+              {
+                "letter": "b",
+                "text": "Define multiple correlation coefficient $R_{1.23\\dots p}$ and write down its expression. Derive the simplified form of $1 - R^2_{1.23\\dots p}$ for the special case where $r_{1i} = r$ and $r_{ij} = \\rho$."
+              },
+              {
+                "letter": "c",
+                "text": "Derive the maximum likelihood estimators for the parameters of a multivariate normal distribution."
+              },
+              {
+                "letter": "d",
+                "text": "Discuss the procedure for testing the null hypothesis regarding the mean vectors of two multivariate normal distributions having identical dispersion matrix."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "Section F (Design and Analysis of Experiments)",
+        "questions": [
+          {
+            "number": 11,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Discuss the usefulness of the principle of randomization in the context of design of experiments."
+              },
+              {
+                "letter": "b",
+                "text": "A $2^5$ experiment has been laid out in 4 replicates, in each replicate confounding one of the 3-factor interactions. Give the compositions of the 4 key blocks, and write down the ANOVA table."
+              },
+              {
+                "letter": "c",
+                "text": "What is a Latin Square Design? What are the main disadvantages of using such a design in field experiments?"
+              },
+              {
+                "letter": "d",
+                "text": "A $3^2$ experiment with factors A and B each at levels 0, 1 and 2 is to be designed in $2r$ replicates of 3 incomplete blocks each, such that in $r$ replicates $AB$ is confounded, while in the remaining $r$, $AB^2$ is confounded. Give the layout."
+              },
+              {
+                "letter": "e",
+                "text": "The factor A has $p$ levels requiring large units. Another factor B has $q$ levels requiring small units. Suggest a suitable design for accommodating both in a single experiment."
+              }
+            ]
+          },
+          {
+            "number": 12,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "It is desired to use a randomized block design with 4 blocks of size 6 each for testing the effects of 5 treatments A, B, C, D and E. In each block, treatments B, C, D and E are replicated once each, while treatment A is replicated twice. Give the analysis."
+              },
+              {
+                "letter": "b",
+                "text": "A $3^3$ factorial experiment with factors A, B and C each at levels 0, 1 and 2 is to be laid out in 9 incomplete blocks of size 3 each, totally sacrificing information on the factorial effects $ABC$, $AB^2C$ and $AB C^2$. Give the layout of the design."
+              },
+              {
+                "letter": "c",
+                "text": "Discuss, in detail, the procedure for analysis of covariance in a completely randomized design for testing the effects of $t$ treatments."
+              },
+              {
+                "letter": "d",
+                "text": "A $2^4$ experiment is proposed to be carried out in 2 incomplete blocks of size 8 each per replicate. Suggest a scheme of partial confounding."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_name": "Section G (Computing with C and R)",
+        "questions": [
+          {
+            "number": 13,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Write a C-program that will generate every $n$-th integer, beginning with `nstart` (i.e., $i = \\text{nstart}, \\text{nstart} + n, \\text{nstart} + 2n$, etc.), ending with `nstop`. Calculate the sum of those integers that are evenly divisible by some positive integer $k$."
+              },
+              {
+                "letter": "b",
+                "text": "Write a C-program to find whether a given matrix is a symmetric matrix and print the comment."
+              },
+              {
+                "letter": "c",
+                "text": "Write a C-program to calculate the value of the series $x - \\frac{x^3}{3!} + \\frac{x^5}{5!} - \\dots + (-1)^n \\frac{x^{2n+1}}{(2n+1)!}$ by defining a recursive function."
+              },
+              {
+                "letter": "d",
+                "text": "Write an R-program to fit a linear relationship of $y$ on $x$, to get the summary of the relationship and to predict $y$ for a given value of $x$."
+              },
+              {
+                "letter": "e",
+                "text": "Write an R-program to calculate the median of a set of observations."
+              }
+            ]
+          },
+          {
+            "number": 14,
+            "sub_questions": [
+              {
+                "letter": "a",
+                "text": "Write a C-program that will examine each character in a line of text and determine how many of the characters are letters, how many are digits, how many are white space characters."
+              },
+              {
+                "letter": "b",
+                "text": "Write a C-program to create a linear linked list, delete an existing component from the list defining suitable functions."
+              },
+              {
+                "letter": "c",
+                "text": "Write a C-program to evaluate $y = x^n$, where $x$ and $y$ are floating-point values and $n$ can be an integer or floating point."
+              },
+              {
+                "letter": "d",
+                "text": "Write a C-program to fit a normal distribution to a given observed frequency distribution and test for its goodness of fit."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

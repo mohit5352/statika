@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- ── Primary Meta ──────────────────────────────────────────── -->
+    <title>Statika — UPSC ISS Statistics Question Bank</title>
+    <meta name="description" content="Statika is the most complete interactive PYQ bank and revision portal for UPSC Indian Statistical Service (ISS) Statistics Papers I–IV. Covers 2016–2025 with model solutions, formula sheets, and an AI study assistant." />
+    <meta name="keywords" content="UPSC ISS, Indian Statistical Service, Statistics question bank, ISS PYQ, ISS Statistics Paper 3, ISS Statistics Paper 4, sampling theory, econometrics, time series, applied statistics, Cochran, Gujarati, Brockwell Davis" />
+    <meta name="author" content="Statika — UPSC ISS Statistics" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="/" />
+
+    <!-- ── Open Graph (Facebook / WhatsApp / LinkedIn) ───────────── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Statika" />
+    <meta property="og:title" content="Statika — UPSC ISS Statistics Question Bank" />
+    <meta property="og:description" content="The complete interactive PYQ bank for UPSC ISS Statistics Papers I–IV (2016–2025). Model solutions, revision notes, formula sheets, and an AI study assistant." />
+    <meta property="og:image" content="/assets/og-cover.png" />
+    <meta property="og:image:alt" content="Statika — UPSC ISS Statistics Question Bank" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_IN" />
+
+    <!-- ── Twitter / X Card ──────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Statika — UPSC ISS Statistics Question Bank" />
+    <meta name="twitter:description" content="The complete interactive PYQ bank for UPSC ISS Statistics Papers I–IV (2016–2025). Model solutions, revision notes, formula sheets, and AI assistant." />
+    <meta name="twitter:image" content="/assets/og-cover.png" />
+    <meta name="twitter:image:alt" content="Statika — UPSC ISS Statistics Question Bank" />
+
+    <!-- ── Theme & PWA ────────────────────────────────────────────── -->
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="application-name" content="Statika" />
+    <meta name="apple-mobile-web-app-title" content="Statika" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <!-- ── MathJax 3 ──────────────────────────────────────────────── -->
+    <script>
+      window.MathJax = {
+        loader: { load: ['[tex]/boldsymbol'] },
+        tex: {
+          packages: { '[+]': ['boldsymbol'] },
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          processEnvironments: true,
+          macros: {
+            mean: "{\\text{mean}}"
+          }
+        },
+        options: {
+          ignoreHtmlClass: 'tex2jax_ignore',
+          processHtmlClass: 'tex2jax_process'
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+  </head>
+  <body class="bg-slate-950 text-slate-100 min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
