@@ -17,6 +17,9 @@
     "mathjax"
   ],
   "homepage": ".",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
