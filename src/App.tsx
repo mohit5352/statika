@@ -56,8 +56,15 @@ const SUBJECT_LABELS: Record<string, string> = {
 };
 
 export default function App() {
+  // ── Read initial filter values from URL on first render ────────────────────
+  const _initParams = new URLSearchParams(window.location.search);
+  const _validPapers = ['paper1', 'paper2', 'paper3', 'paper4'] as const;
+
   // Application modes: 'pyq' (Objective Question Bank) or 'notes' (Revision Notes)
-  const [activeTab, setActiveTab] = useState<'pyq' | 'notes'>('pyq');
+  const [activeTab, setActiveTab] = useState<'pyq' | 'notes'>(() => {
+    const v = _initParams.get('tab');
+    return v === 'notes' ? 'notes' : 'pyq';
+  });
   
   // Database States (loaded from JSON, updated reactively by Admin edits)
   const [questions, setQuestions] = useState<Question[]>(questionsRaw as Question[]);
@@ -65,12 +72,14 @@ export default function App() {
   const [explanations, setExplanations] = useState<ExplanationKey>(explanationsRaw as ExplanationKey);
   const [notes, setNotes] = useState<NoteBook>(notesRaw as NoteBook);
 
-  // Filter States
-  const [selectedPaper, setSelectedPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4'>('paper1');
-  const [selectedSection, setSelectedSection] = useState<string>('all');
-  const [selectedYear, setSelectedYear] = useState<string>('all');
+  // Filter States (initialised from URL so reload restores position)
+  const [selectedPaper, setSelectedPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4'>(() => {
+    const v = _initParams.get('paper');
+    return (_validPapers as readonly string[]).includes(v ?? '') ? (v as any) : 'paper1';
+  });
+  const [selectedSection, setSelectedSection] = useState<string>(() => _initParams.get('section') || 'all');
+  const [selectedYear, setSelectedYear] = useState<string>(() => _initParams.get('year') || 'all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [showAllFilters, setShowAllFilters] = useState<boolean>(false);
 
   // Left Drawer and Header Search Toggles
   const [isLeftDrawerOpen, setIsLeftDrawerOpen] = useState<boolean>(false);
@@ -80,11 +89,14 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const questionsPerPage = 10;
 
-  // Study Notes active Paper (supports Papers I, II, III, IV)
-  const [selectedNotesPaper, setSelectedNotesPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4'>('paper1');
-  const [activeNotesSectionKey, setActiveNotesSectionKey] = useState<string>('');
+  // Study Notes active Paper (initialised from URL)
+  const [selectedNotesPaper, setSelectedNotesPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4'>(() => {
+    const v = _initParams.get('notesPaper');
+    return (_validPapers as readonly string[]).includes(v ?? '') ? (v as any) : 'paper1';
+  });
+  const [activeNotesSectionKey, setActiveNotesSectionKey] = useState<string>(() => _initParams.get('notesSection') || '');
 
-  // Drawer filter draft states (UX optimization: multiple selections before applying)
+  // Drawer filter draft states (edited freely before clicking Apply)
   const [tempTab, setTempTab] = useState<'pyq' | 'notes'>('pyq');
   const [tempPaper, setTempPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4'>('paper1');
   const [tempSection, setTempSection] = useState<string>('all');
@@ -347,26 +359,37 @@ export default function App() {
           ? ['sampling', 'econometrics', 'applied', 'timeseries']
           : ['or', 'demography', 'survival', 'sqc', 'multivariate', 'design', 'computing'];
 
-  // Automatically reset section filter and pagination if paper switches
+  // When the paper changes, only reset section if it is incompatible with the new paper.
+  // This lets "Apply Filters" set paper + section together without the section being wiped.
   useEffect(() => {
-    setSelectedSection('all');
+    const validSections: Record<string, string[]> = {
+      paper1: ['prob', 'num', 'comp'],
+      paper2: ['linear', 'inference', 'official'],
+      paper3: ['sampling', 'econometrics', 'applied', 'timeseries'],
+      paper4: ['or', 'demography', 'survival', 'sqc', 'multivariate', 'design', 'computing'],
+    };
+    if (selectedSection !== 'all' && !validSections[selectedPaper]?.includes(selectedSection)) {
+      setSelectedSection('all');
+    }
     setCurrentPage(1);
-  }, [selectedPaper]);
+  }, [selectedPaper]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedSection, selectedYear, searchQuery]);
 
-  // Synchronize default active notes section key when selected notes paper or database changes
+  // Set default notes section when paper changes, but preserve a valid URL-restored key
   useEffect(() => {
     const paperNotes = notes[selectedNotesPaper] || {};
     const keys = Object.keys(paperNotes);
     if (keys.length > 0) {
-      setActiveNotesSectionKey(keys[0]);
+      if (!activeNotesSectionKey || !keys.includes(activeNotesSectionKey)) {
+        setActiveNotesSectionKey(keys[0]);
+      }
     } else {
       setActiveNotesSectionKey('');
     }
-  }, [selectedNotesPaper, notes]);
+  }, [selectedNotesPaper, notes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Filtered Questions list
   const filteredQuestions = questions.filter((q) => {
@@ -385,8 +408,31 @@ export default function App() {
     return true;
   });
 
-  // Unique years for selection
+  // Sync applied filter state to URL so page reload restores position
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (activeTab !== 'pyq') params.set('tab', activeTab);
+    if (selectedPaper !== 'paper1') params.set('paper', selectedPaper);
+    if (selectedSection !== 'all') params.set('section', selectedSection);
+    if (selectedYear !== 'all') params.set('year', selectedYear);
+    if (activeTab === 'notes') {
+      if (selectedNotesPaper !== 'paper1') params.set('notesPaper', selectedNotesPaper);
+      if (activeNotesSectionKey) params.set('notesSection', activeNotesSectionKey);
+    }
+    const qs = params.toString();
+    window.history.replaceState(null, '', qs ? '?' + qs : window.location.pathname);
+  }, [activeTab, selectedPaper, selectedSection, selectedYear, selectedNotesPaper, activeNotesSectionKey]);
+
+  // All unique years across all questions (used only as fallback)
   const uniqueYears = Array.from(new Set(questions.map((q) => q.year.toString()))).sort((a: string, b: string) => b.localeCompare(a));
+
+  // Years available for the currently selected paper in the drawer (paper-specific)
+  const drawerYears = Array.from(
+    new Set(questions.filter((q) => q.paper === tempPaper).map((q) => q.year.toString()))
+  ).sort((a: string, b: string) => b.localeCompare(a));
+
+  const drawerYearMin = drawerYears.length > 0 ? drawerYears[drawerYears.length - 1] : '';
+  const drawerYearMax = drawerYears.length > 0 ? drawerYears[0] : '';
 
   // Pagination bounds
   const totalQuestions = filteredQuestions.length;
@@ -560,8 +606,10 @@ export default function App() {
                           onChange={(e) => setTempYear(e.target.value)}
                           className="w-full appearance-none bg-slate-950 border border-white/10 hover:border-white/20 focus:border-indigo-500 text-xs px-3 py-2 rounded-lg focus:outline-hidden transition-all text-slate-200 cursor-pointer"
                         >
-                          <option value="all">All Years (2017–2025)</option>
-                          {uniqueYears.map((yr) => (
+                          <option value="all">
+                            All Years{drawerYearMin && drawerYearMax ? ` (${drawerYearMin}–${drawerYearMax})` : ''}
+                          </option>
+                          {drawerYears.map((yr) => (
                             <option key={yr} value={yr}>
                               {yr}
                             </option>

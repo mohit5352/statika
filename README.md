@@ -1,7 +1,7 @@
 # Statika — UPSC ISS Statistics Question Bank
 
 > **The complete interactive revision portal for UPSC Indian Statistical Service (ISS) aspirants.**  
-> Previous-year questions (2016–2025) · Model solutions · Formula sheets · AI study assistant
+> Previous-year questions (2016–2026) · Model solutions · Formula sheets · AI study assistant
 
 ---
 
@@ -27,12 +27,16 @@ Statika is a high-performance, single-page application built around a **Bone & C
 
 | Paper | Type | Coverage |
 |-------|------|----------|
-| Paper I | Objective (MCQ) | 2017–2025 |
-| Paper II | Objective (MCQ) | 2017–2025 |
-| Paper III | Subjective (Descriptive) | 2016–2024 |
-| Paper IV | Subjective (Descriptive) | 2016–2024 |
+| Paper I   | Objective (MCQ)           | 2017–2026 |
+| Paper II  | Objective (MCQ)           | 2017–2026 |
+| Paper III | Subjective (Descriptive)  | 2016–2026 |
+| Paper IV  | Subjective (Descriptive)  | 2016–2026 |
 
-All answers and explanations for Papers III & IV are **rigorous, step-by-step model solutions** grounded in standard authoritative textbooks (Cochran, Gujarati & Porter, Box-Jenkins, Brockwell & Davis, Greene, etc.).
+All answers and explanations for Papers III & IV are **rigorous, step-by-step model solutions** grounded in standard authoritative textbooks (Cochran, Gujarati & Porter, Box-Jenkins, Brockwell & Davis, Greene, Kendall & Stuart, Montgomery, Casella & Berger, etc.).
+
+Paper IV model solutions cover all sections:
+- **Demography & Vital Statistics** — life tables, fertility/mortality rates, population models, Indian Census data
+- **Statistical Quality Control** — control charts (Shewhart, CUSUM, EWMA), process capability (Cₚ, Cₚₖ), acceptance sampling (SSP, DSP, sequential), OC curves
 
 ---
 
@@ -40,17 +44,19 @@ All answers and explanations for Papers III & IV are **rigorous, step-by-step mo
 
 ### PYQ Module
 - Filter by **Paper → Section → Year** with zero page reloads
+- **URL persistence** — filters are encoded in the URL; reloading restores the exact view
 - **Show Answer** renders full HTML + LaTeX via MathJax 3
 - **Copy Question** outputs GitHub-flavored Markdown for note-taking
 - **Ask AI** opens a context-aware chat for the selected question
 - Progress tracking with per-session score counter
 
 ### Revision Notes
-- Built-in formula sheets and proofs for Papers III & IV syllabi:
-  - Sampling Techniques · Econometrics · Time Series Analysis
-  - Applied Statistics · Demography & Vital Statistics
-  - Quality Control · Design of Experiments
-- Accordion layout with responsive, dense typography
+- Built-in formula sheets and proofs for all four paper syllabi:
+  - **Paper I**: Probability, Numerical Analysis, Computer Applications
+  - **Paper II**: Linear Models, Statistical Inference, Official Statistics
+  - **Paper III**: Sampling, Econometrics, Time Series, Applied Statistics
+  - **Paper IV**: Operations Research, Demography, Survival Analysis, SQC, Multivariate Analysis, Design of Experiments
+- Accordion layout with responsive, dense typography optimised for long study sessions
 
 ### AI Study Assistant
 - Inline chat backed by server-side **Gemini API** endpoints
@@ -109,12 +115,12 @@ All answers and explanations for Papers III & IV are **rigorous, step-by-step mo
 │   │   └── SyllabusModal.tsx       # Syllabus overview modal
 │   │
 │   ├── data/
-│   │   ├── questions.json      # All PYQ question objects (Papers I–IV, 2016–2025)
+│   │   ├── questions.json      # All PYQ question objects (Papers I–IV, 2016–2026)
 │   │   ├── explanations.json   # Model solutions keyed by paper/section/year/number
 │   │   └── notes.json          # Revision notes and formula sheets
 │   │
-│   └── scripts/                # One-off data-manipulation scripts (Node/ESM)
-│       └── (patch_*.js files — run manually, deleted after use)
+│   └── scripts/ (root level)   # Bulk-injection scripts for model answers
+│       └── generate_paper4_<year>.cjs  — one script per year, run once to inject answers
 │
 └── assets/
     └── og-cover.png            # Open Graph share image (1200×630)
@@ -159,12 +165,12 @@ Values are HTML strings with embedded LaTeX (`$ … $` / `$$ … $$`).
 }
 ```
 
-**Explanation format conventions:**
-- Start with `<h3><b>UPSC ISS Statistics Paper III (YEAR) — Model Solution</b></h3><br>`
-- Structure with `<h4>`, `<p>`, `<ul>/<li>`, `<ol>/<li>` for readability
-- Block equations: `$$...$$` — inline equations: `$...$`
-- End with `<span style="color:green"><b>[Q.E.D.]</b></span>`
-- No backgrounds on table `<tr>` header rows (stripped for consistent theme rendering)
+**Explanation format conventions (Papers III & IV):**
+- Start with `<h3>` title, then structured `<h4>` / `<p>` / `<ul>` / `<ol>` blocks
+- Block equations: `$$...$$` — inline equations: `$...$` (rendered by MathJax 3)
+- End with `<span style="color:green"><b>[Q.E.D.]</b></span>` for derivations
+- No backgrounds on table `<tr>` header rows (stripped for consistent dark-theme rendering)
+- Paper IV: use `\(` `\)` for inline and `\[` `\]` for display math (both MathJax formats supported)
 
 ### `notes.json`
 
@@ -247,6 +253,18 @@ The AI assistant gracefully degrades (hides the chat panel) if `GEMINI_API_KEY` 
 | `npm run clean` | Remove the `dist/` directory |
 | `npm run lint` | TypeScript type-check (no emit) |
 
+### Bulk answer-injection scripts
+
+Scripts in `scripts/generate_paper4_<year>.cjs` inject model solutions for Paper IV (Demography & SQC) into `explanations.json`. Run once per year:
+
+```bash
+node scripts/generate_paper4_2026.cjs   # injects 2026 answers
+node scripts/generate_paper4_2025.cjs   # injects 2025 answers
+# ...etc down to 2016
+```
+
+Each script is idempotent — safe to re-run; it overwrites its own keys only.
+
 ---
 
 ## Adding / Updating Content
@@ -281,8 +299,9 @@ Edit `src/data/notes.json` directly, or use the in-app **Admin Panel** (toggle f
 ### Adding a new exam year
 
 1. Add all question objects for the year to `questions.json`
-2. Add corresponding explanations to `explanations.json`
+2. Add corresponding explanations to `explanations.json` (or write a `scripts/generate_paper4_<year>.cjs` bulk-inject script)
 3. The year filter in the UI updates dynamically — no code changes needed
+4. The year range label in the drawer (e.g. "All Years (2016–2026)") also updates automatically
 
 ---
 
