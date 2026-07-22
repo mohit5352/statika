@@ -84,30 +84,44 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
       )}
 
       {/* Top Meta Info Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
-        <div className="flex items-center gap-2">
-          <span className="bg-indigo-500/25 text-indigo-300 border border-indigo-500/20 text-xs font-semibold px-2.5 py-1 rounded-lg">
-            Q{question.number} {question.marks && `(${question.marks} Marks)`}
-          </span>
-          <span className="bg-white/10 text-slate-300 border border-white/10 text-xs font-semibold px-2.5 py-1 rounded-lg font-mono">
-            {question.year}
-          </span>
-          {question.topic && (
-            <span className="text-slate-400 text-xs font-medium bg-white/5 border border-white/10 px-2 py-1 rounded-lg">
-              {question.topic}
+      <div className="flex flex-col gap-1.5 border-b border-white/10 pb-3">
+
+        {/* Row 1: identifiers (always single-line) + reset action */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {/* Question number */}
+            <span className="bg-indigo-500/25 text-indigo-300 border border-indigo-500/20 text-xs font-bold px-2.5 py-1 rounded-lg font-mono tracking-wide">
+              Q{question.number}
             </span>
+            {/* Marks — separate badge so it never crowds the Q number */}
+            {question.marks && (
+              <span className="bg-amber-500/15 text-amber-300 border border-amber-500/20 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wide">
+                {question.marks}M
+              </span>
+            )}
+            {/* Year */}
+            <span className="bg-white/8 text-slate-300 border border-white/10 text-xs font-semibold px-2.5 py-1 rounded-lg font-mono">
+              {question.year}
+            </span>
+          </div>
+
+          {/* Reset choice — shrink-0 so it never wraps under the badges */}
+          {selectedOption && (
+            <button
+              onClick={resetCard}
+              className="shrink-0 text-[11px] text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition-colors"
+            >
+              <RefreshCw className="w-3 h-3" />
+              <span className="hidden sm:inline">Reset</span>
+            </button>
           )}
         </div>
 
-        {/* Reset Choice Trigger */}
-        {selectedOption && (
-          <button
-            onClick={resetCard}
-            className="text-[11px] text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition-colors"
-          >
-            <RefreshCw className="w-3 h-3" />
-            Reset Selection
-          </button>
+        {/* Row 2: topic — always on its own line, never competes for horizontal space */}
+        {question.topic && (
+          <p className="text-[11px] text-slate-400 font-medium leading-snug pl-0.5">
+            {question.topic}
+          </p>
         )}
       </div>
 
