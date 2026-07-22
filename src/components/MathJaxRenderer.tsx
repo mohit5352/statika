@@ -16,7 +16,7 @@ function cleanMathJaxTableText(text: string): string {
   html = html.replace(tabularRegex, (match, colsSpec, tableBody) => {
     // Split by LaTeX line breaks, which are '\\' or more backslashes (e.g. \\\\)
     const rawRows = tableBody.split(/\\{2,}/);
-    let tableHtml = '<div class="overflow-x-auto my-4 w-full flex justify-center"><table class="border-collapse border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-md rounded-lg overflow-hidden text-center text-sm">';
+    let tableHtml = '<div class="overflow-x-auto my-4 w-full"><table class="border-collapse border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-md rounded-lg overflow-hidden text-center text-sm">';
     
     let isFirstRow = true;
     rawRows.forEach((rowText: string) => {
@@ -85,7 +85,7 @@ function cleanHtmlTables(text: string): string {
     // Strip min-w-full from attributes if present
     let cleanAttrs = attrs.replace(/\bmin-w-full\b/g, '');
     
-    return `<div class="overflow-x-auto my-4 w-full flex justify-center"><table${cleanAttrs} style="width: auto !important; min-width: auto !important; margin-left: auto; margin-right: auto;">${content}</table></div>`;
+    return `<div class="overflow-x-auto my-4 w-full"><table${cleanAttrs} style="width: auto !important; min-width: auto !important;">${content}</table></div>`;
   });
 
   return html;

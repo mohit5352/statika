@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { BookOpen, Award, Filter, Search, Sparkles, BookCheck, Database, Calendar, HelpCircle, ChevronLeft, ChevronRight, MessageSquare, AlertCircle, SlidersHorizontal, Menu, X, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { BookOpen, Filter, Search, Sparkles, ChevronLeft, ChevronRight, AlertCircle, Menu, X, ChevronDown } from 'lucide-react';
 
 // Type declarations
 import { Question, AnswerKey, ExplanationKey, NoteBook } from './types';
@@ -167,6 +167,9 @@ export default function App() {
   const [editingNote, setEditingNote] = useState<{ paper: string; sectionKey: string; sectionId: string; label: string; content: string } | null>(null);
 
   // Chat/Assistant Side Drawer
+  // Ref for scrolling back to the top of the question list on page change
+  const questionsTopRef = useRef<HTMLDivElement>(null);
+
   const [isAssistantOpen, setIsAssistantOpen] = useState<boolean>(false);
   const [activeAssistantContext, setActiveAssistantContext] = useState<string | null>(null);
   const [initialAssistantQuestion, setInitialAssistantQuestion] = useState<string | null>(null);
@@ -937,22 +940,61 @@ export default function App() {
 
           {/* ==================== PYQ BOARD ==================== */}
           {activeTab === 'pyq' && (
-            <div className="space-y-6">
-              
-              {/* Objective results summary bar */}
-              <div className="bg-white/5 border border-white/10 p-3.5 rounded-xl flex items-center justify-between text-xs text-slate-400 font-semibold backdrop-blur-xl">
-                <span className="flex items-center gap-1.5">
-                  <Database className="w-4 h-4 text-indigo-400" />
-                  Found <b>{totalQuestions}</b> questions matching criteria
-                </span>
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="text-indigo-400 hover:text-indigo-300 hover:underline cursor-pointer"
-                  >
-                    Clear Search
-                  </button>
+            <div className="space-y-4" ref={questionsTopRef}>
+
+              {/* Top bar: range chip + page chip — consistent with filter chip theme */}
+              <div className="flex items-center justify-between">
+
+                {/* Left — range chip */}
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-semibold text-slate-300 font-mono select-none">
+                    <b className="text-white">
+                      {totalQuestions === 0
+                        ? '0'
+                        : `${indexOfFirstQuestion + 1}–${Math.min(indexOfLastQuestion, totalQuestions)}`}
+                    </b>
+                    <span className="text-slate-500 mx-1">/</span>
+                    {totalQuestions}
+                    <span className="text-slate-500 ml-1 font-sans font-medium">questions</span>
+                  </span>
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-[11px] font-semibold text-rose-300 hover:bg-rose-500/20 flex items-center gap-1 cursor-pointer transition-all"
+                    >
+                      <X className="w-3 h-3" />
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                {/* Right — single-chip pagination: ◀ 3/25 ▶ */}
+                {totalPages > 1 && (
+                  <div className="flex items-center gap-0 rounded-full bg-white/5 border border-white/10 overflow-hidden">
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="px-2.5 py-1.5 text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-all border-r border-white/10"
+                      aria-label="Previous page"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="px-3 py-1 text-[11px] font-semibold font-mono text-slate-300 select-none">
+                      <b className="text-white">{currentPage}</b>
+                      <span className="text-slate-500 mx-1">/</span>
+                      {totalPages}
+                    </span>
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      className="px-2.5 py-1.5 text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-all border-l border-white/10"
+                      aria-label="Next page"
+                    >
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 )}
+
               </div>
 
               {/* Questions List */}
@@ -984,30 +1026,38 @@ export default function App() {
                 )}
               </div>
 
-              {/* Pagination controls */}
+              {/* Bottom pagination — same segmented chip, scrolls to list top */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between bg-white/5 border border-white/10 px-4 py-3 rounded-2xl shadow-md font-mono text-xs text-slate-300 backdrop-blur-xl">
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    className="flex items-center gap-1 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-xl disabled:opacity-40 disabled:hover:bg-white/5 transition-all font-sans font-semibold text-slate-200"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    Previous
-                  </button>
-
-                  <span>
-                    Page <b className="text-white">{currentPage}</b> of <b className="text-white">{totalPages}</b>
-                  </span>
-
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages}
-                    className="flex items-center gap-1 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-xl disabled:opacity-40 disabled:hover:bg-white/5 transition-all font-sans font-semibold text-slate-200"
-                  >
-                    Next
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
+                <div className="flex items-center justify-center pt-2">
+                  <div className="flex items-center gap-0 rounded-full bg-white/5 border border-white/10 overflow-hidden">
+                    <button
+                      onClick={() => {
+                        setCurrentPage((p) => Math.max(1, p - 1));
+                        questionsTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }}
+                      disabled={currentPage === 1}
+                      className="px-3 py-2 text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-all border-r border-white/10"
+                      aria-label="Previous page"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <span className="px-4 py-2 text-sm font-semibold font-mono text-slate-300 select-none">
+                      <b className="text-white">{currentPage}</b>
+                      <span className="text-slate-500 mx-1.5">/</span>
+                      {totalPages}
+                    </span>
+                    <button
+                      onClick={() => {
+                        setCurrentPage((p) => Math.min(totalPages, p + 1));
+                        questionsTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-2 text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-all border-l border-white/10"
+                      aria-label="Next page"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
