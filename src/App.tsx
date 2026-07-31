@@ -19,6 +19,8 @@ import questionsRaw from './data/questions.json';
 import answersRaw from './data/answers.json';
 import explanationsRaw from './data/explanations.json';
 import notesRaw from './data/notes.json';
+import genQuestionsRaw from './data/gen_papers_questions.json';
+import genExplanationsRaw from './data/gen_papers_explanations.json';
 
 // Deep merge helper — used to apply Vercel KV admin overrides onto bundled base data
 function deepMerge(base: any, overrides: any): any {
@@ -53,12 +55,24 @@ const SUBJECT_LABELS: Record<string, string> = {
   multivariate: 'Multivariate Analysis',
   design: 'Design of Experiments',
   computing: 'Computing with C/R',
+  // General English sections
+  essay: 'Essay Writing',
+  precis: 'Précis Writing',
+  paragraph: 'Paragraph Writing',
+  word_usage: 'Word Usage',
+  grammar_idiom: 'Idioms & Phrasal Verbs',
+  grammar_correct: 'Sentence Correction',
+  // General Studies sections (match actual ISS paper Q1–Q4)
+  history_culture: 'Indian History & Culture',
+  geography_env: 'Geography, Environment & Science',
+  economy_social: 'Economy & Social Development',
+  polity_ir: 'Polity, Governance & International Relations',
 };
 
 export default function App() {
   // ── Read initial filter values from URL on first render ────────────────────
   const _initParams = new URLSearchParams(window.location.search);
-  const _validPapers = ['paper1', 'paper2', 'paper3', 'paper4'] as const;
+  const _validPapers = ['paper1', 'paper2', 'paper3', 'paper4', 'general_english', 'general_studies'] as const;
 
   // Application modes: 'pyq' (Objective Question Bank) or 'notes' (Revision Notes)
   const [activeTab, setActiveTab] = useState<'pyq' | 'notes'>(() => {
@@ -67,13 +81,18 @@ export default function App() {
   });
   
   // Database States (loaded from JSON, updated reactively by Admin edits)
-  const [questions, setQuestions] = useState<Question[]>(questionsRaw as Question[]);
+  const [questions, setQuestions] = useState<Question[]>([
+    ...(questionsRaw as Question[]),
+    ...(genQuestionsRaw as Question[]),
+  ]);
   const [answers, setAnswers] = useState<AnswerKey>(answersRaw as AnswerKey);
-  const [explanations, setExplanations] = useState<ExplanationKey>(explanationsRaw as ExplanationKey);
+  const [explanations, setExplanations] = useState<ExplanationKey>(
+    deepMerge(explanationsRaw as ExplanationKey, genExplanationsRaw)
+  );
   const [notes, setNotes] = useState<NoteBook>(notesRaw as NoteBook);
 
   // Filter States (initialised from URL so reload restores position)
-  const [selectedPaper, setSelectedPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4'>(() => {
+  const [selectedPaper, setSelectedPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4' | 'general_english' | 'general_studies'>(() => {
     const v = _initParams.get('paper');
     return (_validPapers as readonly string[]).includes(v ?? '') ? (v as any) : 'paper1';
   });
@@ -90,7 +109,7 @@ export default function App() {
   const questionsPerPage = 10;
 
   // Study Notes active Paper (initialised from URL)
-  const [selectedNotesPaper, setSelectedNotesPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4'>(() => {
+  const [selectedNotesPaper, setSelectedNotesPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4' | 'general_english' | 'general_studies'>(() => {
     const v = _initParams.get('notesPaper');
     return (_validPapers as readonly string[]).includes(v ?? '') ? (v as any) : 'paper1';
   });
@@ -98,10 +117,10 @@ export default function App() {
 
   // Drawer filter draft states (edited freely before clicking Apply)
   const [tempTab, setTempTab] = useState<'pyq' | 'notes'>('pyq');
-  const [tempPaper, setTempPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4'>('paper1');
+  const [tempPaper, setTempPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4' | 'general_english' | 'general_studies'>('paper1');
   const [tempSection, setTempSection] = useState<string>('all');
   const [tempYear, setTempYear] = useState<string>('all');
-  const [tempNotesPaper, setTempNotesPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4'>('paper1');
+  const [tempNotesPaper, setTempNotesPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4' | 'general_english' | 'general_studies'>('paper1');
   const [tempNotesSectionKey, setTempNotesSectionKey] = useState<string>('');
 
   // Synchronize draft states when the drawer is opened
@@ -352,26 +371,22 @@ export default function App() {
     }
   };
 
+  const PAPER_SECTIONS: Record<string, string[]> = {
+    paper1: ['prob', 'num', 'comp'],
+    paper2: ['linear', 'inference', 'official'],
+    paper3: ['sampling', 'econometrics', 'applied', 'timeseries'],
+    paper4: ['or', 'demography', 'survival', 'sqc', 'multivariate', 'design', 'computing'],
+    general_english: ['essay', 'precis', 'paragraph', 'word_usage', 'grammar_idiom', 'grammar_correct'],
+    general_studies: ['history_culture', 'geography_env', 'economy_social', 'polity_ir'],
+  };
+
   // Filter sections options based on selected paper
-  const availableSections = 
-    selectedPaper === 'paper1' 
-      ? ['prob', 'num', 'comp'] 
-      : selectedPaper === 'paper2'
-        ? ['linear', 'inference', 'official']
-        : selectedPaper === 'paper3'
-          ? ['sampling', 'econometrics', 'applied', 'timeseries']
-          : ['or', 'demography', 'survival', 'sqc', 'multivariate', 'design', 'computing'];
+  const availableSections = PAPER_SECTIONS[selectedPaper] ?? [];
 
   // When the paper changes, only reset section if it is incompatible with the new paper.
   // This lets "Apply Filters" set paper + section together without the section being wiped.
   useEffect(() => {
-    const validSections: Record<string, string[]> = {
-      paper1: ['prob', 'num', 'comp'],
-      paper2: ['linear', 'inference', 'official'],
-      paper3: ['sampling', 'econometrics', 'applied', 'timeseries'],
-      paper4: ['or', 'demography', 'survival', 'sqc', 'multivariate', 'design', 'computing'],
-    };
-    if (selectedSection !== 'all' && !validSections[selectedPaper]?.includes(selectedSection)) {
+    if (selectedSection !== 'all' && !PAPER_SECTIONS[selectedPaper]?.includes(selectedSection)) {
       setSelectedSection('all');
     }
     setCurrentPage(1);
@@ -540,6 +555,7 @@ export default function App() {
                     {/* Select ISS Paper */}
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ISS Paper</label>
+                      {/* Statistics Papers row */}
                       <div className="flex gap-2">
                         {(['paper1', 'paper2', 'paper3', 'paper4'] as const).map((paperKey, idx) => {
                           const roman = ['I', 'II', 'III', 'IV'][idx];
@@ -549,14 +565,7 @@ export default function App() {
                               key={paperKey}
                               onClick={() => {
                                 setTempPaper(paperKey);
-                                const allowed = paperKey === 'paper1' 
-                                  ? ['prob', 'num', 'comp'] 
-                                  : paperKey === 'paper2'
-                                    ? ['linear', 'inference', 'official']
-                                    : paperKey === 'paper3'
-                                      ? ['sampling', 'econometrics', 'applied', 'timeseries']
-                                      : ['or', 'demography', 'survival', 'sqc', 'multivariate', 'design', 'computing'];
-                                if (tempSection !== 'all' && !allowed.includes(tempSection)) {
+                                if (tempSection !== 'all' && !PAPER_SECTIONS[paperKey]?.includes(tempSection)) {
                                   setTempSection('all');
                                 }
                               }}
@@ -567,6 +576,31 @@ export default function App() {
                               }`}
                             >
                               {roman}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {/* General Papers row */}
+                      <div className="flex gap-2">
+                        {(['general_english', 'general_studies'] as const).map((paperKey) => {
+                          const label = paperKey === 'general_english' ? 'Gen English' : 'Gen Studies';
+                          const isActive = tempPaper === paperKey;
+                          return (
+                            <button
+                              key={paperKey}
+                              onClick={() => {
+                                setTempPaper(paperKey);
+                                if (tempSection !== 'all' && !PAPER_SECTIONS[paperKey]?.includes(tempSection)) {
+                                  setTempSection('all');
+                                }
+                              }}
+                              className={`flex-1 h-9 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
+                                isActive
+                                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
+                                  : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                              }`}
+                            >
+                              {label}
                             </button>
                           );
                         })}
@@ -583,14 +617,7 @@ export default function App() {
                           className="w-full appearance-none bg-slate-950 border border-white/10 hover:border-white/20 focus:border-indigo-500 text-xs px-3 py-2 rounded-lg focus:outline-hidden transition-all text-slate-200 cursor-pointer"
                         >
                           <option value="all">All Sections</option>
-                          {(tempPaper === 'paper1' 
-                            ? ['prob', 'num', 'comp'] 
-                            : tempPaper === 'paper2'
-                              ? ['linear', 'inference', 'official']
-                              : tempPaper === 'paper3'
-                                ? ['sampling', 'econometrics', 'applied', 'timeseries']
-                                : ['or', 'demography', 'survival', 'sqc', 'multivariate', 'design', 'computing']
-                          ).map((sec) => (
+                          {(PAPER_SECTIONS[tempPaper] ?? []).map((sec) => (
                             <option key={sec} value={sec}>
                               {SUBJECT_LABELS[sec] || sec}
                             </option>
@@ -856,7 +883,7 @@ export default function App() {
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
             <b className="text-white">
               {activeTab === 'pyq' 
-                ? (selectedPaper === 'paper3' || selectedPaper === 'paper4' ? 'Subjective PYQs' : 'Objective PYQs') 
+                ? (selectedPaper === 'paper1' || selectedPaper === 'paper2' ? 'Objective PYQs' : 'Subjective PYQs') 
                 : 'Revision Notes'}
             </b>
           </button>
@@ -874,7 +901,11 @@ export default function App() {
                       ? 'Paper II' 
                       : selectedPaper === 'paper3' 
                         ? 'Paper III' 
-                        : 'Paper IV'}
+                        : selectedPaper === 'paper4'
+                          ? 'Paper IV'
+                          : selectedPaper === 'general_english'
+                            ? 'General English'
+                            : 'General Studies'}
                 </b>
               </button>
               

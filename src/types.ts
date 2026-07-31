@@ -1,4 +1,4 @@
-export type Paper = 'paper1' | 'paper2' | 'paper3' | 'paper4';
+export type Paper = 'paper1' | 'paper2' | 'paper3' | 'paper4' | 'general_english' | 'general_studies';
 
 export interface Option {
   label: string;
