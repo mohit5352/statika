@@ -1,7 +1,7 @@
-# Statika — UPSC ISS Statistics Question Bank
+# Statika — UPSC ISS Revision Portal
 
-> **The complete interactive revision portal for UPSC Indian Statistical Service (ISS) aspirants.**  
-> Previous-year questions (2016–2026) · Model solutions · Formula sheets · AI study assistant
+> **Interactive revision portal for UPSC Indian Statistical Service (ISS) aspirants.**  
+> Statistics Papers I–IV · General English · General Studies · Model answers · Formula sheets · AI study assistant
 
 ---
 
@@ -23,50 +23,57 @@
 
 ## Overview
 
-Statika is a high-performance, single-page application built around a **Bone & Charcoal Glassmorphism UI** optimized for long sessions of intense mathematical reading. It covers all four UPSC ISS Statistics papers:
+Statika is a high-performance single-page app with a dark glassmorphism UI optimised for long study sessions. It covers the full written ISS suite:
 
-| Paper | Type | Coverage |
-|-------|------|----------|
-| Paper I   | Objective (MCQ)           | 2017–2026 |
-| Paper II  | Objective (MCQ)           | 2017–2026 |
-| Paper III | Subjective (Descriptive)  | 2016–2026 |
-| Paper IV  | Subjective (Descriptive)  | 2016–2026 |
+| Paper | Type | Years |
+|-------|------|-------|
+| **Paper I** | Objective (MCQ) | 2017–2026 |
+| **Paper II** | Objective (MCQ) | 2017–2026 |
+| **Paper III** | Subjective | 2016–2026 |
+| **Paper IV** | Subjective | 2016–2026 |
+| **General English** | Subjective | 2016–2026 |
+| **General Studies** | Subjective | 2016–2026 |
 
-All answers and explanations for Papers III & IV are **rigorous, step-by-step model solutions** grounded in standard authoritative textbooks (Cochran, Gujarati & Porter, Box-Jenkins, Brockwell & Davis, Greene, Kendall & Stuart, Montgomery, Casella & Berger, etc.).
+### Statistics papers
+Model solutions for Papers III & IV are step-by-step answers grounded in standard textbooks (Cochran, Gujarati & Porter, Box–Jenkins, Brockwell & Davis, Greene, Kendall & Stuart, Montgomery, Casella & Berger, etc.).
 
-Paper IV model solutions cover all sections:
-- **Demography & Vital Statistics** — life tables, fertility/mortality rates, population models, Indian Census data
-- **Statistical Quality Control** — control charts (Shewhart, CUSUM, EWMA), process capability (Cₚ, Cₚₖ), acceptance sampling (SSP, DSP, sequential), OC curves
+Paper IV sections include Demography & Vital Statistics, SQC, Operations Research, Survival Analysis, Multivariate Analysis, Design of Experiments, and Computing with C/R.
+
+### General English & General Studies
+- Structured PYQs with essay, précis, paragraph, word usage, idioms, and sentence correction (GE)
+- Four GS blocks matching the ISS paper: History & Culture · Geography / Environment & Science · Economy & Social Development · Polity / Governance & IR
+- Model answers in UPSC-style point format (~200 words for GS; fuller essays/précis for GE)
+- **2021** rebuilt from the authentic Drive PDFs (previously duplicated 2022 by mistake)
+- **2026** papers added from the latest exam PDFs
+- Year filter is paper-specific and updates dynamically (GE/GS show 2016–2026)
+
+> Descriptive GE/GS papers have **no official UPSC answer key**. Bundled answers are high-quality model solutions grounded in NCERT, Laxmikanth, Constitution articles, and official scheme documentation (e.g. COP26 Panchamrit, PMJVM / TRIFED).
 
 ---
 
 ## Features
 
-### PYQ Module
-- Filter by **Paper → Section → Year** with zero page reloads
-- **URL persistence** — filters are encoded in the URL; reloading restores the exact view
-- **Show Answer** renders full HTML + LaTeX via MathJax 3
-- **Copy Question** outputs GitHub-flavored Markdown for note-taking
-- **Ask AI** opens a context-aware chat for the selected question
-- Progress tracking with per-session score counter
+### PYQ module
+- Filter by **Paper → Subject section → Year** (borderless radio lists + year pills)
+- **Newest-year-first** ordering when “All years” is selected
+- **URL persistence** — reload restores paper, section, year, and notes context
+- **Show Answer** renders HTML + LaTeX via MathJax 3; tables centered in-section
+- **Copy question / copy answer** — plain-text clipboard with context, tables, and options
+- Collapsible **draft answer** box for subjective papers (localStorage)
+- **Ask AI** opens a context-aware study chat
+- Progress tracking across the bank
 
-### Revision Notes
-- Built-in formula sheets and proofs for all four paper syllabi:
-  - **Paper I**: Probability, Numerical Analysis, Computer Applications
-  - **Paper II**: Linear Models, Statistical Inference, Official Statistics
-  - **Paper III**: Sampling, Econometrics, Time Series, Applied Statistics
-  - **Paper IV**: Operations Research, Demography, Survival Analysis, SQC, Multivariate Analysis, Design of Experiments
-- Accordion layout with responsive, dense typography optimised for long study sessions
+### Revision notes
+- Formula sheets and proofs for Papers I–IV syllabi
+- Accordion layout for dense revision
 
-### AI Study Assistant
-- Inline chat backed by server-side **Gemini API** endpoints
-- Can explain derivations, suggest practice, and clarify syllabus topics
-- Streamed responses for snappy UX
+### AI study assistant
+- Server-side **Gemini API** chat
+- Explain derivations, evaluate drafts, clarify syllabus topics
 
-### Admin Panel
-- In-browser modals to edit questions, answer keys, explanations, and notes
-- Toggle with admin credentials from the app footer
-- Changes write directly to the JSON data files (development only)
+### Admin panel
+- Edit questions, answer keys, explanations, and notes in-browser
+- Toggle from the app footer (credentials via env)
 
 ---
 
@@ -78,11 +85,9 @@ Paper IV model solutions cover all sections:
 | Language | [TypeScript 5](https://www.typescriptlang.org/) |
 | Styling | [Tailwind CSS v4](https://tailwindcss.com/) |
 | Icons | [Lucide React](https://lucide.dev/) |
-| Math rendering | [MathJax 3](https://www.mathjax.org/) (`tex-chtml`) |
-| Animations | [Motion](https://motion.dev/) |
-| Server | [Express 4](https://expressjs.com/) (Node/TypeScript via `tsx`) |
+| Math | [MathJax 3](https://www.mathjax.org/) (`tex-chtml`) |
+| Server | [Express 4](https://expressjs.com/) (Node / `tsx`) |
 | AI | [Google Gemini API](https://ai.google.dev/) (`@google/genai`) |
-| Build tooling | `esbuild` (server bundle) · `vite build` (client bundle) |
 
 ---
 
@@ -90,138 +95,115 @@ Paper IV model solutions cover all sections:
 
 ```
 .
-├── index.html                  # HTML shell — meta tags, MathJax bootstrap
+├── index.html
 ├── package.json
-├── vite.config.ts              # Vite + Tailwind plugin config
-├── tsconfig.json
-├── server.ts                   # Express server — API routes + static serving
-├── metadata.json               # App capabilities descriptor
+├── vite.config.ts
+├── server.ts
+├── scripts/                         # Bulk content / conversion helpers
+│   ├── convert_gen_papers.cjs       # staticPapersData → gen_papers_*.json
+│   ├── gs_answers_2021_2026.py      # GS model answers (2021 & 2026)
+│   ├── update_ge_gs_2021_2026.py    # Rebuild GE/GS questions for those years
+│   └── generate_paper4_*.cjs        # Paper IV answer injection by year
 │
 ├── src/
-│   ├── main.tsx                # React entry point
-│   ├── App.tsx                 # Root shell: sidebar, routing, global state
-│   ├── index.css               # Tailwind directives + global styles
-│   ├── types.ts                # Shared TypeScript interfaces & enums
-│   │
+│   ├── App.tsx                      # Shell: filters, URL state, question list
+│   ├── types.ts
+│   ├── index.css
 │   ├── components/
-│   │   ├── QuestionCard.tsx        # PYQ card: render, answer reveal, actions
-│   │   ├── MathJaxRenderer.tsx     # High-performance MathJax re-render wrapper
-│   │   ├── RevisionNotes.tsx       # Accordion formula-sheet module
-│   │   ├── StudyAssistant.tsx      # AI chat assistant panel
-│   │   ├── AdminPanel.tsx          # Admin toggle and action dispatcher
-│   │   ├── EditQuestionModal.tsx   # Modal: edit question text + options
-│   │   ├── EditExplanationModal.tsx# Modal: edit model answer / explanation
-│   │   ├── EditNoteModal.tsx       # Modal: edit revision note section
-│   │   └── SyllabusModal.tsx       # Syllabus overview modal
-│   │
-│   ├── data/
-│   │   ├── questions.json      # All PYQ question objects (Papers I–IV, 2016–2026)
-│   │   ├── explanations.json   # Model solutions keyed by paper/section/year/number
-│   │   └── notes.json          # Revision notes and formula sheets
-│   │
-│   └── scripts/ (root level)   # Bulk-injection scripts for model answers
-│       └── generate_paper4_<year>.cjs  — one script per year, run once to inject answers
+│   │   ├── QuestionCard.tsx         # PYQ card, copy, draft, answer panel
+│   │   ├── MathJaxRenderer.tsx
+│   │   ├── MathQuestionSeparator.tsx
+│   │   ├── RevisionNotes.tsx
+│   │   ├── StudyAssistant.tsx
+│   │   ├── AdminPanel.tsx
+│   │   ├── EditQuestionModal.tsx
+│   │   ├── EditExplanationModal.tsx
+│   │   ├── EditNoteModal.tsx
+│   │   └── SyllabusModal.tsx
+│   └── data/
+│       ├── questions.json           # Statistics Papers I–IV
+│       ├── explanations.json        # Statistics model solutions
+│       ├── answers.json             # MCQ answer keys
+│       ├── notes.json               # Revision notes
+│       ├── gen_papers_questions.json    # General English + Studies questions
+│       └── gen_papers_explanations.json # GE/GS model answers
 │
 └── assets/
-    └── og-cover.png            # Open Graph share image (1200×630)
 ```
 
 ---
 
 ## Data Architecture
 
-### `questions.json`
+### Statistics — `questions.json` / `explanations.json` / `answers.json`
 
-An array of question objects. Each object has:
+Question objects:
 
 ```ts
 {
   paper:   "paper1" | "paper2" | "paper3" | "paper4",
-  section: "sampling" | "econometrics" | "timeseries" | "applied" | ...,
-  year:    number,          // e.g. 2023
-  number:  number,          // e.g. 1.1 (Q1 part a) or 42 (MCQ)
+  section: string,          // e.g. "sampling", "demography"
+  year:    number,
+  number:  number,
   topic:   string,
-  text:    string,          // HTML string, may contain LaTeX delimiters $ … $
-  context: string | null,   // Optional preamble / reading passage
-  table:   string | null,   // Optional Markdown table
-  options: string[]         // MCQ options (Papers I & II); empty array for III & IV
+  text:    string,          // HTML + LaTeX
+  context: string | null,
+  table:   string | null,
+  options: { label: string; text: string }[]  // empty for subjective
 }
 ```
 
-### `explanations.json`
+Explanations are nested: `paper → section → year (string) → number (string)`.
 
-Nested object keyed as `paper → section → year (string) → question number (string)`.  
-Values are HTML strings with embedded LaTeX (`$ … $` / `$$ … $$`).
+### General papers — `gen_papers_questions.json` / `gen_papers_explanations.json`
 
-```jsonc
-{
-  "paper3": {
-    "sampling": {
-      "2023": {
-        "1.1": "<h3>...</h3><p>...</p>$$...$$<span style='color:green'><b>[Q.E.D.]</b></span>"
-      }
-    }
-  }
-}
+Same question shape with:
+
+```ts
+paper: "general_english" | "general_studies"
+marks?: number | string
 ```
 
-**Explanation format conventions (Papers III & IV):**
-- Start with `<h3>` title, then structured `<h4>` / `<p>` / `<ul>` / `<ol>` blocks
-- Block equations: `$$...$$` — inline equations: `$...$` (rendered by MathJax 3)
-- End with `<span style="color:green"><b>[Q.E.D.]</b></span>` for derivations
-- No backgrounds on table `<tr>` header rows (stripped for consistent dark-theme rendering)
-- Paper IV: use `\(` `\)` for inline and `\[` `\]` for display math (both MathJax formats supported)
+**GE sections:** `essay` · `precis` · `paragraph` · `word_usage` · `grammar_idiom` · `grammar_correct`  
+**GS sections:** `history_culture` · `geography_env` · `economy_social` · `polity_ir`
 
-### `notes.json`
-
-Array of revision-note section objects used by `RevisionNotes.tsx`.
+The app merges statistics + general JSON at load time. Years in the filter are derived from loaded questions (no hard-coded year list).
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
-- **Node.js** ≥ 18
-- **npm** ≥ 9
+- **Node.js** ≥ 18  
+- **npm** ≥ 9  
 
 ### 1. Clone and install
 
 ```bash
 git clone <repo-url>
-cd statika-upsc-iss
+cd statika
 npm install
 ```
 
-### 2. Set up environment variables
+### 2. Environment
 
 ```bash
-cp .env.example .env
-# Edit .env and add your GEMINI_API_KEY
+cp .env.example .env.local
+# Add GEMINI_API_KEY (and admin credentials if using Admin Panel)
 ```
 
-See [Environment Variables](#environment-variables) for details.
-
-### 3. Start the development server
+### 3. Develop
 
 ```bash
 npm run dev
 ```
 
-Opens at **http://localhost:3000** with hot-module replacement.
+App at **http://localhost:3000**.
 
-### 4. Build for production
+### 4. Production build
 
 ```bash
 npm run build
-```
-
-Produces:
-- `dist/` — optimised client bundle (Vite)
-- `dist/server.cjs` — bundled Express server (esbuild)
-
-### 5. Run the production build locally
-
-```bash
 npm run start
 ```
 
@@ -229,17 +211,15 @@ npm run start
 
 ## Environment Variables
 
-Create a `.env` file in the project root:
-
 ```env
-# Required — Gemini API key for the AI Study Assistant
+# Required for AI Study Assistant
 GEMINI_API_KEY=your_google_gemini_api_key_here
 
-# Optional — port override (default: 3000)
+# Optional
 PORT=3000
 ```
 
-The AI assistant gracefully degrades (hides the chat panel) if `GEMINI_API_KEY` is not set.
+See `.env.example` for the full template (including admin-related keys if present).
 
 ---
 
@@ -247,86 +227,68 @@ The AI assistant gracefully degrades (hides the chat panel) if `GEMINI_API_KEY` 
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start dev server with HMR at `localhost:3000` |
-| `npm run build` | Production build (client + server bundles) |
-| `npm run start` | Serve the production build |
-| `npm run clean` | Remove the `dist/` directory |
-| `npm run lint` | TypeScript type-check (no emit) |
+| `npm run dev` | Dev server with HMR |
+| `npm run build` | Production client + server bundles |
+| `npm run start` | Serve production build |
+| `npm run clean` | Remove `dist/` |
+| `npm run lint` | TypeScript check |
 
-### Bulk answer-injection scripts
+### Content helpers (`scripts/`)
 
-Scripts in `scripts/generate_paper4_<year>.cjs` inject model solutions for Paper IV (Demography & SQC) into `explanations.json`. Run once per year:
+| Script | Purpose |
+|--------|---------|
+| `convert_gen_papers.cjs` | Convert static general-paper source → `gen_papers_*.json` |
+| `update_ge_gs_2021_2026.py` | Rebuild GE/GS **questions** for 2021 & 2026 |
+| `gs_answers_2021_2026.py` | Patch GS **explanations** for 2021 & 2026 |
+| `patch_explanations_2021_2026.py` | Patch GE explanations (uses companion answer modules) |
+| `generate_paper4_<year>.cjs` | Inject Paper IV model solutions for a given year |
+
+Run Python helpers from `scripts/`:
 
 ```bash
-node scripts/generate_paper4_2026.cjs   # injects 2026 answers
-node scripts/generate_paper4_2025.cjs   # injects 2025 answers
-# ...etc down to 2016
+cd scripts
+python3 gs_answers_2021_2026.py
 ```
-
-Each script is idempotent — safe to re-run; it overwrites its own keys only.
 
 ---
 
 ## Adding / Updating Content
 
-### Adding a new question
+### Statistics question / explanation
+1. Edit `src/data/questions.json` and/or `explanations.json` (and `answers.json` for MCQs).
+2. Or use the Admin Panel in development.
 
-Add an object to `src/data/questions.json` following the schema above. The UI will automatically pick it up on next render.
+### General English / Studies
+1. Prefer updating `gen_papers_questions.json` and `gen_papers_explanations.json`.
+2. Keep GS keys aligned with question numbers (`1`–`20` across the four sections).
+3. After adding a year, the year pills update automatically.
 
-### Adding / editing a model solution (explanation)
-
-Explanations live in `src/data/explanations.json`. Key path: `paper3 → <section> → "<year>" → "<number>"`.
-
-To bulk-add explanations for a year, write a one-off Node script in `src/scripts/`:
-
-```js
-// src/scripts/patch_2025.js  (ESM, run with: node src/scripts/patch_2025.js)
-import fs from "fs";
-const EP = "./src/data/explanations.json";
-const exp = JSON.parse(fs.readFileSync(EP, "utf8"));
-
-exp.paper3.sampling["2025"]["1.1"] = `<h3>...</h3>...`;
-
-fs.writeFileSync(EP, JSON.stringify(exp, null, 2), "utf8");
-```
-
-Delete the script after running.
-
-### Updating revision notes
-
-Edit `src/data/notes.json` directly, or use the in-app **Admin Panel** (toggle from the footer).
-
-### Adding a new exam year
-
-1. Add all question objects for the year to `questions.json`
-2. Add corresponding explanations to `explanations.json` (or write a `scripts/generate_paper4_<year>.cjs` bulk-inject script)
-3. The year filter in the UI updates dynamically — no code changes needed
-4. The year range label in the drawer (e.g. "All Years (2016–2026)") also updates automatically
+### New exam year (any paper)
+1. Add questions (+ explanations / answer keys as needed).
+2. No App.tsx year-list change required — filters are data-driven.
+3. List order is sorted **newest year first** in the UI.
 
 ---
 
 ## Deployment
 
-The app is a standard Node/Express + Vite SPA. It can be deployed to any platform that runs Node.js:
-
 | Platform | Notes |
 |----------|-------|
-| **Railway / Render** | Point to `npm run build && npm run start` |
-| **Fly.io** | Use the included `Dockerfile` if added, or `npm run start` |
-| **Vercel** | Not recommended (requires Express adapter); use Railway instead |
-| **VPS / EC2** | `npm run build && npm run start` behind Nginx reverse-proxy |
+| **Railway / Render** | `npm run build && npm run start` |
+| **VPS** | Same, behind Nginx |
+| **Vercel** | Needs an Express-compatible adapter; Railway/Render are simpler |
 
-Set `GEMINI_API_KEY` as a secret environment variable on the hosting platform.
+Set `GEMINI_API_KEY` (and any admin secrets) as environment variables on the host.
 
 ---
 
 ## Contributing
 
-1. **Questions / Explanations:** Follow the [data format conventions](#data-architecture). All answers must be mathematically rigorous and grounded in standard textbooks (Cochran, Gujarati & Porter, Box-Jenkins, Brockwell & Davis, Greene, etc.).
-2. **Bug fixes:** Open a PR with a clear description of the bug and the fix.
-3. **New features:** Discuss in an issue first before opening a large PR.
-4. **Explanation quality bar:** Every model answer must include: header `<h3>`, section references, full derivations (no skipped steps), and the `[Q.E.D.]` marker.
+1. **Statistics explanations:** Rigorous derivations; cite standard texts; keep MathJax-friendly markup.
+2. **GE/GS model answers:** Structured UPSC style; prefer verifiable facts (Articles, Acts, official scheme names). Do not invent statistics or case citations.
+3. **Bug fixes / features:** Clear PRs; discuss large features in an issue first.
+4. Do not commit `.env`, `.env.local`, or `__pycache__/`.
 
 ---
 
-*Built for UPSC ISS aspirants who take statistics seriously.*
+*Built for UPSC ISS aspirants who take preparation seriously.*

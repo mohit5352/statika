@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BookOpen, Filter, Search, Sparkles, ChevronLeft, ChevronRight, AlertCircle, Menu, X, ChevronDown } from 'lucide-react';
+import { BookOpen, Filter, Search, Sparkles, ChevronLeft, ChevronRight, AlertCircle, Menu, X, Check } from 'lucide-react';
 
 // Type declarations
 import { Question, AnswerKey, ExplanationKey, NoteBook } from './types';
@@ -410,22 +410,30 @@ export default function App() {
     }
   }, [selectedNotesPaper, notes]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Filtered Questions list
-  const filteredQuestions = questions.filter((q) => {
-    if (q.paper !== selectedPaper) return false;
-    if (selectedSection !== 'all' && q.section !== selectedSection) return false;
-    if (selectedYear !== 'all' && q.year.toString() !== selectedYear) return false;
-    
-    if (searchQuery.trim() !== '') {
-      const query = searchQuery.toLowerCase();
-      const textMatches = q.text.toLowerCase().includes(query);
-      const topicMatches = q.topic.toLowerCase().includes(query);
-      const contextMatches = q.context ? q.context.toLowerCase().includes(query) : false;
-      return textMatches || topicMatches || contextMatches;
-    }
-    
-    return true;
-  });
+  // Filtered Questions list — newest year first, then paper section order, then Q number
+  const filteredQuestions = questions
+    .filter((q) => {
+      if (q.paper !== selectedPaper) return false;
+      if (selectedSection !== 'all' && q.section !== selectedSection) return false;
+      if (selectedYear !== 'all' && q.year.toString() !== selectedYear) return false;
+
+      if (searchQuery.trim() !== '') {
+        const query = searchQuery.toLowerCase();
+        const textMatches = q.text.toLowerCase().includes(query);
+        const topicMatches = q.topic.toLowerCase().includes(query);
+        const contextMatches = q.context ? q.context.toLowerCase().includes(query) : false;
+        return textMatches || topicMatches || contextMatches;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (a.year !== b.year) return b.year - a.year;
+      const secs = PAPER_SECTIONS[a.paper] ?? [];
+      const sectionDelta = secs.indexOf(a.section) - secs.indexOf(b.section);
+      if (sectionDelta !== 0) return sectionDelta;
+      return a.number - b.number;
+    });
 
   // Sync applied filter state to URL so page reload restores position
   useEffect(() => {
@@ -448,7 +456,7 @@ export default function App() {
   // Years available for the currently selected paper in the drawer (paper-specific)
   const drawerYears = Array.from(
     new Set(questions.filter((q) => q.paper === tempPaper).map((q) => q.year.toString()))
-  ).sort((a: string, b: string) => b.localeCompare(a));
+  ).sort((a: string, b: string) => Number(b) - Number(a));
 
   const drawerYearMin = drawerYears.length > 0 ? drawerYears[drawerYears.length - 1] : '';
   const drawerYearMax = drawerYears.length > 0 ? drawerYears[0] : '';
@@ -510,23 +518,23 @@ export default function App() {
               </button>
             </div>
 
-            {/* Drawer Body - Compact spacing and no nested boxes */}
-            <div className="flex-1 p-5 flex flex-col justify-between min-h-0 space-y-5 overflow-y-auto scrollbar-none">
-              <div className="space-y-5">
+            {/* Drawer Body — compact, borderless filters; Apply pinned at bottom */}
+            <div className="flex-1 flex flex-col min-h-0">
+              <div className="flex-1 px-5 pt-4 pb-3 space-y-4 overflow-y-auto scrollbar-none">
                 {/* Syllabus Quick Reference Link */}
                 <button
                   onClick={() => {
                     setIsSyllabusOpen(true);
                     setIsLeftDrawerOpen(false);
                   }}
-                  className="w-full py-1.5 text-left text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-2 transition-colors cursor-pointer"
+                  className="w-full py-1 text-left text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-2 transition-colors cursor-pointer"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
                   <span>UPSC ISS Syllabus Reference</span>
                 </button>
 
                 {/* Study Mode Selector Underline Tab Bar */}
-                <div className="flex border-b border-white/5">
+                <div className="flex border-b border-white/10">
                   <button
                     onClick={() => setTempTab('pyq')}
                     className={`flex-1 pb-2 text-center text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
@@ -551,107 +559,155 @@ export default function App() {
 
                 {/* Dynamic Content */}
                 {tempTab === 'pyq' ? (
-                  <div className="space-y-4">
+                  <div className="divide-y divide-white/10">
                     
-                    {/* Select ISS Paper */}
-                    <div className="space-y-1.5">
+                    {/* ISS Paper */}
+                    <div className="pb-4 space-y-2">
                       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ISS Paper</label>
-                      {/* Statistics Papers row */}
-                      <div className="flex gap-2">
-                        {(['paper1', 'paper2', 'paper3', 'paper4'] as const).map((paperKey, idx) => {
-                          const roman = ['I', 'II', 'III', 'IV'][idx];
-                          const isActive = tempPaper === paperKey;
+                      <div className="space-y-0.5">
+                        {([
+                          { key: 'paper1' as const, label: 'Paper I', meta: 'Objective', group: 'stats' },
+                          { key: 'paper2' as const, label: 'Paper II', meta: 'Objective', group: 'stats' },
+                          { key: 'paper3' as const, label: 'Paper III', meta: 'Subjective', group: 'stats' },
+                          { key: 'paper4' as const, label: 'Paper IV', meta: 'Subjective', group: 'stats' },
+                          { key: 'general_english' as const, label: 'General English', meta: 'Written', group: 'general' },
+                          { key: 'general_studies' as const, label: 'General Studies', meta: 'Written', group: 'general' },
+                        ]).map((opt, idx, arr) => {
+                          const isActive = tempPaper === opt.key;
+                          const prev = arr[idx - 1];
+                          const showGroupRule = idx > 0 && prev.group !== opt.group;
                           return (
-                            <button
-                              key={paperKey}
-                              onClick={() => {
-                                setTempPaper(paperKey);
-                                if (tempSection !== 'all' && !PAPER_SECTIONS[paperKey]?.includes(tempSection)) {
-                                  setTempSection('all');
-                                }
-                              }}
-                              className={`flex-1 h-9 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
-                                isActive
-                                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                                  : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
-                              }`}
-                            >
-                              {roman}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      {/* General Papers row */}
-                      <div className="flex gap-2">
-                        {(['general_english', 'general_studies'] as const).map((paperKey) => {
-                          const label = paperKey === 'general_english' ? 'Gen English' : 'Gen Studies';
-                          const isActive = tempPaper === paperKey;
-                          return (
-                            <button
-                              key={paperKey}
-                              onClick={() => {
-                                setTempPaper(paperKey);
-                                if (tempSection !== 'all' && !PAPER_SECTIONS[paperKey]?.includes(tempSection)) {
-                                  setTempSection('all');
-                                }
-                              }}
-                              className={`flex-1 h-9 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
-                                isActive
-                                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                                  : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
-                              }`}
-                            >
-                              {label}
-                            </button>
+                            <React.Fragment key={opt.key}>
+                              {showGroupRule && <div className="my-1.5 border-t border-dashed border-white/10" />}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setTempPaper(opt.key);
+                                  if (tempSection !== 'all' && !PAPER_SECTIONS[opt.key]?.includes(tempSection)) {
+                                    setTempSection('all');
+                                  }
+                                  const yearsForPaper = Array.from(
+                                    new Set(questions.filter((q) => q.paper === opt.key).map((q) => q.year.toString()))
+                                  );
+                                  if (tempYear !== 'all' && !yearsForPaper.includes(tempYear)) {
+                                    setTempYear('all');
+                                  }
+                                }}
+                                className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
+                                  isActive
+                                    ? 'text-white'
+                                    : 'text-slate-400 hover:text-slate-200'
+                                }`}
+                              >
+                                <span
+                                  className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
+                                    isActive
+                                      ? 'border-indigo-400 bg-indigo-500 text-white'
+                                      : 'border-white/25'
+                                  }`}
+                                >
+                                  {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
+                                </span>
+                                <span className="flex-1 min-w-0 text-[13px] font-medium tracking-tight">
+                                  {opt.label}
+                                </span>
+                                <span className={`text-[10px] font-medium shrink-0 ${isActive ? 'text-slate-400' : 'text-slate-600'}`}>
+                                  {opt.meta}
+                                </span>
+                              </button>
+                            </React.Fragment>
                           );
                         })}
                       </div>
                     </div>
 
-                    {/* Subject Section Selector */}
-                    <div className="space-y-1.5">
+                    {/* Subject Section — no box, no internal scroll */}
+                    <div className="py-4 space-y-2">
                       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Subject Section</label>
-                      <div className="relative">
-                        <select
-                          value={tempSection}
-                          onChange={(e) => setTempSection(e.target.value)}
-                          className="w-full appearance-none bg-slate-950 border border-white/10 hover:border-white/20 focus:border-indigo-500 text-xs px-3 py-2 rounded-lg focus:outline-hidden transition-all text-slate-200 cursor-pointer"
-                        >
-                          <option value="all">All Sections</option>
-                          {(PAPER_SECTIONS[tempPaper] ?? []).map((sec) => (
-                            <option key={sec} value={sec}>
-                              {SUBJECT_LABELS[sec] || sec}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <div className="space-y-0.5">
+                        {([
+                          { key: 'all', label: 'All Sections' },
+                          ...(PAPER_SECTIONS[tempPaper] ?? []).map((sec) => ({
+                            key: sec,
+                            label: SUBJECT_LABELS[sec] || sec,
+                          })),
+                        ]).map((opt) => {
+                          const isActive = tempSection === opt.key;
+                          return (
+                            <button
+                              key={opt.key}
+                              type="button"
+                              onClick={() => setTempSection(opt.key)}
+                              className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
+                                isActive
+                                  ? 'text-white'
+                                  : 'text-slate-400 hover:text-slate-200'
+                              }`}
+                            >
+                              <span
+                                className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                                  isActive
+                                    ? 'border-indigo-400 bg-indigo-500 text-white'
+                                    : 'border-white/25'
+                                }`}
+                              >
+                                {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
+                              </span>
+                              <span className="flex-1 min-w-0 text-[13px] font-medium tracking-tight">
+                                {opt.label}
+                              </span>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
 
-                    {/* Year Selector */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Exam Year</label>
-                      <div className="relative">
-                        <select
-                          value={tempYear}
-                          onChange={(e) => setTempYear(e.target.value)}
-                          className="w-full appearance-none bg-slate-950 border border-white/10 hover:border-white/20 focus:border-indigo-500 text-xs px-3 py-2 rounded-lg focus:outline-hidden transition-all text-slate-200 cursor-pointer"
+                    {/* Exam Year */}
+                    <div className="py-4 space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                          Exam Year
+                        </label>
+                        {drawerYearMin && drawerYearMax && (
+                          <span className="text-[9px] font-mono text-slate-500">
+                            {drawerYearMin}–{drawerYearMax}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setTempYear('all')}
+                          className={`min-w-[3.25rem] px-2 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer border ${
+                            tempYear === 'all'
+                              ? 'bg-indigo-600 text-white border-indigo-400/40'
+                              : 'bg-white/5 text-slate-400 border-white/8 hover:bg-white/10 hover:text-white'
+                          }`}
                         >
-                          <option value="all">
-                            All Years{drawerYearMin && drawerYearMax ? ` (${drawerYearMin}–${drawerYearMax})` : ''}
-                          </option>
-                          {drawerYears.map((yr) => (
-                            <option key={yr} value={yr}>
+                          All
+                        </button>
+                        {drawerYears.map((yr) => {
+                          const isActive = tempYear === yr;
+                          return (
+                            <button
+                              key={yr}
+                              type="button"
+                              onClick={() => setTempYear(yr)}
+                              className={`min-w-[3.25rem] px-2 py-1.5 rounded-lg text-[11px] font-bold font-mono transition-all cursor-pointer border ${
+                                isActive
+                                  ? 'bg-indigo-600 text-white border-indigo-400/40'
+                                  : 'bg-white/5 text-slate-400 border-white/8 hover:bg-white/10 hover:text-white'
+                              }`}
+                            >
                               {yr}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
 
-                    {/* Progress Bar (Boxless) */}
-                    <div className="space-y-1 pt-1">
+                    {/* Progress */}
+                    <div className="pt-4 space-y-1">
                       <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono tracking-wider">
                         <span>REVISION PROGRESS</span>
                         <span className="font-bold text-emerald-400">{answeredCount} / {questions.length}</span>
@@ -666,58 +722,79 @@ export default function App() {
 
                   </div>
                 ) : (
-                  <div className="space-y-4 flex flex-col min-h-0">
+                  <div className="divide-y divide-white/10">
                     
                     {/* Notes Paper */}
-                    <div className="space-y-1.5">
+                    <div className="pb-4 space-y-2">
                       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Notes Paper</label>
-                      <div className="flex gap-2">
-                        {(['paper1', 'paper2', 'paper3', 'paper4'] as const).map((paperKey, idx) => {
-                          const roman = ['I', 'II', 'III', 'IV'][idx];
-                          const isActive = tempNotesPaper === paperKey;
+                      <div className="space-y-0.5">
+                        {([
+                          { key: 'paper1' as const, label: 'Paper I' },
+                          { key: 'paper2' as const, label: 'Paper II' },
+                          { key: 'paper3' as const, label: 'Paper III' },
+                          { key: 'paper4' as const, label: 'Paper IV' },
+                        ]).map((opt) => {
+                          const isActive = tempNotesPaper === opt.key;
                           return (
                             <button
-                              key={paperKey}
+                              key={opt.key}
+                              type="button"
                               onClick={() => {
-                                setTempNotesPaper(paperKey);
-                                const paperNotes = notes[paperKey] || {};
+                                setTempNotesPaper(opt.key);
+                                const paperNotes = notes[opt.key] || {};
                                 const keys = Object.keys(paperNotes);
-                                if (keys.length > 0) {
-                                  setTempNotesSectionKey(keys[0]);
-                                } else {
-                                  setTempNotesSectionKey('');
-                                }
+                                setTempNotesSectionKey(keys.length > 0 ? keys[0] : '');
                               }}
-                              className={`flex-1 h-9 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
+                              className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
                                 isActive
-                                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                                  : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                                  ? 'text-white'
+                                  : 'text-slate-400 hover:text-slate-200'
                               }`}
                             >
-                              {roman}
+                              <span
+                                className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                                  isActive
+                                    ? 'border-indigo-400 bg-indigo-500 text-white'
+                                    : 'border-white/25'
+                                }`}
+                              >
+                                {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
+                              </span>
+                              <span className="text-[13px] font-medium tracking-tight">{opt.label}</span>
                             </button>
                           );
                         })}
                       </div>
                     </div>
 
-                    {/* Notes Paper Topics - Elegant text list */}
-                    <div className="space-y-1.5 flex flex-col min-h-0">
+                    {/* Notes Topics */}
+                    <div className="pt-4 space-y-2">
                       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Paper Topics</label>
-                      <div className="space-y-1 overflow-y-auto max-h-[170px] pr-1 scrollbar-none">
+                      <div className="space-y-0.5">
                         {Object.keys(notes[tempNotesPaper] || {}).map((key) => {
                           const isActive = tempNotesSectionKey === key;
                           return (
                             <button
                               key={key}
                               onClick={() => setTempNotesSectionKey(key)}
-                              className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-all duration-150 cursor-pointer ${
+                              className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
                                 isActive
-                                  ? 'bg-indigo-600/15 text-indigo-300 font-semibold'
-                                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                  ? 'text-white'
+                                  : 'text-slate-400 hover:text-slate-200'
                               }`}
                             >
-                              {notes[tempNotesPaper]?.[key]?.title || key}
+                              <span
+                                className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                                  isActive
+                                    ? 'border-indigo-400 bg-indigo-500 text-white'
+                                    : 'border-white/25'
+                                }`}
+                              >
+                                {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
+                              </span>
+                              <span className="text-[13px] font-medium tracking-tight">
+                                {notes[tempNotesPaper]?.[key]?.title || key}
+                              </span>
                             </button>
                           );
                         })}
@@ -728,14 +805,19 @@ export default function App() {
                 )}
               </div>
 
-              {/* Action Button */}
-              <div className="pt-2">
+              {/* Action Button — pinned, outside filter scroll */}
+              <div className="shrink-0 px-5 py-3 border-t border-white/10">
                 <button
                   onClick={() => {
                     setActiveTab(tempTab);
                     setSelectedPaper(tempPaper);
                     setSelectedSection(tempSection);
-                    setSelectedYear(tempYear);
+                    const yearsForPaper = new Set(
+                      questions.filter((q) => q.paper === tempPaper).map((q) => q.year.toString())
+                    );
+                    setSelectedYear(
+                      tempYear !== 'all' && !yearsForPaper.has(tempYear) ? 'all' : tempYear
+                    );
                     setSelectedNotesPaper(tempNotesPaper);
                     setActiveNotesSectionKey(tempNotesSectionKey);
                     setIsLeftDrawerOpen(false);
@@ -883,8 +965,12 @@ export default function App() {
           >
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
             <b className="text-white">
-              {activeTab === 'pyq' 
-                ? (selectedPaper === 'paper1' || selectedPaper === 'paper2' ? 'Objective PYQs' : 'Subjective PYQs') 
+              {activeTab === 'pyq'
+                ? selectedPaper === 'paper1' || selectedPaper === 'paper2'
+                  ? 'Objective PYQs'
+                  : selectedPaper === 'general_english' || selectedPaper === 'general_studies'
+                    ? 'General PYQs'
+                    : 'Subjective PYQs'
                 : 'Revision Notes'}
             </b>
           </button>
