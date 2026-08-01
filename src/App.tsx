@@ -6,6 +6,7 @@ import { Question, AnswerKey, ExplanationKey, NoteBook } from './types';
 
 // Component imports
 import QuestionCard from './components/QuestionCard';
+import MathQuestionSeparator from './components/MathQuestionSeparator';
 import { RevisionNotes } from './components/RevisionNotes';
 import StudyAssistant from './components/StudyAssistant';
 import AdminPanel from './components/AdminPanel';
@@ -1029,23 +1030,25 @@ export default function App() {
               </div>
 
               {/* Questions List */}
-              <div className="space-y-4">
+              <div className="flex flex-col gap-3">
                 {currentQuestions.length > 0 ? (
-                  currentQuestions.map((q) => {
+                  currentQuestions.map((q, idx) => {
                     const ansKey = answers[q.paper]?.[q.section]?.[q.year]?.[q.number];
                     const explText = explanations[q.paper]?.[q.section]?.[q.year]?.[q.number];
                     return (
-                      <QuestionCard
-                        key={`${q.paper}_${q.section}_${q.year}_${q.number}`}
-                        question={q}
-                        correctAnswer={ansKey}
-                        explanation={explText}
-                        isAdmin={isAdmin}
-                        onAnswerChange={handleAnswerChange}
-                        onAskAI={handleAskAI}
-                        onEditQuestionClick={(question) => setEditingQuestion(question)}
-                        onEditExplanationClick={(question, text) => setEditingExplanation({ question, explanationText: text })}
-                      />
+                      <React.Fragment key={`${q.paper}_${q.section}_${q.year}_${q.number}`}>
+                        <QuestionCard
+                          question={q}
+                          correctAnswer={ansKey}
+                          explanation={explText}
+                          isAdmin={isAdmin}
+                          onAnswerChange={handleAnswerChange}
+                          onAskAI={handleAskAI}
+                          onEditQuestionClick={(question) => setEditingQuestion(question)}
+                          onEditExplanationClick={(question, text) => setEditingExplanation({ question, explanationText: text })}
+                        />
+                        {idx < currentQuestions.length - 1 && <MathQuestionSeparator />}
+                      </React.Fragment>
                     );
                   })
                 ) : (

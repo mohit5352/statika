@@ -9,10 +9,17 @@
 }
 
 /* Custom layout scrollbars and table styles */
-.q-table table {
+.q-table {
+  display: flex;
+  justify-content: center;
   width: 100%;
+}
+
+.q-table table {
+  width: auto;
+  max-width: 100%;
   border-collapse: collapse;
-  margin: 1rem 0;
+  margin: 1rem auto;
   font-family: var(--font-mono);
   font-size: 0.85rem;
 }
@@ -20,7 +27,7 @@
 .q-table th, .q-table td {
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0.5rem 0.75rem;
-  text-align: left;
+  text-align: center;
 }
 
 .q-table th {
@@ -159,13 +166,12 @@ mjx-container[display="true"] {
   color: #e2e8f0;
 }
 
-/* Elegant and robust markdown table styling */
-/* Tables start from the left edge; the overflow wrapper handles horizontal scroll */
+/* Elegant and robust markdown table styling — centered in section */
 .markdown-body table, .tex2jax_process table {
   display: table;
   width: auto;
-  max-width: none; /* allow the overflow wrapper to clip, not the table itself */
-  margin: 1rem 0;
+  max-width: 100%;
+  margin: 1rem auto;
   border-collapse: collapse;
   font-family: var(--font-sans);
   font-size: 0.85rem;
@@ -176,7 +182,7 @@ mjx-container[display="true"] {
 .markdown-body th, .markdown-body td, .tex2jax_process th, .tex2jax_process td {
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0.6rem 0.9rem;
-  text-align: left;
+  text-align: center;
 }
 
 .markdown-body th, .tex2jax_process th {
