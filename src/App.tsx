@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BookOpen, Filter, Search, Sparkles, ChevronLeft, ChevronRight, AlertCircle, Menu, X, Check } from 'lucide-react';
+import { BookOpen, Filter, Search, Sparkles, ChevronLeft, ChevronRight, AlertCircle, Menu, X, Check, Sun, Moon } from 'lucide-react';
 
 // Type declarations
 import { Question, AnswerKey, ExplanationKey, NoteBook, Paper } from './types';
@@ -221,6 +221,16 @@ export default function App() {
   const [initialAssistantQuestion, setInitialAssistantQuestion] = useState<string | null>(null);
   const [isSyllabusOpen, setIsSyllabusOpen] = useState<boolean>(false);
   const [syllabusDefaultSource, setSyllabusDefaultSource] = useState<'iss' | 'uphesc'>('iss');
+
+  // ── Light / Dark theme ────────────────────────────────────────────────────
+  const [theme, setTheme] = useState<'light' | 'dark'>(() =>
+    (localStorage.getItem('statika-theme') as 'light' | 'dark') ?? 'dark'
+  );
+  const toggleTheme = () => setTheme((t) => {
+    const next = t === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('statika-theme', next);
+    return next;
+  });
 
   // Triggering AI Study Assistant chat for a specific question card
   const handleAskAI = (questionText: string) => {
@@ -520,22 +530,22 @@ export default function App() {
   }, [isLeftDrawerOpen, isAssistantOpen, isSyllabusOpen]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500/30 selection:text-white">
+    <div className={`min-h-screen flex flex-col font-sans selection:bg-indigo-500/30 selection:text-white bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100${theme === 'dark' ? ' dark' : ''}`}>
       
       {/* ==================== LEFT NAVIGATION & FILTER DRAWER ==================== */}
       {isLeftDrawerOpen && (
         <div 
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 transition-all duration-300 animate-in fade-in"
+          className="fixed inset-0 bg-slate-100/80 dark:bg-slate-950/80 backdrop-blur-md z-50 transition-all duration-300 animate-in fade-in"
           onClick={() => setIsLeftDrawerOpen(false)}
         >
           <div 
-            className="fixed inset-y-0 left-0 w-[290px] sm:w-[330px] bg-slate-950 border-r border-white/10 flex flex-col shadow-2xl transition-transform duration-300 translate-x-0 overflow-hidden h-full"
+            className="fixed inset-y-0 left-0 w-[290px] sm:w-[330px] bg-white dark:bg-slate-950 border-r border-black/8 dark:border-white/10 flex flex-col shadow-2xl transition-transform duration-300 translate-x-0 overflow-hidden h-full"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Drawer Header */}
-            <div className="p-4 border-b border-white/5 flex items-center justify-between bg-slate-950">
+            <div className="p-4 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-white dark:bg-slate-950">
               <div className="flex items-center gap-2">
-                <span className="font-serif text-base tracking-widest text-white uppercase font-light">Statika</span>
+                <span className="font-serif text-base tracking-widest text-slate-900 dark:text-white uppercase font-light">Statika</span>
                 <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-mono uppercase tracking-wider font-semibold ${
                   examMode === 'uphesc'
                     ? 'bg-violet-600/20 text-violet-300'
@@ -546,7 +556,7 @@ export default function App() {
               </div>
               <button 
                 onClick={() => setIsLeftDrawerOpen(false)}
-                className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white cursor-pointer transition-all hover:bg-white/10"
+                className="w-7 h-7 rounded-lg bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer transition-all hover:bg-black/10 dark:hover:bg-white/10"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -556,15 +566,15 @@ export default function App() {
             <div className="flex-1 flex flex-col min-h-0">
 
               {/* ── Top-Level Exam Mode Switcher ── */}
-              <div className="shrink-0 px-5 pt-4 pb-3 border-b border-white/8">
-                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Exam Mode</p>
+              <div className="shrink-0 px-5 pt-4 pb-3 border-b border-black/6 dark:border-white/8">
+                <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Exam Mode</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setExamMode('iss')}
                     className={`flex-1 py-2 rounded-xl text-[11px] font-bold tracking-wide transition-all cursor-pointer ${
                       examMode === 'iss'
                         ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                        : 'bg-white/5 text-slate-400 hover:text-white border border-white/10 hover:bg-white/8'
+                        : 'bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-black/8 dark:border-white/10 hover:bg-black/8 dark:hover:bg-white/8'
                     }`}
                   >
                     UPSC ISS
@@ -583,7 +593,7 @@ export default function App() {
                     className={`flex-1 py-2 rounded-xl text-[11px] font-bold tracking-wide transition-all cursor-pointer ${
                       examMode === 'uphesc'
                         ? 'bg-violet-600 text-white shadow-md shadow-violet-600/20'
-                        : 'bg-white/5 text-slate-400 hover:text-white border border-white/10 hover:bg-white/8'
+                        : 'bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-black/8 dark:border-white/10 hover:bg-black/8 dark:hover:bg-white/8'
                     }`}
                   >
                     UPHESC A.P.
@@ -606,32 +616,32 @@ export default function App() {
                     </button>
 
                     {/* Study Mode Sub-Tabs: PYQ | Notes */}
-                    <div className="flex border-b border-white/10">
+                    <div className="flex border-b border-black/8 dark:border-white/10">
                       <button
                         onClick={() => setTempTab('pyq')}
                         className={`flex-1 pb-2 text-center text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
                           tempTab === 'pyq'
-                            ? 'text-indigo-400 border-b-2 border-indigo-500'
-                            : 'text-slate-400 hover:text-slate-200'
+                            ? 'text-indigo-500 dark:text-indigo-400 border-b-2 border-indigo-500'
+                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                         }`}
                       >PYQ</button>
                       <button
                         onClick={() => setTempTab('notes')}
                         className={`flex-1 pb-2 text-center text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
                           tempTab === 'notes'
-                            ? 'text-indigo-400 border-b-2 border-indigo-500'
-                            : 'text-slate-400 hover:text-slate-200'
+                            ? 'text-indigo-500 dark:text-indigo-400 border-b-2 border-indigo-500'
+                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                         }`}
                       >Notes</button>
                     </div>
 
                     {/* PYQ Filters */}
                     {tempTab === 'pyq' ? (
-                      <div className="divide-y divide-white/10">
+                      <div className="divide-y divide-black/8 dark:divide-white/10">
 
                         {/* ISS Paper */}
                         <div className="pb-4 space-y-2">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ISS Paper</label>
+                          <label className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">ISS Paper</label>
                           <div className="space-y-0.5">
                             {([
                               { key: 'paper1' as const, label: 'Paper I', meta: 'Objective', group: 'stats' },
@@ -662,16 +672,16 @@ export default function App() {
                                       }
                                     }}
                                     className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
-                                      isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'
+                                      isActive ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                                     }`}
                                   >
                                     <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
-                                      isActive ? 'border-indigo-400 bg-indigo-500 text-white' : 'border-white/25'
+                                      isActive ? 'border-indigo-400 bg-indigo-500 text-white' : 'border-black/20 dark:border-white/25'
                                     }`}>
                                       {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
                                     </span>
                                     <span className="flex-1 min-w-0 text-[13px] font-medium tracking-tight">{opt.label}</span>
-                                    <span className={`text-[10px] font-medium shrink-0 ${isActive ? 'text-slate-400' : 'text-slate-600'}`}>{opt.meta}</span>
+                                    <span className={`text-[10px] font-medium shrink-0 ${isActive ? 'text-slate-400 dark:text-slate-400' : 'text-slate-400 dark:text-slate-600'}`}>{opt.meta}</span>
                                   </button>
                                 </React.Fragment>
                               );
@@ -694,11 +704,11 @@ export default function App() {
                                   type="button"
                                   onClick={() => setTempSection(opt.key)}
                                   className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
-                                    isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'
+                                    isActive ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                                   }`}
                                 >
                                   <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
-                                    isActive ? 'border-indigo-400 bg-indigo-500 text-white' : 'border-white/25'
+                                    isActive ? 'border-indigo-400 bg-indigo-500 text-white' : 'border-black/20 dark:border-white/25'
                                   }`}>
                                     {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
                                   </span>
@@ -724,7 +734,7 @@ export default function App() {
                               className={`min-w-[3.25rem] px-2 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer border ${
                                 tempYear === 'all'
                                   ? 'bg-indigo-600 text-white border-indigo-400/40'
-                                  : 'bg-white/5 text-slate-400 border-white/8 hover:bg-white/10 hover:text-white'
+                                  : 'bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 border-black/8 dark:border-white/8 hover:bg-black/10 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'
                               }`}
                             >All</button>
                             {drawerYears.map((yr) => {
@@ -737,7 +747,7 @@ export default function App() {
                                   className={`min-w-[3.25rem] px-2 py-1.5 rounded-lg text-[11px] font-bold font-mono transition-all cursor-pointer border ${
                                     isActive
                                       ? 'bg-indigo-600 text-white border-indigo-400/40'
-                                      : 'bg-white/5 text-slate-400 border-white/8 hover:bg-white/10 hover:text-white'
+                                      : 'bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 border-black/8 dark:border-white/8 hover:bg-black/10 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'
                                   }`}
                                 >{yr}</button>
                               );
@@ -751,7 +761,7 @@ export default function App() {
                             <span>REVISION PROGRESS</span>
                             <span className="font-bold text-emerald-400">{answeredCount} / {questions.length}</span>
                           </div>
-                          <div className="w-full bg-slate-900 rounded-full h-1 overflow-hidden">
+                          <div className="w-full bg-slate-200 dark:bg-slate-900 rounded-full h-1 overflow-hidden">
                             <div
                               className="bg-emerald-500 h-full transition-all duration-300"
                               style={{ width: `${Math.min(100, (answeredCount / questions.length) * 100)}%` }}
@@ -762,7 +772,7 @@ export default function App() {
                       </div>
                     ) : (
                       /* ISS Notes Filters */
-                      <div className="divide-y divide-white/10">
+                      <div className="divide-y divide-black/8 dark:divide-white/10">
 
                         {/* Notes Paper — ISS only */}
                         <div className="pb-4 space-y-2">
@@ -786,11 +796,11 @@ export default function App() {
                                     setTempNotesSectionKey(keys.length > 0 ? keys[0] : '');
                                   }}
                                   className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
-                                    isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'
+                                    isActive ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                                   }`}
                                 >
                                   <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
-                                    isActive ? 'border-indigo-400 bg-indigo-500 text-white' : 'border-white/25'
+                                    isActive ? 'border-indigo-400 bg-indigo-500 text-white' : 'border-black/20 dark:border-white/25'
                                   }`}>
                                     {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
                                   </span>
@@ -812,11 +822,11 @@ export default function App() {
                                   key={key}
                                   onClick={() => setTempNotesSectionKey(key)}
                                   className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
-                                    isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'
+                                    isActive ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                                   }`}
                                 >
                                   <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
-                                    isActive ? 'border-indigo-400 bg-indigo-500 text-white' : 'border-white/25'
+                                    isActive ? 'border-indigo-400 bg-indigo-500 text-white' : 'border-black/20 dark:border-white/25'
                                   }`}>
                                     {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
                                   </span>
@@ -834,7 +844,7 @@ export default function App() {
                   </div>
 
                   {/* ISS Apply Button */}
-                  <div className="shrink-0 px-5 py-3 border-t border-white/10">
+                  <div className="shrink-0 px-5 py-3 border-t border-black/8 dark:border-white/10">
                     <button
                       onClick={() => {
                         setActiveTab(tempTab);
@@ -868,7 +878,7 @@ export default function App() {
                     <span>UPHESC Statistics Syllabus</span>
                   </button>
 
-                  <div className="border-t border-white/8 pt-3">
+                  <div className="border-t border-black/6 dark:border-white/8 pt-3">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Select Unit</label>
                     <div className="space-y-0.5">
                       {Object.entries(notes['uphesc'] || {}).map(([key, topic]) => {
@@ -883,11 +893,11 @@ export default function App() {
                               setIsLeftDrawerOpen(false);
                             }}
                             className={`w-full flex items-center gap-2.5 py-2 text-left transition-colors cursor-pointer rounded-lg ${
-                              isActive ? 'bg-violet-500/10 text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                              isActive ? 'bg-violet-500/10 text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-black/5 dark:hover:bg-white/5'
                             }`}
                           >
                             <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
-                              isActive ? 'border-violet-400 bg-violet-500 text-white' : 'border-white/25'
+                              isActive ? 'border-violet-400 bg-violet-500 text-white' : 'border-black/20 dark:border-white/25'
                             }`}>
                               {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
                             </span>
@@ -905,10 +915,10 @@ export default function App() {
             </div>
 
             {/* Drawer Footer with Admin Login */}
-            <div className="p-4 border-t border-white/5 bg-slate-950 space-y-3 shrink-0">
-              <div className="flex items-center justify-between text-[10px] text-slate-400">
+            <div className="p-4 border-t border-black/5 dark:border-white/5 bg-white dark:bg-slate-950 space-y-3 shrink-0">
+              <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
                 <span className="font-medium uppercase tracking-wider">System Role</span>
-                <span className={`font-mono font-bold ${isAdmin ? 'text-indigo-400' : 'text-slate-500'}`}>
+                <span className={`font-mono font-bold ${isAdmin ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`}>
                   {isAdmin ? 'ADMINISTRATOR' : 'GUEST STUDENT'}
                 </span>
               </div>
@@ -923,7 +933,7 @@ export default function App() {
       {/* ==================== RIGHT AI ASSISTANT DRAWER ==================== */}
       {isAssistantOpen && (
         <div 
-          className="fixed inset-0 bg-slate-950/85 backdrop-blur-xs z-50 transition-all duration-300 animate-in fade-in"
+          className="fixed inset-0 bg-slate-100/85 dark:bg-slate-950/85 backdrop-blur-sm z-50 transition-all duration-300 animate-in fade-in"
           onClick={() => {
             setIsAssistantOpen(false);
             setActiveAssistantContext(null);
@@ -931,7 +941,7 @@ export default function App() {
           }}
         >
           <div 
-            className="fixed inset-y-0 right-0 w-full sm:w-[460px] md:w-[500px] bg-slate-900 border-l border-white/10 flex flex-col shadow-2xl transition-transform duration-300 translate-x-0 overflow-hidden"
+            className="fixed inset-y-0 right-0 w-full sm:w-[460px] md:w-[500px] bg-slate-50 dark:bg-slate-900 border-l border-black/8 dark:border-white/10 flex flex-col shadow-2xl transition-transform duration-300 translate-x-0 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <StudyAssistant
@@ -949,13 +959,13 @@ export default function App() {
       )}
 
       {/* Dynamic Header Banner */}
-      <header className="bg-slate-950/80 border-b border-white/10 backdrop-blur-lg sticky top-0 z-40 shadow-sm">
+      <header className="bg-white/80 dark:bg-slate-950/80 border-b border-black/8 dark:border-white/10 backdrop-blur-xl sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between relative">
           
           {/* Left menu trigger button */}
           <button
             onClick={() => setIsLeftDrawerOpen(true)}
-            className="p-1.5 rounded-lg hover:bg-white/5 text-slate-300 hover:text-white cursor-pointer transition-colors flex items-center gap-1.5"
+            className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer transition-colors flex items-center gap-1.5"
             aria-label="Open sidebar menu"
           >
             <Menu className="w-5 h-5" />
@@ -964,20 +974,30 @@ export default function App() {
 
           {/* Centered Serif Logo "Statika" */}
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center pointer-events-none">
-            <h1 className="text-xl md:text-2xl font-serif tracking-widest text-slate-100 uppercase pointer-events-auto cursor-pointer hover:text-white select-none transition-colors">
+            <h1 className="text-xl md:text-2xl font-serif tracking-widest text-slate-800 dark:text-slate-100 uppercase pointer-events-auto cursor-pointer hover:text-slate-900 dark:hover:text-white select-none transition-colors">
               Statika
             </h1>
           </div>
 
           {/* Right Header Controls */}
           <div className="flex items-center gap-1.5">
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer transition-colors"
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
             {/* Minimal Search trigger icon */}
             <button
               onClick={() => setIsHeaderSearchOpen(!isHeaderSearchOpen)}
               className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                 isHeaderSearchOpen || searchQuery 
-                  ? 'bg-indigo-600/20 text-indigo-300' 
-                  : 'hover:bg-white/5 text-slate-300 hover:text-white'
+                  ? 'bg-indigo-600/20 text-indigo-500 dark:text-indigo-300' 
+                  : 'hover:bg-black/5 dark:hover:bg-white/5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
               aria-label="Search content"
             >
@@ -989,13 +1009,13 @@ export default function App() {
               onClick={() => setIsAssistantOpen(!isAssistantOpen)}
               className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                 isAssistantOpen
-                  ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/20'
-                  : 'hover:bg-white/5 text-slate-300 hover:text-emerald-400'
+                  ? 'bg-emerald-600/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/20'
+                  : 'hover:bg-black/5 dark:hover:bg-white/5 text-slate-600 dark:text-slate-300 hover:text-emerald-500 dark:hover:text-emerald-400'
               }`}
               title="Ask Study AI"
               aria-label="Ask Study AI"
             >
-              <Sparkles className="w-4 h-4 text-emerald-400" />
+              <Sparkles className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
             </button>
 
             {/* Micro active indicator */}
@@ -1006,17 +1026,17 @@ export default function App() {
 
       {/* Header Search Overlay */}
       {isHeaderSearchOpen && (
-        <div className="bg-slate-900 border-b border-white/10 py-3 px-4 animate-in slide-in-from-top duration-200">
+        <div className="bg-white dark:bg-slate-900 border-b border-black/8 dark:border-white/10 py-3 px-4 animate-in slide-in-from-top duration-200">
           <div className="max-w-md mx-auto relative">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search formulas, CLT, ANOVA, questions..."
-              className="w-full bg-slate-950 border border-white/15 focus:border-indigo-500 text-xs px-3 py-2 pl-9 rounded-xl focus:outline-hidden transition-all text-slate-200 placeholder:text-slate-500"
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-black/12 dark:border-white/15 focus:border-indigo-500 text-xs px-3 py-2 pl-9 rounded-xl focus:outline-hidden transition-all text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               autoFocus
             />
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery('')}
@@ -1030,15 +1050,15 @@ export default function App() {
       )}
 
       {/* ==================== STICKY ACTIVE FILTERS ROW ==================== */}
-      <div className="bg-slate-950/95 border-b border-white/5 sticky top-[56px] z-30 shadow-xs backdrop-blur-md py-2">
+      <div className="bg-white/95 dark:bg-slate-950/95 border-b border-black/5 dark:border-white/5 sticky top-[56px] z-30 shadow-xs backdrop-blur-md py-2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-auto scrollbar-none">
           <div className="flex items-center gap-1.5 flex-nowrap min-w-max">
           <button 
             onClick={() => setIsLeftDrawerOpen(true)}
-            className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 hover:border-white/20 text-[11px] font-semibold text-slate-300 flex items-center gap-1 shrink-0 cursor-pointer"
+            className="px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 hover:border-black/15 dark:hover:border-white/20 text-[11px] font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1 shrink-0 cursor-pointer"
           >
             <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${examMode === 'uphesc' ? 'bg-violet-500' : 'bg-indigo-500'}`} />
-            <b className="text-white">
+            <b className="text-slate-900 dark:text-white">
               {examMode === 'uphesc'
                 ? 'UPHESC A.P.'
                 : activeTab === 'pyq'
@@ -1055,9 +1075,9 @@ export default function App() {
             <>
               <button 
                 onClick={() => setIsLeftDrawerOpen(true)}
-                className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 hover:border-white/20 text-[11px] font-semibold text-slate-300 shrink-0 cursor-pointer"
+                className="px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 hover:border-black/15 dark:hover:border-white/20 text-[11px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 cursor-pointer"
               >
-                <b className="text-white">
+                <b className="text-slate-900 dark:text-white">
                   {selectedPaper === 'paper1' 
                     ? 'Paper I' 
                     : selectedPaper === 'paper2' 
@@ -1113,9 +1133,9 @@ export default function App() {
             <>
               <button 
                 onClick={() => setIsLeftDrawerOpen(true)}
-                className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 hover:border-white/20 text-[11px] font-semibold text-slate-300 shrink-0 cursor-pointer"
+                className="px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 hover:border-black/15 dark:hover:border-white/20 text-[11px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 cursor-pointer"
               >
-                <b className="text-white">
+                <b className="text-slate-900 dark:text-white">
                   {selectedNotesPaper.toUpperCase().replace('PAPER', 'Paper ')}
                 </b>
               </button>
@@ -1160,15 +1180,15 @@ export default function App() {
 
                 {/* Left — range chip */}
                 <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-semibold text-slate-300 font-mono select-none">
-                    <b className="text-white">
+                  <span className="px-3 py-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 text-[11px] font-semibold text-slate-600 dark:text-slate-300 font-mono select-none">
+                    <b className="text-slate-900 dark:text-white">
                       {totalQuestions === 0
                         ? '0'
                         : `${indexOfFirstQuestion + 1}–${Math.min(indexOfLastQuestion, totalQuestions)}`}
                     </b>
-                    <span className="text-slate-500 mx-1">/</span>
+                    <span className="text-slate-400 dark:text-slate-500 mx-1">/</span>
                     {totalQuestions}
-                    <span className="text-slate-500 ml-1 font-sans font-medium">questions</span>
+                    <span className="text-slate-400 dark:text-slate-500 ml-1 font-sans font-medium">questions</span>
                   </span>
                   {searchQuery && (
                     <button
@@ -1183,24 +1203,24 @@ export default function App() {
 
                 {/* Right — single-chip pagination: ◀ 3/25 ▶ */}
                 {totalPages > 1 && (
-                  <div className="flex items-center gap-0 rounded-full bg-white/5 border border-white/10 overflow-hidden">
+                  <div className="flex items-center gap-0 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 overflow-hidden">
                     <button
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="px-2.5 py-1.5 text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-all border-r border-white/10"
+                      className="px-2.5 py-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/8 dark:hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-all border-r border-black/8 dark:border-white/10"
                       aria-label="Previous page"
                     >
                       <ChevronLeft className="w-3.5 h-3.5" />
                     </button>
-                    <span className="px-3 py-1 text-[11px] font-semibold font-mono text-slate-300 select-none">
-                      <b className="text-white">{currentPage}</b>
-                      <span className="text-slate-500 mx-1">/</span>
+                    <span className="px-3 py-1 text-[11px] font-semibold font-mono text-slate-600 dark:text-slate-300 select-none">
+                      <b className="text-slate-900 dark:text-white">{currentPage}</b>
+                      <span className="text-slate-400 dark:text-slate-500 mx-1">/</span>
                       {totalPages}
                     </span>
                     <button
                       onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
-                      className="px-2.5 py-1.5 text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-all border-l border-white/10"
+                      className="px-2.5 py-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/8 dark:hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-all border-l border-black/8 dark:border-white/10"
                       aria-label="Next page"
                     >
                       <ChevronRight className="w-3.5 h-3.5" />
@@ -1233,10 +1253,10 @@ export default function App() {
                     );
                   })
                 ) : (
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-12 text-center text-slate-400 backdrop-blur-xl">
+                  <div className="bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 rounded-2xl p-12 text-center text-slate-500 dark:text-slate-400 backdrop-blur-xl">
                     <AlertCircle className="w-8 h-8 mx-auto mb-2 opacity-50 text-slate-400" />
-                    <p className="text-sm font-medium text-slate-300">No questions match your filter criteria.</p>
-                    <p className="text-xs text-slate-500 mt-1">Try switching years or subject sections!</p>
+                    <p className="text-sm font-medium text-slate-600 dark:text-slate-300">No questions match your filter criteria.</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Try switching years or subject sections!</p>
                   </div>
                 )}
               </div>
@@ -1244,21 +1264,21 @@ export default function App() {
               {/* Bottom pagination — same segmented chip, scrolls to list top */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-center pt-2">
-                  <div className="flex items-center gap-0 rounded-full bg-white/5 border border-white/10 overflow-hidden">
+                  <div className="flex items-center gap-0 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 overflow-hidden">
                     <button
                       onClick={() => {
                         setCurrentPage((p) => Math.max(1, p - 1));
                         questionsTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }}
                       disabled={currentPage === 1}
-                      className="px-3 py-2 text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-all border-r border-white/10"
+                      className="px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/8 dark:hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-all border-r border-black/8 dark:border-white/10"
                       aria-label="Previous page"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
-                    <span className="px-4 py-2 text-sm font-semibold font-mono text-slate-300 select-none">
-                      <b className="text-white">{currentPage}</b>
-                      <span className="text-slate-500 mx-1.5">/</span>
+                    <span className="px-4 py-2 text-sm font-semibold font-mono text-slate-600 dark:text-slate-300 select-none">
+                      <b className="text-slate-900 dark:text-white">{currentPage}</b>
+                      <span className="text-slate-400 dark:text-slate-500 mx-1.5">/</span>
                       {totalPages}
                     </span>
                     <button
@@ -1267,7 +1287,7 @@ export default function App() {
                         questionsTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-2 text-slate-400 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-all border-l border-white/10"
+                      className="px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/8 dark:hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-all border-l border-black/8 dark:border-white/10"
                       aria-label="Next page"
                     >
                       <ChevronRight className="w-4 h-4" />
@@ -1297,10 +1317,10 @@ export default function App() {
       </main>
 
       {/* Footer credits info */}
-      <footer className="bg-slate-950/40 border-t border-white/5 mt-12 py-6 text-center text-xs text-slate-500 font-medium backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-500">
+      <footer className="bg-slate-100/60 dark:bg-slate-950/40 border-t border-black/5 dark:border-white/5 mt-12 py-6 text-center text-xs text-slate-400 dark:text-slate-500 font-medium backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-400 dark:text-slate-500">
           <span>© {new Date().getFullYear()} Statika. UPSC Indian Statistical Service (ISS) Revision Portal.</span>
-          <span className="text-[10px] text-slate-600">Official Prep & Revision Companion</span>
+          <span className="text-[10px] text-slate-400 dark:text-slate-600">Official Prep & Revision Companion</span>
         </div>
       </footer>
 

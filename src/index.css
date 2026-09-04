@@ -1,6 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
+/* ── Tailwind v4: class-based dark variant ── */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Cormorant Garamond", Georgia, serif;
@@ -8,7 +11,71 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
-/* Custom layout scrollbars and table styles */
+/* ── Semantic color tokens ── */
+:root {
+  /* markdown / math */
+  --md-text: #334155;
+  --md-heading: #0f172a;
+  --md-strong: #0f172a;
+  --md-code-bg: rgba(0, 0, 0, 0.06);
+  --md-code-color: #e11d48;
+  --md-border: rgba(0, 0, 0, 0.09);
+  --md-table-bg: rgba(0, 0, 0, 0.02);
+  --md-table-th-bg: rgba(0, 0, 0, 0.06);
+  --md-table-th-color: #0f172a;
+  --md-table-td-color: #334155;
+  --md-table-hover: rgba(0, 0, 0, 0.03);
+  --md-table-even: rgba(0, 0, 0, 0.02);
+  --md-blockquote-bg: rgba(99, 102, 241, 0.07);
+  --md-blockquote-border: #6366f1;
+  --md-pre-bg: rgba(0, 0, 0, 0.05);
+  --math-accent: #6366f1;
+  --math-block-bg: rgba(0, 0, 0, 0.03);
+  /* q-table */
+  --q-border: rgba(0, 0, 0, 0.09);
+  --q-th-bg: rgba(0, 0, 0, 0.06);
+  --q-th-color: #0f172a;
+  --q-td-color: #334155;
+}
+
+.dark {
+  --md-text: #cbd5e1;
+  --md-heading: #ffffff;
+  --md-strong: #ffffff;
+  --md-code-bg: rgba(255, 255, 255, 0.10);
+  --md-code-color: #f43f5e;
+  --md-border: rgba(255, 255, 255, 0.10);
+  --md-table-bg: rgba(255, 255, 255, 0.02);
+  --md-table-th-bg: rgba(255, 255, 255, 0.08);
+  --md-table-th-color: #ffffff;
+  --md-table-td-color: #cbd5e1;
+  --md-table-hover: rgba(255, 255, 255, 0.04);
+  --md-table-even: rgba(255, 255, 255, 0.02);
+  --md-blockquote-bg: rgba(99, 102, 241, 0.10);
+  --md-blockquote-border: #6366f1;
+  --md-pre-bg: rgba(0, 0, 0, 0.25);
+  --math-accent: #6366f1;
+  --math-block-bg: rgba(255, 255, 255, 0.04);
+  --q-border: rgba(255, 255, 255, 0.10);
+  --q-th-bg: rgba(255, 255, 255, 0.08);
+  --q-th-color: #f1f5f9;
+  --q-td-color: #cbd5e1;
+}
+
+/* ── Glass card utility (usable anywhere) ── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 1rem;
+}
+.dark .glass-card {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+/* ── q-table ── */
 .q-table {
   display: flex;
   justify-content: center;
@@ -25,36 +92,35 @@
 }
 
 .q-table th, .q-table td {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--q-border);
   padding: 0.5rem 0.75rem;
   text-align: center;
 }
 
 .q-table th {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: var(--q-th-bg);
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--q-th-color);
 }
 
 .q-table td {
-  color: #cbd5e1;
+  color: var(--q-td-color);
 }
 
-/* MathJax custom container behavior for responsiveness and hiding scrollbars */
+/* ── MathJax ── */
 mjx-container {
   overflow-x: auto !important;
   overflow-y: hidden !important;
   max-width: 100%;
   color: inherit !important;
-  -ms-overflow-style: none !important;  /* IE and Edge */
-  scrollbar-width: none !important;  /* Firefox */
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
 }
 
 mjx-container::-webkit-scrollbar {
-  display: none !important; /* Chrome, Safari and Opera */
+  display: none !important;
 }
 
-/* Ensure inline math expressions wrap or horizontal-scroll inside text beautifully */
 mjx-container:not([display="true"]) {
   display: inline-flex !important;
   max-width: 100%;
@@ -66,23 +132,25 @@ mjx-container:not([display="true"]) {
 mjx-container[display="true"] {
   padding: 0.75rem;
   margin: 1rem 0 !important;
-  border-left: 3px solid #6366f1; /* Indigo accent stripe for math blocks */
-  background: rgba(255, 255, 255, 0.04);
+  border-left: 3px solid var(--math-accent);
+  background: var(--math-block-bg);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   border-radius: 0 0.375rem 0.375rem 0;
 }
 
-/* Markdown styling inside descriptions or explanations */
+/* ── Markdown body ── */
 .markdown-body {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: #cbd5e1;
+  color: var(--md-text);
 }
 
 .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 {
   font-weight: 600;
   margin-top: 1.25rem;
   margin-bottom: 0.5rem;
-  color: #ffffff;
+  color: var(--md-heading);
   font-family: var(--font-display);
 }
 
@@ -108,7 +176,7 @@ mjx-container[display="true"] {
 
 .markdown-body strong {
   font-weight: 700;
-  color: #ffffff;
+  color: var(--md-strong);
 }
 
 .markdown-body em {
@@ -133,16 +201,16 @@ mjx-container[display="true"] {
 
 .markdown-body code {
   font-family: var(--font-mono);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--md-code-bg);
   padding: 0.1rem 0.3rem;
   border-radius: 0.25rem;
   font-size: 0.85em;
-  color: #f43f5e;
+  color: var(--md-code-color);
 }
 
 .markdown-body pre {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--md-pre-bg);
+  border: 1px solid var(--md-border);
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   margin: 1rem 0;
@@ -157,16 +225,16 @@ mjx-container[display="true"] {
 }
 
 .markdown-body blockquote {
-  border-left: 3px solid #6366f1;
-  background-color: rgba(99, 102, 241, 0.1);
+  border-left: 3px solid var(--md-blockquote-border);
+  background-color: var(--md-blockquote-bg);
   padding: 0.5rem 0.75rem;
   margin: 1rem 0;
   border-radius: 0 0.375rem 0.375rem 0;
   font-style: italic;
-  color: #e2e8f0;
+  color: var(--md-text);
 }
 
-/* Elegant and robust markdown table styling — centered in section */
+/* Markdown table styling */
 .markdown-body table, .tex2jax_process table {
   display: table;
   width: auto;
@@ -175,41 +243,40 @@ mjx-container[display="true"] {
   border-collapse: collapse;
   font-family: var(--font-sans);
   font-size: 0.85rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--md-table-bg);
   border-radius: 0.5rem;
 }
 
-.markdown-body th, .markdown-body td, .tex2jax_process th, .tex2jax_process td {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.markdown-body th, .markdown-body td,
+.tex2jax_process th, .tex2jax_process td {
+  border: 1px solid var(--md-border);
   padding: 0.6rem 0.9rem;
   text-align: center;
 }
 
 .markdown-body th, .tex2jax_process th {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: var(--md-table-th-bg);
   font-weight: 600;
-  color: #ffffff;
+  color: var(--md-table-th-color);
 }
 
 .markdown-body td, .tex2jax_process td {
-  color: #cbd5e1;
+  color: var(--md-table-td-color);
 }
 
 .markdown-body tr:nth-child(even), .tex2jax_process tr:nth-child(even) {
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: var(--md-table-even);
 }
 
 .markdown-body tr:hover, .tex2jax_process tr:hover {
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: var(--md-table-hover);
 }
 
-/* Hide scrollbars but keep functionality */
+/* ── Scrollbar hide ── */
 .scrollbar-none {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 .scrollbar-none::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
+  display: none;
 }
-
-

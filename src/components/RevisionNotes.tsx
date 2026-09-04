@@ -43,7 +43,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
 
   if (sectionKeys.length === 0) {
     return (
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center text-slate-400 font-sans backdrop-blur-xl">
+      <div className="bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 rounded-2xl p-8 text-center text-slate-500 dark:text-slate-400 font-sans backdrop-blur-xl">
         <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-50 text-slate-400" />
         No revision notes compiled for this paper yet.
       </div>
@@ -54,7 +54,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 font-sans">
       {/* Mobile-only Horizontal Topics Selector */}
       <div className="lg:hidden flex flex-col gap-1.5">
-        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Topics List</h4>
+        <h4 className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">Topics List</h4>
         <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-none -mx-4 px-4 sm:-mx-6 sm:px-6">
           {sectionKeys.map((key) => {
             const isActive = activeSectionKey === key;
@@ -68,7 +68,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold font-display whitespace-nowrap transition-all duration-150 cursor-pointer ${
                   isActive
                     ? `${paper === 'uphesc' ? 'bg-violet-600' : 'bg-indigo-600'} text-white shadow-md`
-                    : 'bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white'
+                    : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/8 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 {paperNotes[key].title}
@@ -80,7 +80,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
 
       {/* Desktop-only Sticky Sidebar Topics Selector */}
       <div className="hidden lg:block lg:col-span-1 space-y-1.5 lg:sticky lg:top-[125px] self-start lg:max-h-[calc(100vh-160px)] lg:overflow-y-auto pr-1">
-        <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-2">Topics List</h4>
+        <h4 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2 mb-2">Topics List</h4>
         {sectionKeys.map((key) => {
           const isActive = activeSectionKey === key;
           return (
@@ -93,7 +93,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
               className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold font-display tracking-tight transition-all duration-150 cursor-pointer ${
                 isActive
                   ? `${paper === 'uphesc' ? 'bg-violet-600' : 'bg-indigo-600'} text-white shadow-md`
-                  : 'bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white'
+                  : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/8 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               {paperNotes[key].title}
@@ -107,7 +107,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
         {currentTopic && (
           <>
             {/* Header Title Banner */}
-            <p className="text-xs text-slate-400 font-medium tracking-wide">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">
               {paper === 'uphesc'
                 ? 'UPHESC Assistant Professor — Comprehensive unit-wise preparation notes'
                 : 'Comprehensive revision formulas & proofs for ISS'}
@@ -120,7 +120,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
                 return (
                   <div
                     key={section.id}
-                    className="bg-white/5 border border-white/10 rounded-xl overflow-hidden transition-all duration-200"
+                    className="bg-black/[0.02] dark:bg-white/5 border border-black/8 dark:border-white/10 rounded-xl overflow-hidden transition-all duration-200"
                   >
                     {/* Header Trigger */}
                     <div
@@ -133,13 +133,13 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
                       }}
                       role="button"
                       tabIndex={0}
-                      className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-white/10 text-left transition-colors focus:outline-hidden cursor-pointer select-none"
+                      className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-black/5 dark:hover:bg-white/10 text-left transition-colors focus:outline-hidden cursor-pointer select-none"
                     >
-                      <span className="text-xs font-bold text-slate-200 font-display flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-700 dark:text-slate-200 font-display flex items-center gap-2">
                         {isExpanded ? (
-                          <ChevronDown className="w-4 h-4 text-indigo-400 shrink-0" />
+                          <ChevronDown className="w-4 h-4 text-indigo-500 dark:text-indigo-400 shrink-0" />
                         ) : (
-                          <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                          <ChevronRight className="w-4 h-4 text-slate-400 dark:text-slate-400 shrink-0" />
                         )}
                         {section.label}
                       </span>
@@ -166,7 +166,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
 
                     {/* Content Body */}
                     {isExpanded && (
-                      <div className="px-5 pb-5 pt-2 border-t border-white/10 bg-white/5 text-sm text-slate-300 font-sans leading-relaxed">
+                      <div className="px-5 pb-5 pt-2 border-t border-black/8 dark:border-white/10 bg-black/[0.02] dark:bg-white/5 text-sm text-slate-600 dark:text-slate-300 font-sans leading-relaxed">
                         <MathJaxRenderer html={section.content} className="markdown-body" />
                       </div>
                     )}
@@ -182,15 +182,15 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
                   ? 'bg-violet-500/10 border-violet-500'
                   : 'bg-indigo-500/10 border-indigo-500'
               }`}>
-                <Lightbulb className={`w-5 h-5 shrink-0 mt-0.5 ${paper === 'uphesc' ? 'text-violet-400' : 'text-indigo-400'}`} />
+                <Lightbulb className={`w-5 h-5 shrink-0 mt-0.5 ${paper === 'uphesc' ? 'text-violet-500 dark:text-violet-400' : 'text-indigo-500 dark:text-indigo-400'}`} />
                 <div>
                   <h5 className={`text-xs font-bold font-display uppercase tracking-wider mb-1 ${
-                    paper === 'uphesc' ? 'text-violet-300' : 'text-indigo-300'
+                    paper === 'uphesc' ? 'text-violet-600 dark:text-violet-300' : 'text-indigo-600 dark:text-indigo-300'
                   }`}>
                     Exam Tips & Common Pitfalls
                   </h5>
                   <div className={`text-xs leading-relaxed font-sans ${
-                    paper === 'uphesc' ? 'text-violet-100' : 'text-indigo-200'
+                    paper === 'uphesc' ? 'text-violet-800 dark:text-violet-100' : 'text-indigo-800 dark:text-indigo-200'
                   }`}>
                     <MathJaxRenderer html={currentTopic.tips} className="markdown-body" />
                   </div>

@@ -251,15 +251,15 @@ export const StudyAssistant: React.FC<StudyAssistantProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="flex flex-col h-full bg-white/5 border border-white/10 rounded-2xl shadow-lg overflow-hidden backdrop-blur-xl">
+    <div className="flex flex-col h-full bg-black/[0.02] dark:bg-white/5 border border-white/10 rounded-2xl shadow-lg overflow-hidden backdrop-blur-xl">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white/5 border-b border-white/10">
+      <div className="flex items-center justify-between px-4 py-3 bg-white/5 border-b border-black/8 dark:border-white/10">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 border border-emerald-500/20">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold font-display text-white">ISS Study Assistant</h3>
+            <h3 className="text-sm font-semibold font-display text-slate-900 dark:text-white">ISS Study Assistant</h3>
             <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               Powered by Gemini 3.5
@@ -269,7 +269,7 @@ export const StudyAssistant: React.FC<StudyAssistantProps> = ({
         <div className="flex items-center gap-1">
           <button
             onClick={clearChat}
-            className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
+            className="p-1.5 hover:bg-black/8 dark:hover:bg-white/10 rounded-lg text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
             title="Clear Chat"
           >
             <Trash2 className="w-4 h-4" />
@@ -277,7 +277,7 @@ export const StudyAssistant: React.FC<StudyAssistantProps> = ({
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
+              className="p-1.5 hover:bg-black/8 dark:hover:bg-white/10 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -352,14 +352,14 @@ export const StudyAssistant: React.FC<StudyAssistantProps> = ({
 
       {/* Preset Suggestions */}
       {messages.length <= 1 && (
-        <div className="px-4 py-2 bg-white/5 border-t border-white/10">
+        <div className="px-4 py-2 bg-white/5 border-t border-black/8 dark:border-white/10">
           <p className="text-[11px] text-slate-400 mb-1.5 font-medium">Try asking:</p>
           <div className="flex flex-wrap gap-1.5">
             {presetPrompts.map((p) => (
               <button
                 key={p}
                 onClick={() => handlePresetClick(p)}
-                className="text-[11px] bg-white/5 hover:bg-white/10 hover:text-emerald-300 text-slate-300 px-2.5 py-1 rounded-full border border-white/10 hover:border-emerald-500/30 transition-all font-sans cursor-pointer"
+                className="text-[11px] bg-white/5 hover:bg-black/8 dark:hover:bg-white/10 hover:text-emerald-300 text-slate-300 px-2.5 py-1 rounded-full border border-white/10 hover:border-emerald-500/30 transition-all font-sans cursor-pointer"
               >
                 {p}
               </button>
@@ -370,20 +370,20 @@ export const StudyAssistant: React.FC<StudyAssistantProps> = ({
 
       {/* Context indicator if any */}
       {currentContextText && (
-        <div className="px-4 py-1.5 bg-indigo-500/10 border-t border-white/10 flex items-center justify-between text-[11px] text-indigo-300">
+        <div className="px-4 py-1.5 bg-indigo-500/10 border-t border-black/8 dark:border-white/10 flex items-center justify-between text-[11px] text-indigo-300">
           <span className="truncate">📎 Active question context attached</span>
         </div>
       )}
 
       {/* Form */}
-      <form onSubmit={handleSend} className="p-3 border-t border-white/10 flex gap-2 bg-white/5">
+      <form onSubmit={handleSend} className="p-3 border-t border-black/8 dark:border-white/10 flex gap-2 bg-white/5">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask about formulas, concepts, or proofs..."
           disabled={isLoading}
-          className="flex-1 bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-hidden text-sm px-4 py-2 rounded-xl transition-all"
+          className="flex-1 bg-white/5 border border-white/10 text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:outline-hidden text-sm px-4 py-2 rounded-xl transition-all"
         />
         <button
           type="submit"
