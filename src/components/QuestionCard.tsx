@@ -226,14 +226,14 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   const isUserCorrect = selectedOption === correctAnswer?.toLowerCase();
 
   return (
-    <div className="rounded-2xl py-4 flex flex-col gap-4 font-sans relative">
+    <div className="rounded-2xl py-4 px-1 flex flex-col gap-4 font-sans relative">
       
       {/* Optional Section Instructions Banner */}
       {question.instructions && (
         <div className="bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-500/20 text-slate-600 dark:text-slate-300 text-xs p-3 rounded-xl flex items-start gap-2">
-          <HelpCircle className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+          <HelpCircle className="w-4 h-4 text-indigo-500 dark:text-indigo-500 dark:text-indigo-400 shrink-0 mt-0.5" />
           <div>
-            <span className="font-bold text-indigo-300 uppercase tracking-wider text-[9px] block mb-0.5">Section Instructions</span>
+            <span className="font-bold text-indigo-600 dark:text-indigo-300 uppercase tracking-wider text-[9px] block mb-0.5">Section Instructions</span>
             {question.instructions}
           </div>
         </div>
@@ -243,7 +243,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
       <div className="flex flex-col gap-2 pb-3 border-b border-black/8 dark:border-white/10">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-            <span className="bg-indigo-500/25 text-indigo-300 border border-indigo-500/25 text-xs font-bold px-2.5 py-1 rounded-lg font-mono tracking-wide">
+            <span className="bg-indigo-500/10 dark:bg-indigo-500/25 text-indigo-600 dark:text-indigo-300 border border-indigo-400/30 dark:border-indigo-500/25 text-xs font-bold px-2.5 py-1 rounded-lg font-mono tracking-wide">
               Q{question.number}
             </span>
             {question.marks && (
@@ -260,7 +260,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             {selectedOption && (
               <button
                 onClick={resetCard}
-                className="p-2 rounded-xl text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/25 transition-colors cursor-pointer"
+                className="p-2 rounded-xl text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-indigo-500/10 border border-transparent hover:border-indigo-500/25 transition-colors cursor-pointer"
                 title="Reset choice"
                 aria-label="Reset choice"
               >
@@ -271,7 +271,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
               onClick={handleCopyQuestion}
               className={`p-2 rounded-xl transition-colors flex items-center justify-center cursor-pointer ${
                 copiedQuestion
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/35'
+                  ? 'bg-indigo-500/15 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border border-indigo-400/30 dark:border-indigo-500/35'
                   : 'bg-white/5 hover:bg-white/10 border border-white/12 text-slate-300'
               }`}
               title={copiedQuestion ? 'Copied!' : 'Copy question'}
@@ -283,7 +283,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
               onClick={() => setShowExplanation(!showExplanation)}
               className={`p-2 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center cursor-pointer ${
                 showExplanation
-                  ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/45'
+                  ? 'bg-indigo-500/20 dark:bg-indigo-500/30 text-indigo-700 dark:text-indigo-300 border border-indigo-400/40 dark:border-indigo-500/45'
                   : 'bg-white/5 hover:bg-white/10 border border-white/12 text-slate-300'
               }`}
               title={showExplanation ? 'Hide Answer' : 'Show Answer & Expl.'}
@@ -293,7 +293,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             </button>
             <button
               onClick={() => onAskAI(`Question ${question.number} (${question.year}): ${question.text}`)}
-              className="p-2 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/25 text-emerald-400 rounded-xl transition-colors flex items-center justify-center cursor-pointer"
+              className="p-2 bg-indigo-500/10 dark:bg-indigo-500/15 hover:bg-indigo-500/20 dark:hover:bg-indigo-500/25 border border-indigo-400/25 dark:border-indigo-500/25 text-indigo-600 dark:text-indigo-400 rounded-xl transition-colors flex items-center justify-center cursor-pointer"
               title="Ask Study AI"
               aria-label="Ask Study AI"
             >
@@ -340,10 +340,10 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 
             if (selectedOption) {
               if (isOptionCorrect) {
-                optionStyles = "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-medium";
-                badgeStyles = "bg-emerald-500 text-white";
+                optionStyles = "bg-indigo-500/15 dark:bg-indigo-500/20 border-indigo-500/40 dark:border-indigo-500/50 text-indigo-700 dark:text-indigo-200 font-medium";
+                badgeStyles = "bg-indigo-500 text-white";
               } else if (isSelected) {
-                optionStyles = "bg-red-500/20 border-red-500/40 text-red-300";
+                optionStyles = "bg-red-500/15 dark:bg-red-500/20 border-red-500/35 dark:border-red-500/40 text-red-700 dark:text-red-300";
                 badgeStyles = "bg-red-500 text-white";
               } else {
                 optionStyles = "bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 text-slate-400 dark:text-slate-500 opacity-55";
@@ -380,7 +380,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
                 Draft your answer
               </span>
               {userDraft.trim() && !draftExpanded && (
-                <span className="text-[10px] font-mono text-emerald-400/80 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md truncate max-w-[140px]">
+                <span className="text-[10px] font-mono text-indigo-600/80 dark:text-indigo-400/80 bg-indigo-500/10 border border-indigo-400/20 dark:border-indigo-500/20 px-1.5 py-0.5 rounded-md truncate max-w-[140px]">
                   Saved
                 </span>
               )}
@@ -423,7 +423,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
                   onClick={() => {
                     onAskAI(`Here is my draft answer outline for UPSC ISS ${question.paper.toUpperCase().replace('PAPER', 'Paper ')} ${question.section.toUpperCase()} Q${question.number} (${question.year}):\n\n"${userDraft}"\n\nPlease evaluate my draft solution based on the question:\n"${question.text}".\n\nIdentify what is correct, note missing steps or equations, and show how to write a standard high-scoring UPSC answer.`);
                   }}
-                  className="px-3.5 py-1.5 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 hover:border-emerald-500/35 text-emerald-400 hover:text-emerald-300 rounded-xl text-xs font-bold uppercase tracking-wide transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed"
+                  className="px-3.5 py-1.5 bg-indigo-500/10 dark:bg-indigo-600/10 hover:bg-indigo-500/20 dark:hover:bg-indigo-600/20 border border-indigo-400/20 dark:border-indigo-500/20 hover:border-indigo-400/35 dark:hover:border-indigo-500/35 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 rounded-xl text-xs font-bold uppercase tracking-wide transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   AI Evaluate
@@ -440,7 +440,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           {selectedOption ? (
             <div className="flex items-center gap-1.5 text-xs">
               {isUserCorrect ? (
-                <span className="text-emerald-400 font-semibold flex items-center gap-1 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-1 rounded-lg">
+                <span className="text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-1 bg-indigo-500/10 dark:bg-indigo-500/20 border border-indigo-400/30 dark:border-indigo-500/30 px-2.5 py-1 rounded-lg">
                   <CheckCircle className="w-3.5 h-3.5" />
                   Correct! Answer is ({correctAnswer})
                 </span>
@@ -477,7 +477,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
                             onClick={() => handleCorrectAnswerChange(opt)}
                             className={`w-7 h-7 rounded-lg text-xs font-bold transition-all ${
                               correctAnswer?.toUpperCase() === opt
-                                ? 'bg-emerald-600 text-white'
+                                ? 'bg-indigo-600 text-white'
                                 : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300'
                             }`}
                           >
@@ -509,7 +509,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 min-w-0">
               {isSubjective ? (
                 <>
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <CheckCircle className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
                   <span className="truncate">Model Solution</span>
                 </>
               ) : (
@@ -521,7 +521,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
                 onClick={handleCopyAnswer}
                 className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                   copiedAnswer
-                    ? 'text-emerald-300 bg-emerald-500/15'
+                    ? 'text-indigo-700 dark:text-indigo-300 bg-indigo-500/10 dark:bg-indigo-500/15'
                     : 'text-slate-500 dark:text-slate-400 hover:text-indigo-500 dark:hover:text-indigo-300 hover:bg-black/5 dark:hover:bg-white/5'
                 }`}
                 title={copiedAnswer ? 'Copied!' : 'Copy answer'}
@@ -532,7 +532,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
               {isAdmin && (
                 <button
                   onClick={() => onEditExplanationClick(question, explanation || '')}
-                  className="text-indigo-400 hover:text-indigo-300 p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                  className="text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
                   title="Edit Explanation"
                   aria-label="Edit Explanation"
                 >
@@ -552,7 +552,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 
           <div className="px-3.5 py-3.5 text-sm font-sans text-slate-600 dark:text-slate-300 leading-relaxed space-y-2">
             {!isSubjective && (
-              <div className="font-semibold text-emerald-400 text-sm mb-2">
+              <div className="font-semibold text-indigo-600 dark:text-indigo-400 text-sm mb-2">
                 Correct Answer Option: ({correctAnswer || 'Not Set'})
               </div>
             )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, BookOpen, Layers, GraduationCap, CheckCircle2 } from 'lucide-react';
 
 interface SyllabusModalProps {
@@ -10,14 +10,9 @@ interface SyllabusModalProps {
 type ActivePaper = 'paper1' | 'paper2' | 'paper3' | 'paper4';
 
 export const SyllabusModal: React.FC<SyllabusModalProps> = ({ isOpen, onClose, defaultSource = 'iss' }) => {
-  const [activeSource, setActiveSource] = useState<'iss' | 'uphesc'>(defaultSource);
+  const activeSource = defaultSource;
   const [activePaper, setActivePaper] = useState<ActivePaper>('paper1');
   const [activeUphescUnit, setActiveUphescUnit] = useState<number>(1);
-
-  // Snap to the correct tab whenever the modal is (re-)opened
-  useEffect(() => {
-    if (isOpen) setActiveSource(defaultSource);
-  }, [isOpen, defaultSource]);
 
   if (!isOpen) return null;
 
@@ -353,25 +348,25 @@ export const SyllabusModal: React.FC<SyllabusModalProps> = ({ isOpen, onClose, d
 
   return (
     <div className="fixed inset-0 bg-slate-100/85 dark:bg-slate-950/85 backdrop-blur-2xl flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-slate-900 border border-black/10 dark:border-white/15 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-150 text-slate-900 dark:text-slate-100">
+      <div className="bg-white dark:bg-slate-900 border border-black/10 dark:border-white/15 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] min-h-0 flex flex-col animate-in fade-in zoom-in-95 duration-150 text-slate-900 dark:text-slate-100 overflow-hidden">
 
         {/* Header */}
-        <div className="p-5 border-b border-black/8 dark:border-white/10 flex items-center justify-between bg-black/[0.02] dark:bg-white/5">
-          <div className="flex items-center gap-3">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center border ${
+        <div className="p-4 sm:p-5 border-b border-black/8 dark:border-white/10 flex items-center justify-between bg-black/[0.02] dark:bg-white/5 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center border shrink-0 ${
               activeSource === 'uphesc'
                 ? 'bg-violet-500/15 dark:bg-violet-500/20 text-violet-500 dark:text-violet-400 border-violet-300 dark:border-violet-500/20'
                 : 'bg-indigo-500/15 dark:bg-indigo-500/20 text-indigo-500 dark:text-indigo-400 border-indigo-300 dark:border-indigo-500/20'
             }`}>
               <BookOpen className="w-5 h-5" />
             </div>
-            <div>
-              <h2 className="text-base font-bold font-display text-slate-900 dark:text-white">
+            <div className="min-w-0">
+              <h2 className="text-sm sm:text-base font-bold font-display text-slate-900 dark:text-white truncate">
                 {activeSource === 'uphesc' ? 'UPHESC Statistics Syllabus' : 'UPSC ISS Official Syllabus'}
               </h2>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                 {activeSource === 'uphesc'
-                  ? 'U.P. Higher Education Services Commission, Prayagraj — Statistics (Subject Code-77)'
+                  ? 'U.P. Higher Education Services Commission — Subject Code-77'
                   : 'Indian Statistical Service (Statistics I, II, III & IV)'}
               </p>
             </div>
@@ -381,28 +376,6 @@ export const SyllabusModal: React.FC<SyllabusModalProps> = ({ isOpen, onClose, d
             className="w-8 h-8 rounded-lg bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white flex items-center justify-center text-slate-500 dark:text-slate-400 cursor-pointer transition-colors"
           >
             <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Source Switcher */}
-        <div className="bg-black/[0.02] dark:bg-slate-950/40 px-4 py-2 border-b border-black/5 dark:border-white/5 flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => setActiveSource('iss')}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeSource === 'iss' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
-            }`}
-          >
-            <GraduationCap className="w-3.5 h-3.5" />
-            UPSC ISS
-          </button>
-          <button
-            onClick={() => setActiveSource('uphesc')}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeSource === 'uphesc' ? 'bg-violet-600 text-white shadow-md' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
-            }`}
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-            UPHESC Asst. Prof.
           </button>
         </div>
 
@@ -429,7 +402,7 @@ export const SyllabusModal: React.FC<SyllabusModalProps> = ({ isOpen, onClose, d
               })}
             </div>
 
-            <div className="p-6 overflow-y-auto flex-1 space-y-6">
+            <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-0 space-y-6">
               <div className="bg-gradient-to-r from-indigo-50 dark:from-indigo-950/40 to-white dark:to-slate-900 border border-indigo-100 dark:border-white/5 p-4 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3.5">
                 <div className="space-y-1">
                   <span className="text-[10px] bg-indigo-500/15 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 px-2 py-0.5 rounded-full font-mono uppercase font-semibold">
@@ -473,60 +446,75 @@ export const SyllabusModal: React.FC<SyllabusModalProps> = ({ isOpen, onClose, d
 
         {/* ── UPHESC Content ── */}
         {activeSource === 'uphesc' && (
-          <div className="flex flex-1 min-h-0 overflow-hidden">
-
-            {/* Left — Unit Selector */}
-            <div className="w-[200px] shrink-0 border-r border-black/6 dark:border-white/8 overflow-y-auto scrollbar-none bg-black/[0.03] dark:bg-slate-950/30 p-2 space-y-0.5">
-              {uphescUnits.map((u) => (
-                <button
-                  key={u.num}
-                  onClick={() => setActiveUphescUnit(u.num)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-[11px] font-semibold transition-all cursor-pointer leading-tight ${
-                    activeUphescUnit === u.num
-                      ? 'bg-violet-600 text-white shadow-md'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
-                  }`}
-                >
-                  <span className={`block text-[9px] font-bold uppercase tracking-widest mb-0.5 ${
-                    activeUphescUnit === u.num ? 'text-violet-200' : 'text-slate-400 dark:text-slate-500'
-                  }`}>Unit {u.num}</span>
-                  {u.title.replace(/^Unit-\d+ : /, '')}
-                </button>
-              ))}
+          <>
+            {/* Unit tabs — same horizontal chip pattern as ISS papers */}
+            <div className="bg-black/[0.02] dark:bg-slate-950/20 p-2 border-b border-black/5 dark:border-white/5 flex gap-1 overflow-x-auto scrollbar-none shrink-0">
+              {uphescUnits.map((u) => {
+                const isActive = activeUphescUnit === u.num;
+                return (
+                  <button
+                    key={u.num}
+                    onClick={() => setActiveUphescUnit(u.num)}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                      isActive
+                        ? 'bg-violet-600 text-white shadow-md'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    Unit {u.num}
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Right — Unit Content */}
             {(() => {
               const unit = uphescUnits[activeUphescUnit - 1];
               return (
-                <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                  {/* Unit Header */}
-                  <div className="bg-gradient-to-r from-violet-50 dark:from-violet-950/30 to-white dark:to-slate-900 border border-violet-100 dark:border-violet-500/10 p-4 rounded-xl">
-                    <span className="text-[9px] font-bold text-violet-500 dark:text-violet-400 uppercase tracking-widest">
-                      UPHESC Statistics · Unit {unit.num} of 10
-                    </span>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-1">{unit.title}</h3>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                      U.P. Higher Education Services Commission, Prayagraj &mdash; Subject Code-77
-                    </p>
+                <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-0 space-y-5">
+                  <div className="bg-gradient-to-r from-violet-50 dark:from-violet-950/40 to-white dark:to-slate-900 border border-violet-100 dark:border-white/5 p-4 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3.5">
+                    <div className="space-y-1 min-w-0">
+                      <span className="text-[10px] bg-violet-500/15 dark:bg-violet-500/20 text-violet-600 dark:text-violet-300 px-2 py-0.5 rounded-full font-mono uppercase font-semibold">
+                        Unit {unit.num} of 10
+                      </span>
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-1">{unit.title}</h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 max-w-2xl">
+                        Official UPHESC Statistics (Subject Code-77) topics for this unit.
+                      </p>
+                    </div>
+                    <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 md:border-l border-black/8 dark:border-white/10 md:pl-4 py-1 font-mono flex items-center gap-2">
+                      <GraduationCap className="w-4.5 h-4.5 text-violet-500 dark:text-violet-400" />
+                      <span>Subject Code-77</span>
+                    </div>
                   </div>
 
-                  {/* Topic List */}
-                  <div className="bg-black/[0.02] dark:bg-white/[0.02] border border-black/6 dark:border-white/5 rounded-xl p-5">
-                    <h4 className="text-[10px] font-bold text-violet-500 dark:text-violet-300 uppercase tracking-wider mb-3">Syllabus Topics</h4>
-                    <ul className="space-y-3">
-                      {unit.topics.map((topic, idx) => (
-                        <li key={idx} className="flex gap-2.5 text-[12px] leading-relaxed text-slate-600 dark:text-slate-300">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-violet-400 dark:text-violet-500 shrink-0 mt-0.5" />
-                          <span>{topic}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="grid grid-cols-1 gap-5">
+                    <div className="bg-black/[0.02] dark:bg-white/[0.02] border border-black/6 dark:border-white/5 rounded-xl p-4 flex flex-col gap-3">
+                      <div className="flex items-center gap-2 pb-2 border-b border-black/6 dark:border-white/5">
+                        <div className="w-6 h-6 rounded-md bg-violet-500/10 flex items-center justify-center text-violet-500 dark:text-violet-400 text-xs font-bold">{unit.num}</div>
+                        <h4 className="text-xs font-bold text-violet-500 dark:text-violet-300 tracking-wide">
+                          {unit.title.replace(/^Unit-\d+ : /, '')}
+                        </h4>
+                      </div>
+                      <ul className="space-y-2.5">
+                        {unit.topics.map((topic, tIdx) => (
+                          <li key={tIdx} className="flex gap-2 text-[11px] sm:text-xs leading-relaxed text-slate-600 dark:text-slate-300 font-sans">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-violet-400 dark:text-violet-500 shrink-0 mt-0.5" />
+                            <span>{topic}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 </div>
               );
             })()}
-          </div>
+
+            <div className="p-4 border-t border-black/8 dark:border-white/10 bg-black/[0.03] dark:bg-slate-950/60 flex items-center justify-between gap-3 text-[10px] text-slate-400 dark:text-slate-500 shrink-0">
+              <span className="truncate">U.P. Higher Education Services Commission, Prayagraj</span>
+              <span className="font-mono shrink-0">UPHESC · Code-77</span>
+            </div>
+          </>
         )}
 
       </div>

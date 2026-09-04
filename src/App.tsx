@@ -530,7 +530,7 @@ export default function App() {
   }, [isLeftDrawerOpen, isAssistantOpen, isSyllabusOpen]);
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans selection:bg-indigo-500/30 selection:text-white bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100${theme === 'dark' ? ' dark' : ''}`}>
+    <div className={`min-h-screen flex flex-col font-sans selection:bg-indigo-500/30 selection:text-white text-slate-900 dark:text-slate-100 bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/40${theme === 'dark' ? ' dark' : ''}`}>
       
       {/* ==================== LEFT NAVIGATION & FILTER DRAWER ==================== */}
       {isLeftDrawerOpen && (
@@ -609,7 +609,7 @@ export default function App() {
                     {/* ISS Syllabus Quick Link */}
                     <button
                       onClick={() => { setSyllabusDefaultSource('iss'); setIsSyllabusOpen(true); setIsLeftDrawerOpen(false); }}
-                      className="w-full py-1 text-left text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-2 transition-colors cursor-pointer"
+                      className="w-full py-1 text-left text-[11px] font-semibold text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 flex items-center gap-2 transition-colors cursor-pointer"
                     >
                       <BookOpen className="w-3.5 h-3.5" />
                       <span>UPSC ISS Syllabus Reference</span>
@@ -759,11 +759,11 @@ export default function App() {
                         <div className="pt-4 space-y-1">
                           <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono tracking-wider">
                             <span>REVISION PROGRESS</span>
-                            <span className="font-bold text-emerald-400">{answeredCount} / {questions.length}</span>
+                            <span className="font-bold text-indigo-500 dark:text-indigo-400">{answeredCount} / {questions.length}</span>
                           </div>
                           <div className="w-full bg-slate-200 dark:bg-slate-900 rounded-full h-1 overflow-hidden">
                             <div
-                              className="bg-emerald-500 h-full transition-all duration-300"
+                              className="bg-indigo-500 h-full transition-all duration-300"
                               style={{ width: `${Math.min(100, (answeredCount / questions.length) * 100)}%` }}
                             />
                           </div>
@@ -959,7 +959,7 @@ export default function App() {
       )}
 
       {/* Dynamic Header Banner */}
-      <header className="bg-white/80 dark:bg-slate-950/80 border-b border-black/8 dark:border-white/10 backdrop-blur-xl sticky top-0 z-40 shadow-sm">
+      <header className="bg-white/60 dark:bg-slate-950/60 border-b border-black/8 dark:border-white/10 backdrop-blur-xl sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between relative">
           
           {/* Left menu trigger button */}
@@ -1009,24 +1009,24 @@ export default function App() {
               onClick={() => setIsAssistantOpen(!isAssistantOpen)}
               className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                 isAssistantOpen
-                  ? 'bg-emerald-600/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/20'
-                  : 'hover:bg-black/5 dark:hover:bg-white/5 text-slate-600 dark:text-slate-300 hover:text-emerald-500 dark:hover:text-emerald-400'
+                  ? 'bg-indigo-600/20 text-indigo-600 dark:text-indigo-300 border border-indigo-500/20'
+                  : 'hover:bg-black/5 dark:hover:bg-white/5 text-slate-600 dark:text-slate-300 hover:text-indigo-500 dark:hover:text-indigo-400'
               }`}
               title="Ask Study AI"
               aria-label="Ask Study AI"
             >
-              <Sparkles className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+              <Sparkles className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
             </button>
 
             {/* Micro active indicator */}
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse hidden md:inline-block" />
+            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse hidden md:inline-block" />
           </div>
         </div>
       </header>
 
       {/* Header Search Overlay */}
       {isHeaderSearchOpen && (
-        <div className="bg-white dark:bg-slate-900 border-b border-black/8 dark:border-white/10 py-3 px-4 animate-in slide-in-from-top duration-200">
+        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-black/8 dark:border-white/10 py-3 px-4 animate-in slide-in-from-top duration-200">
           <div className="max-w-md mx-auto relative">
             <input
               type="text"
@@ -1050,15 +1050,21 @@ export default function App() {
       )}
 
       {/* ==================== STICKY ACTIVE FILTERS ROW ==================== */}
-      <div className="bg-white/95 dark:bg-slate-950/95 border-b border-black/5 dark:border-white/5 sticky top-[56px] z-30 shadow-xs backdrop-blur-md py-2">
+      <div className="bg-white/60 dark:bg-slate-950/60 border-b border-black/5 dark:border-white/5 sticky top-[56px] z-30 shadow-xs backdrop-blur-xl py-2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-auto scrollbar-none">
           <div className="flex items-center gap-1.5 flex-nowrap min-w-max">
+
+          {/* ── Mode chip (always visible) ── */}
           <button 
             onClick={() => setIsLeftDrawerOpen(true)}
-            className="px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 hover:border-black/15 dark:hover:border-white/20 text-[11px] font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1 shrink-0 cursor-pointer"
+            className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold flex items-center gap-1 shrink-0 cursor-pointer transition-colors ${
+              examMode === 'uphesc'
+                ? 'bg-violet-500/10 dark:bg-violet-500/15 border-violet-400/30 dark:border-violet-500/30 hover:bg-violet-500/20'
+                : 'bg-indigo-500/10 dark:bg-indigo-500/15 border-indigo-400/30 dark:border-indigo-500/30 hover:bg-indigo-500/20'
+            }`}
           >
             <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${examMode === 'uphesc' ? 'bg-violet-500' : 'bg-indigo-500'}`} />
-            <b className="text-slate-900 dark:text-white">
+            <b className={examMode === 'uphesc' ? 'text-violet-700 dark:text-violet-300' : 'text-indigo-700 dark:text-indigo-300'}>
               {examMode === 'uphesc'
                 ? 'UPHESC A.P.'
                 : activeTab === 'pyq'
@@ -1073,11 +1079,12 @@ export default function App() {
 
           {activeTab === 'pyq' ? (
             <>
+              {/* Paper chip */}
               <button 
                 onClick={() => setIsLeftDrawerOpen(true)}
-                className="px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 hover:border-black/15 dark:hover:border-white/20 text-[11px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 cursor-pointer"
+                className="px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/8 border border-black/8 dark:border-white/12 hover:bg-black/8 dark:hover:bg-white/12 text-[11px] font-semibold shrink-0 cursor-pointer transition-colors"
               >
-                <b className="text-slate-900 dark:text-white">
+                <b className="text-slate-700 dark:text-slate-200">
                   {selectedPaper === 'paper1' 
                     ? 'Paper I' 
                     : selectedPaper === 'paper2' 
@@ -1095,47 +1102,43 @@ export default function App() {
               {selectedSection !== 'all' && (
                 <button 
                   onClick={() => setSelectedSection('all')}
-                  className="px-2.5 py-1 rounded-full bg-indigo-600/10 border border-indigo-500/20 text-[11px] font-semibold text-indigo-300 hover:bg-indigo-600/20 shrink-0 cursor-pointer flex items-center gap-1"
+                  className="px-2.5 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-400/30 dark:border-indigo-500/30 text-[11px] font-semibold hover:bg-indigo-500/20 shrink-0 cursor-pointer flex items-center gap-1 transition-colors"
                 >
-                  <b className="text-white">{SUBJECT_LABELS[selectedSection] || selectedSection}</b>
-                  <X className="w-3 h-3 ml-0.5" />
+                  <b className="text-indigo-700 dark:text-indigo-300">{SUBJECT_LABELS[selectedSection] || selectedSection}</b>
+                  <X className="w-3 h-3 ml-0.5 text-indigo-500 dark:text-indigo-400" />
                 </button>
               )}
 
               {selectedYear !== 'all' && (
                 <button 
                   onClick={() => setSelectedYear('all')}
-                  className="px-2.5 py-1 rounded-full bg-indigo-600/10 border border-indigo-500/20 text-[11px] font-semibold text-indigo-300 hover:bg-indigo-600/20 shrink-0 cursor-pointer flex items-center gap-1"
+                  className="px-2.5 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-400/30 dark:border-indigo-500/30 text-[11px] font-semibold hover:bg-indigo-500/20 shrink-0 cursor-pointer flex items-center gap-1 transition-colors"
                 >
-                  <b className="text-white">{selectedYear}</b>
-                  <X className="w-3 h-3 ml-0.5" />
+                  <b className="text-indigo-700 dark:text-indigo-300">{selectedYear}</b>
+                  <X className="w-3 h-3 ml-0.5 text-indigo-500 dark:text-indigo-400" />
                 </button>
               )}
             </>
           ) : examMode === 'uphesc' ? (
             <>
-              <button
-                onClick={() => setIsLeftDrawerOpen(true)}
-                className="px-2.5 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/20 text-[11px] font-semibold text-violet-300 shrink-0 cursor-pointer"
-              >
-                <b className="text-white">UPHESC Asst. Prof.</b>
-              </button>
+              {/* Only show the unit title chip (no redundant "UPHESC Asst. Prof." chip) */}
               {activeNotesSectionKey && notes['uphesc']?.[activeNotesSectionKey] && (
                 <button
                   onClick={() => setIsLeftDrawerOpen(true)}
-                  className="px-2.5 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/20 text-[11px] font-semibold text-violet-300 shrink-0 cursor-pointer"
+                  className="px-2.5 py-1 rounded-full bg-violet-500/10 dark:bg-violet-500/15 border border-violet-400/30 dark:border-violet-500/30 hover:bg-violet-500/20 text-[11px] font-semibold shrink-0 cursor-pointer transition-colors"
                 >
-                  <b className="text-white">{(notes['uphesc'][activeNotesSectionKey] as any).title}</b>
+                  <b className="text-violet-700 dark:text-violet-300">{(notes['uphesc'][activeNotesSectionKey] as any).title}</b>
                 </button>
               )}
             </>
           ) : (
             <>
+              {/* ISS paper chip */}
               <button 
                 onClick={() => setIsLeftDrawerOpen(true)}
-                className="px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 hover:border-black/15 dark:hover:border-white/20 text-[11px] font-semibold text-slate-600 dark:text-slate-300 shrink-0 cursor-pointer"
+                className="px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/8 border border-black/8 dark:border-white/12 hover:bg-black/8 dark:hover:bg-white/12 text-[11px] font-semibold shrink-0 cursor-pointer transition-colors"
               >
-                <b className="text-slate-900 dark:text-white">
+                <b className="text-slate-700 dark:text-slate-200">
                   {selectedNotesPaper.toUpperCase().replace('PAPER', 'Paper ')}
                 </b>
               </button>
@@ -1143,9 +1146,9 @@ export default function App() {
               {activeNotesSectionKey && notes[selectedNotesPaper]?.[activeNotesSectionKey] && (
                 <button 
                   onClick={() => setIsLeftDrawerOpen(true)}
-                  className="px-2.5 py-1 rounded-full bg-indigo-600/10 border border-indigo-500/20 text-[11px] font-semibold text-indigo-300 hover:bg-indigo-600/20 shrink-0 cursor-pointer flex items-center gap-1"
+                  className="px-2.5 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-400/30 dark:border-indigo-500/30 hover:bg-indigo-500/20 text-[11px] font-semibold shrink-0 cursor-pointer transition-colors"
                 >
-                  <b className="text-white">{notes[selectedNotesPaper][activeNotesSectionKey].title}</b>
+                  <b className="text-indigo-700 dark:text-indigo-300">{notes[selectedNotesPaper][activeNotesSectionKey].title}</b>
                 </button>
               )}
             </>
@@ -1154,10 +1157,10 @@ export default function App() {
           {searchQuery && (
             <button 
               onClick={() => setSearchQuery('')}
-              className="px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-[11px] font-semibold text-rose-300 hover:bg-rose-500/20 shrink-0 cursor-pointer flex items-center gap-1"
+              className="px-2.5 py-1 rounded-full bg-rose-500/10 dark:bg-rose-500/15 border border-rose-400/30 dark:border-rose-500/30 hover:bg-rose-500/20 text-[11px] font-semibold shrink-0 cursor-pointer flex items-center gap-1 transition-colors"
             >
-              <b className="text-white">"{searchQuery}"</b>
-              <X className="w-3 h-3 ml-0.5" />
+              <b className="text-rose-700 dark:text-rose-300">"{searchQuery}"</b>
+              <X className="w-3 h-3 ml-0.5 text-rose-500 dark:text-rose-400" />
             </button>
           )}
           </div>
@@ -1193,7 +1196,7 @@ export default function App() {
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="px-2.5 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-[11px] font-semibold text-rose-300 hover:bg-rose-500/20 flex items-center gap-1 cursor-pointer transition-all"
+                      className="px-2.5 py-1 rounded-full bg-rose-500/10 dark:bg-rose-500/10 border border-rose-400/30 dark:border-rose-500/20 text-[11px] font-semibold text-rose-600 dark:text-rose-300 hover:bg-rose-500/20 flex items-center gap-1 cursor-pointer transition-all"
                     >
                       <X className="w-3 h-3" />
                       Clear

@@ -53,12 +53,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isAdmin, onAdminChange }
   return (
     <div className="relative font-sans">
       {isAdmin ? (
-        <div className="flex items-center gap-2 bg-emerald-500/20 text-emerald-300 px-3 py-1.5 rounded-xl border border-emerald-500/30">
-          <Shield className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="flex items-center gap-2 bg-indigo-500/20 text-indigo-300 px-3 py-1.5 rounded-xl border border-indigo-500/30">
+          <Shield className="w-4 h-4 text-indigo-400 shrink-0" />
           <span className="text-xs font-semibold font-display">Admin Mode Active</span>
           <button
             onClick={handleLogout}
-            className="ml-2 hover:bg-emerald-500/30 p-1 rounded-lg text-emerald-400 transition-colors cursor-pointer"
+            className="ml-2 hover:bg-indigo-500/30 p-1 rounded-lg text-indigo-400 transition-colors cursor-pointer"
             title="Log Out"
           >
             <LogOut className="w-3.5 h-3.5" />

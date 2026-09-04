@@ -251,17 +251,17 @@ export const StudyAssistant: React.FC<StudyAssistantProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="flex flex-col h-full bg-black/[0.02] dark:bg-white/5 border border-white/10 rounded-2xl shadow-lg overflow-hidden backdrop-blur-xl">
+    <div className="flex flex-col h-full bg-white/70 dark:bg-white/5 border border-black/8 dark:border-white/10 rounded-2xl shadow-lg overflow-hidden backdrop-blur-xl">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white/5 border-b border-black/8 dark:border-white/10">
+      <div className="flex items-center justify-between px-4 py-3 bg-black/[0.02] dark:bg-white/5 border-b border-black/8 dark:border-white/10">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 border border-emerald-500/20">
+          <div className="w-8 h-8 rounded-lg bg-indigo-500/15 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 border border-indigo-400/20 dark:border-indigo-500/20">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
             <h3 className="text-sm font-semibold font-display text-slate-900 dark:text-white">ISS Study Assistant</h3>
-            <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 dark:bg-indigo-400 animate-pulse"></span>
               Powered by Gemini 3.5
             </span>
           </div>
@@ -294,7 +294,7 @@ export const StudyAssistant: React.FC<StudyAssistantProps> = ({
           >
             {/* Sender header */}
             <div className={`flex items-center gap-1.5 text-xs font-semibold ${
-              m.role === 'user' ? 'justify-end text-indigo-400' : 'text-emerald-400'
+              m.role === 'user' ? 'justify-end text-indigo-600 dark:text-indigo-400' : 'text-indigo-600 dark:text-indigo-400'
             }`}>
               {m.role === 'user' ? (
                 <>
@@ -336,13 +336,13 @@ export const StudyAssistant: React.FC<StudyAssistantProps> = ({
         ))}
         {isLoading && (
           <div className="flex gap-3 w-full max-w-full">
-            <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0 animate-spin border border-emerald-500/20">
+            <div className="w-7 h-7 rounded-full bg-indigo-500/15 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 flex items-center justify-center shrink-0 animate-spin border border-indigo-400/20 dark:border-indigo-500/20">
               <RefreshCw className="w-4 h-4" />
             </div>
             <div className="bg-white/5 border border-white/10 px-4 py-3 rounded-2xl rounded-tl-none shadow-md text-sm text-slate-400 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce"></span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:0.2s]"></span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:0.4s]"></span>
+              <span className="w-2 h-2 rounded-full bg-indigo-500 dark:bg-indigo-500 animate-bounce"></span>
+              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce [animation-delay:0.2s]"></span>
+              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce [animation-delay:0.4s]"></span>
               Gemini is typesetting proofs...
             </div>
           </div>
@@ -359,7 +359,7 @@ export const StudyAssistant: React.FC<StudyAssistantProps> = ({
               <button
                 key={p}
                 onClick={() => handlePresetClick(p)}
-                className="text-[11px] bg-white/5 hover:bg-black/8 dark:hover:bg-white/10 hover:text-emerald-300 text-slate-300 px-2.5 py-1 rounded-full border border-white/10 hover:border-emerald-500/30 transition-all font-sans cursor-pointer"
+                className="text-[11px] bg-white/5 hover:bg-black/8 dark:hover:bg-white/10 hover:text-indigo-600 dark:hover:text-indigo-300 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-full border border-black/8 dark:border-white/10 hover:border-indigo-400/30 dark:hover:border-indigo-500/30 transition-all font-sans cursor-pointer"
               >
                 {p}
               </button>
@@ -383,12 +383,12 @@ export const StudyAssistant: React.FC<StudyAssistantProps> = ({
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask about formulas, concepts, or proofs..."
           disabled={isLoading}
-          className="flex-1 bg-white/5 border border-white/10 text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:outline-hidden text-sm px-4 py-2 rounded-xl transition-all"
+          className="flex-1 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-indigo-500 focus:outline-hidden text-sm px-4 py-2 rounded-xl transition-all"
         />
         <button
           type="submit"
           disabled={!input.trim() || isLoading}
-          className="bg-emerald-500 hover:bg-emerald-600 disabled:bg-white/5 text-white disabled:text-slate-600 p-2.5 rounded-xl flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+          className="bg-indigo-500 hover:bg-indigo-600 disabled:bg-black/5 dark:disabled:bg-white/5 text-white disabled:text-slate-600 p-2.5 rounded-xl flex items-center justify-center transition-colors shrink-0 cursor-pointer"
         >
           <Send className="w-4 h-4" />
         </button>

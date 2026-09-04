@@ -120,7 +120,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
                 return (
                   <div
                     key={section.id}
-                    className="bg-black/[0.02] dark:bg-white/5 border border-black/8 dark:border-white/10 rounded-xl overflow-hidden transition-all duration-200"
+                    className="bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/8 dark:border-white/10 rounded-xl overflow-hidden transition-all duration-200 shadow-sm dark:shadow-none"
                   >
                     {/* Header Trigger */}
                     <div
@@ -166,7 +166,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
 
                     {/* Content Body */}
                     {isExpanded && (
-                      <div className="px-5 pb-5 pt-2 border-t border-black/8 dark:border-white/10 bg-black/[0.02] dark:bg-white/5 text-sm text-slate-600 dark:text-slate-300 font-sans leading-relaxed">
+                      <div className="px-4 sm:px-5 pb-5 pt-2 border-t border-black/8 dark:border-white/10 bg-black/[0.02] dark:bg-white/5 text-sm text-slate-600 dark:text-slate-300 font-sans leading-relaxed overflow-x-auto min-w-0 overscroll-x-contain">
                         <MathJaxRenderer html={section.content} className="markdown-body" />
                       </div>
                     )}
@@ -183,7 +183,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
                   : 'bg-indigo-500/10 border-indigo-500'
               }`}>
                 <Lightbulb className={`w-5 h-5 shrink-0 mt-0.5 ${paper === 'uphesc' ? 'text-violet-500 dark:text-violet-400' : 'text-indigo-500 dark:text-indigo-400'}`} />
-                <div>
+                <div className="min-w-0 flex-1 overflow-x-auto">
                   <h5 className={`text-xs font-bold font-display uppercase tracking-wider mb-1 ${
                     paper === 'uphesc' ? 'text-violet-600 dark:text-violet-300' : 'text-indigo-600 dark:text-indigo-300'
                   }`}>

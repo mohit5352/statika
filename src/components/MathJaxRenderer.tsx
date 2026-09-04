@@ -129,6 +129,12 @@ function renderMarkdownWithMath(text: string): string {
     parsedHtml = parsedHtml.split(placeholder).join(math);
   });
 
+  // Markdown tables are created by marked after the HTML-table pass, so wrap
+  // every <table> so wide notes can scroll horizontally on mobile.
+  parsedHtml = parsedHtml.replace(/<table[\s\S]*?<\/table>/gi, (table) =>
+    `<div class="md-table-wrap">${table}</div>`
+  );
+
   return parsedHtml;
 }
 

@@ -115,7 +115,7 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           </div>
 
           <div className="hidden md:flex items-center gap-1.5 text-slate-500 font-mono text-[10px] uppercase font-bold">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
             <span>LaTeX & HTML Supported</span>
           </div>
         </div>
