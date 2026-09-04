@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { BookOpen, Filter, Search, Sparkles, ChevronLeft, ChevronRight, AlertCircle, Menu, X, Check } from 'lucide-react';
 
 // Type declarations
-import { Question, AnswerKey, ExplanationKey, NoteBook } from './types';
+import { Question, AnswerKey, ExplanationKey, NoteBook, Paper } from './types';
 
 // Component imports
 import QuestionCard from './components/QuestionCard';
@@ -20,6 +20,7 @@ import questionsRaw from './data/questions.json';
 import answersRaw from './data/answers.json';
 import explanationsRaw from './data/explanations.json';
 import notesRaw from './data/notes.json';
+import uphescNotesRaw from './data/uphesc_notes.json';
 import genQuestionsRaw from './data/gen_papers_questions.json';
 import genExplanationsRaw from './data/gen_papers_explanations.json';
 
@@ -68,12 +69,29 @@ const SUBJECT_LABELS: Record<string, string> = {
   geography_env: 'Geography, Environment & Science',
   economy_social: 'Economy & Social Development',
   polity_ir: 'Polity, Governance & International Relations',
+  // UPHESC units
+  unit1: 'Unit 1: Probability Theory',
+  unit2: 'Unit 2: Distribution Theory',
+  unit3: 'Unit 3: Statistical Methods',
+  unit4: 'Unit 4: SQC & Time Series',
+  unit5: 'Unit 5: Demography & Index Numbers',
+  unit6: 'Unit 6: Statistical Inference',
+  unit7: 'Unit 7: Sampling Theory',
+  unit8: 'Unit 8: Linear Estimation & DOE',
+  unit9: 'Unit 9: Multivariate Analysis',
+  unit10: 'Unit 10: Advanced Probability Theory',
 };
 
 export default function App() {
   // ── Read initial filter values from URL on first render ────────────────────
   const _initParams = new URLSearchParams(window.location.search);
-  const _validPapers = ['paper1', 'paper2', 'paper3', 'paper4', 'general_english', 'general_studies'] as const;
+  const _validPapers = ['paper1', 'paper2', 'paper3', 'paper4', 'general_english', 'general_studies', 'uphesc'] as const;
+
+  // Top-level exam context: 'iss' (UPSC ISS) or 'uphesc' (UPHESC Asst. Prof.)
+  const [examMode, setExamMode] = useState<'iss' | 'uphesc'>(() => {
+    const v = _initParams.get('mode');
+    return v === 'uphesc' ? 'uphesc' : 'iss';
+  });
 
   // Application modes: 'pyq' (Objective Question Bank) or 'notes' (Revision Notes)
   const [activeTab, setActiveTab] = useState<'pyq' | 'notes'>(() => {
@@ -90,7 +108,10 @@ export default function App() {
   const [explanations, setExplanations] = useState<ExplanationKey>(
     deepMerge(explanationsRaw as ExplanationKey, genExplanationsRaw)
   );
-  const [notes, setNotes] = useState<NoteBook>(notesRaw as NoteBook);
+  const [notes, setNotes] = useState<NoteBook>({
+    ...(notesRaw as NoteBook),
+    ...(uphescNotesRaw as NoteBook),
+  });
 
   // Filter States (initialised from URL so reload restores position)
   const [selectedPaper, setSelectedPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4' | 'general_english' | 'general_studies'>(() => {
@@ -110,9 +131,9 @@ export default function App() {
   const questionsPerPage = 10;
 
   // Study Notes active Paper (initialised from URL)
-  const [selectedNotesPaper, setSelectedNotesPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4' | 'general_english' | 'general_studies'>(() => {
+  const [selectedNotesPaper, setSelectedNotesPaper] = useState<Paper>(() => {
     const v = _initParams.get('notesPaper');
-    return (_validPapers as readonly string[]).includes(v ?? '') ? (v as any) : 'paper1';
+    return (_validPapers as readonly string[]).includes(v ?? '') ? (v as Paper) : 'paper1';
   });
   const [activeNotesSectionKey, setActiveNotesSectionKey] = useState<string>(() => _initParams.get('notesSection') || '');
 
@@ -121,7 +142,7 @@ export default function App() {
   const [tempPaper, setTempPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4' | 'general_english' | 'general_studies'>('paper1');
   const [tempSection, setTempSection] = useState<string>('all');
   const [tempYear, setTempYear] = useState<string>('all');
-  const [tempNotesPaper, setTempNotesPaper] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4' | 'general_english' | 'general_studies'>('paper1');
+  const [tempNotesPaper, setTempNotesPaper] = useState<Paper>('paper1');
   const [tempNotesSectionKey, setTempNotesSectionKey] = useState<string>('');
 
   // Synchronize draft states when the drawer is opened
@@ -131,10 +152,15 @@ export default function App() {
       setTempPaper(selectedPaper);
       setTempSection(selectedSection);
       setTempYear(selectedYear);
-      setTempNotesPaper(selectedNotesPaper);
-      setTempNotesSectionKey(activeNotesSectionKey);
+      // ISS drawer sub-view must never show 'uphesc' as the notes paper
+      const issNotesPaper: Paper = selectedNotesPaper === 'uphesc' ? 'paper1' : selectedNotesPaper;
+      setTempNotesPaper(issNotesPaper);
+      // Sync section key — reset if it belongs to uphesc
+      const uphescKeys = Object.keys(notes['uphesc'] || {});
+      const isUphescSection = uphescKeys.includes(activeNotesSectionKey);
+      setTempNotesSectionKey(isUphescSection ? '' : activeNotesSectionKey);
     }
-  }, [isLeftDrawerOpen, activeTab, selectedPaper, selectedSection, selectedYear, selectedNotesPaper, activeNotesSectionKey]);
+  }, [isLeftDrawerOpen, activeTab, selectedPaper, selectedSection, selectedYear, selectedNotesPaper, activeNotesSectionKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Admin state — initialised from localStorage so admin buttons are visible on first load
   const [isAdmin, setIsAdmin] = useState<boolean>(() => !!localStorage.getItem('iss_admin_token'));
@@ -194,6 +220,7 @@ export default function App() {
   const [activeAssistantContext, setActiveAssistantContext] = useState<string | null>(null);
   const [initialAssistantQuestion, setInitialAssistantQuestion] = useState<string | null>(null);
   const [isSyllabusOpen, setIsSyllabusOpen] = useState<boolean>(false);
+  const [syllabusDefaultSource, setSyllabusDefaultSource] = useState<'iss' | 'uphesc'>('iss');
 
   // Triggering AI Study Assistant chat for a specific question card
   const handleAskAI = (questionText: string) => {
@@ -438,6 +465,7 @@ export default function App() {
   // Sync applied filter state to URL so page reload restores position
   useEffect(() => {
     const params = new URLSearchParams();
+    if (examMode !== 'iss') params.set('mode', examMode);
     if (activeTab !== 'pyq') params.set('tab', activeTab);
     if (selectedPaper !== 'paper1') params.set('paper', selectedPaper);
     if (selectedSection !== 'all') params.set('section', selectedSection);
@@ -448,7 +476,7 @@ export default function App() {
     }
     const qs = params.toString();
     window.history.replaceState(null, '', qs ? '?' + qs : window.location.pathname);
-  }, [activeTab, selectedPaper, selectedSection, selectedYear, selectedNotesPaper, activeNotesSectionKey]);
+  }, [examMode, activeTab, selectedPaper, selectedSection, selectedYear, selectedNotesPaper, activeNotesSectionKey]);
 
   // All unique years across all questions (used only as fallback)
   const uniqueYears = Array.from(new Set(questions.map((q) => q.year.toString()))).sort((a: string, b: string) => b.localeCompare(a));
@@ -508,7 +536,13 @@ export default function App() {
             <div className="p-4 border-b border-white/5 flex items-center justify-between bg-slate-950">
               <div className="flex items-center gap-2">
                 <span className="font-serif text-base tracking-widest text-white uppercase font-light">Statika</span>
-                <span className="text-[9px] bg-indigo-600/20 text-indigo-300 px-1.5 py-0.5 rounded-full font-mono uppercase tracking-wider font-semibold">UPSC ISS</span>
+                <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-mono uppercase tracking-wider font-semibold ${
+                  examMode === 'uphesc'
+                    ? 'bg-violet-600/20 text-violet-300'
+                    : 'bg-indigo-600/20 text-indigo-300'
+                }`}>
+                  {examMode === 'uphesc' ? 'UPHESC A.P.' : 'UPSC ISS'}
+                </span>
               </div>
               <button 
                 onClick={() => setIsLeftDrawerOpen(false)}
@@ -518,316 +552,356 @@ export default function App() {
               </button>
             </div>
 
-            {/* Drawer Body — compact, borderless filters; Apply pinned at bottom */}
+            {/* Drawer Body */}
             <div className="flex-1 flex flex-col min-h-0">
-              <div className="flex-1 px-5 pt-4 pb-3 space-y-4 overflow-y-auto scrollbar-none">
-                {/* Syllabus Quick Reference Link */}
-                <button
-                  onClick={() => {
-                    setIsSyllabusOpen(true);
-                    setIsLeftDrawerOpen(false);
-                  }}
-                  className="w-full py-1 text-left text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-2 transition-colors cursor-pointer"
-                >
-                  <BookOpen className="w-3.5 h-3.5" />
-                  <span>UPSC ISS Syllabus Reference</span>
-                </button>
 
-                {/* Study Mode Selector Underline Tab Bar */}
-                <div className="flex border-b border-white/10">
+              {/* ── Top-Level Exam Mode Switcher ── */}
+              <div className="shrink-0 px-5 pt-4 pb-3 border-b border-white/8">
+                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Exam Mode</p>
+                <div className="flex gap-2">
                   <button
-                    onClick={() => setTempTab('pyq')}
-                    className={`flex-1 pb-2 text-center text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
-                      tempTab === 'pyq'
-                        ? 'text-indigo-400 border-b-2 border-indigo-500'
-                        : 'text-slate-400 hover:text-slate-200'
+                    onClick={() => setExamMode('iss')}
+                    className={`flex-1 py-2 rounded-xl text-[11px] font-bold tracking-wide transition-all cursor-pointer ${
+                      examMode === 'iss'
+                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                        : 'bg-white/5 text-slate-400 hover:text-white border border-white/10 hover:bg-white/8'
                     }`}
                   >
-                    PYQ
+                    UPSC ISS
                   </button>
                   <button
-                    onClick={() => setTempTab('notes')}
-                    className={`flex-1 pb-2 text-center text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
-                      tempTab === 'notes'
-                        ? 'text-indigo-400 border-b-2 border-indigo-500'
-                        : 'text-slate-400 hover:text-slate-200'
+                    onClick={() => {
+                      setExamMode('uphesc');
+                      // Immediately activate UPHESC notes
+                      setActiveTab('notes');
+                      setSelectedNotesPaper('uphesc');
+                      const uphescKeys = Object.keys(notes['uphesc'] || {});
+                      if (!activeNotesSectionKey || !uphescKeys.includes(activeNotesSectionKey)) {
+                        setActiveNotesSectionKey(uphescKeys[0] || '');
+                      }
+                    }}
+                    className={`flex-1 py-2 rounded-xl text-[11px] font-bold tracking-wide transition-all cursor-pointer ${
+                      examMode === 'uphesc'
+                        ? 'bg-violet-600 text-white shadow-md shadow-violet-600/20'
+                        : 'bg-white/5 text-slate-400 hover:text-white border border-white/10 hover:bg-white/8'
                     }`}
                   >
-                    Notes
+                    UPHESC A.P.
                   </button>
                 </div>
+              </div>
 
-                {/* Dynamic Content */}
-                {tempTab === 'pyq' ? (
-                  <div className="divide-y divide-white/10">
-                    
-                    {/* ISS Paper */}
-                    <div className="pb-4 space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ISS Paper</label>
-                      <div className="space-y-0.5">
-                        {([
-                          { key: 'paper1' as const, label: 'Paper I', meta: 'Objective', group: 'stats' },
-                          { key: 'paper2' as const, label: 'Paper II', meta: 'Objective', group: 'stats' },
-                          { key: 'paper3' as const, label: 'Paper III', meta: 'Subjective', group: 'stats' },
-                          { key: 'paper4' as const, label: 'Paper IV', meta: 'Subjective', group: 'stats' },
-                          { key: 'general_english' as const, label: 'General English', meta: 'Written', group: 'general' },
-                          { key: 'general_studies' as const, label: 'General Studies', meta: 'Written', group: 'general' },
-                        ]).map((opt, idx, arr) => {
-                          const isActive = tempPaper === opt.key;
-                          const prev = arr[idx - 1];
-                          const showGroupRule = idx > 0 && prev.group !== opt.group;
-                          return (
-                            <React.Fragment key={opt.key}>
-                              {showGroupRule && <div className="my-1.5 border-t border-dashed border-white/10" />}
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setTempPaper(opt.key);
-                                  if (tempSection !== 'all' && !PAPER_SECTIONS[opt.key]?.includes(tempSection)) {
-                                    setTempSection('all');
-                                  }
-                                  const yearsForPaper = Array.from(
-                                    new Set(questions.filter((q) => q.paper === opt.key).map((q) => q.year.toString()))
-                                  );
-                                  if (tempYear !== 'all' && !yearsForPaper.includes(tempYear)) {
-                                    setTempYear('all');
-                                  }
-                                }}
-                                className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
-                                  isActive
-                                    ? 'text-white'
-                                    : 'text-slate-400 hover:text-slate-200'
-                                }`}
-                              >
-                                <span
-                                  className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
-                                    isActive
-                                      ? 'border-indigo-400 bg-indigo-500 text-white'
-                                      : 'border-white/25'
+              {/* ── ISS Mode Content ── */}
+              {examMode === 'iss' ? (
+                <>
+                  <div className="flex-1 px-5 pt-4 pb-3 space-y-4 overflow-y-auto scrollbar-none">
+
+                    {/* ISS Syllabus Quick Link */}
+                    <button
+                      onClick={() => { setSyllabusDefaultSource('iss'); setIsSyllabusOpen(true); setIsLeftDrawerOpen(false); }}
+                      className="w-full py-1 text-left text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-2 transition-colors cursor-pointer"
+                    >
+                      <BookOpen className="w-3.5 h-3.5" />
+                      <span>UPSC ISS Syllabus Reference</span>
+                    </button>
+
+                    {/* Study Mode Sub-Tabs: PYQ | Notes */}
+                    <div className="flex border-b border-white/10">
+                      <button
+                        onClick={() => setTempTab('pyq')}
+                        className={`flex-1 pb-2 text-center text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                          tempTab === 'pyq'
+                            ? 'text-indigo-400 border-b-2 border-indigo-500'
+                            : 'text-slate-400 hover:text-slate-200'
+                        }`}
+                      >PYQ</button>
+                      <button
+                        onClick={() => setTempTab('notes')}
+                        className={`flex-1 pb-2 text-center text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                          tempTab === 'notes'
+                            ? 'text-indigo-400 border-b-2 border-indigo-500'
+                            : 'text-slate-400 hover:text-slate-200'
+                        }`}
+                      >Notes</button>
+                    </div>
+
+                    {/* PYQ Filters */}
+                    {tempTab === 'pyq' ? (
+                      <div className="divide-y divide-white/10">
+
+                        {/* ISS Paper */}
+                        <div className="pb-4 space-y-2">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ISS Paper</label>
+                          <div className="space-y-0.5">
+                            {([
+                              { key: 'paper1' as const, label: 'Paper I', meta: 'Objective', group: 'stats' },
+                              { key: 'paper2' as const, label: 'Paper II', meta: 'Objective', group: 'stats' },
+                              { key: 'paper3' as const, label: 'Paper III', meta: 'Subjective', group: 'stats' },
+                              { key: 'paper4' as const, label: 'Paper IV', meta: 'Subjective', group: 'stats' },
+                              { key: 'general_english' as const, label: 'General English', meta: 'Written', group: 'general' },
+                              { key: 'general_studies' as const, label: 'General Studies', meta: 'Written', group: 'general' },
+                            ]).map((opt, idx, arr) => {
+                              const isActive = tempPaper === opt.key;
+                              const prev = arr[idx - 1];
+                              const showGroupRule = idx > 0 && prev.group !== opt.group;
+                              return (
+                                <React.Fragment key={opt.key}>
+                                  {showGroupRule && <div className="my-1.5 border-t border-dashed border-white/10" />}
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setTempPaper(opt.key);
+                                      if (tempSection !== 'all' && !PAPER_SECTIONS[opt.key]?.includes(tempSection)) {
+                                        setTempSection('all');
+                                      }
+                                      const yearsForPaper = Array.from(
+                                        new Set(questions.filter((q) => q.paper === opt.key).map((q) => q.year.toString()))
+                                      );
+                                      if (tempYear !== 'all' && !yearsForPaper.includes(tempYear)) {
+                                        setTempYear('all');
+                                      }
+                                    }}
+                                    className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
+                                      isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'
+                                    }`}
+                                  >
+                                    <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
+                                      isActive ? 'border-indigo-400 bg-indigo-500 text-white' : 'border-white/25'
+                                    }`}>
+                                      {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
+                                    </span>
+                                    <span className="flex-1 min-w-0 text-[13px] font-medium tracking-tight">{opt.label}</span>
+                                    <span className={`text-[10px] font-medium shrink-0 ${isActive ? 'text-slate-400' : 'text-slate-600'}`}>{opt.meta}</span>
+                                  </button>
+                                </React.Fragment>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Subject Section */}
+                        <div className="py-4 space-y-2">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Subject Section</label>
+                          <div className="space-y-0.5">
+                            {([
+                              { key: 'all', label: 'All Sections' },
+                              ...(PAPER_SECTIONS[tempPaper] ?? []).map((sec) => ({ key: sec, label: SUBJECT_LABELS[sec] || sec })),
+                            ]).map((opt) => {
+                              const isActive = tempSection === opt.key;
+                              return (
+                                <button
+                                  key={opt.key}
+                                  type="button"
+                                  onClick={() => setTempSection(opt.key)}
+                                  className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
+                                    isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'
                                   }`}
                                 >
-                                  {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
-                                </span>
-                                <span className="flex-1 min-w-0 text-[13px] font-medium tracking-tight">
-                                  {opt.label}
-                                </span>
-                                <span className={`text-[10px] font-medium shrink-0 ${isActive ? 'text-slate-400' : 'text-slate-600'}`}>
-                                  {opt.meta}
-                                </span>
-                              </button>
-                            </React.Fragment>
-                          );
-                        })}
-                      </div>
-                    </div>
+                                  <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                                    isActive ? 'border-indigo-400 bg-indigo-500 text-white' : 'border-white/25'
+                                  }`}>
+                                    {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
+                                  </span>
+                                  <span className="flex-1 min-w-0 text-[13px] font-medium tracking-tight">{opt.label}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
 
-                    {/* Subject Section — no box, no internal scroll */}
-                    <div className="py-4 space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Subject Section</label>
-                      <div className="space-y-0.5">
-                        {([
-                          { key: 'all', label: 'All Sections' },
-                          ...(PAPER_SECTIONS[tempPaper] ?? []).map((sec) => ({
-                            key: sec,
-                            label: SUBJECT_LABELS[sec] || sec,
-                          })),
-                        ]).map((opt) => {
-                          const isActive = tempSection === opt.key;
-                          return (
+                        {/* Exam Year */}
+                        <div className="py-4 space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Exam Year</label>
+                            {drawerYearMin && drawerYearMax && (
+                              <span className="text-[9px] font-mono text-slate-500">{drawerYearMin}–{drawerYearMax}</span>
+                            )}
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
                             <button
-                              key={opt.key}
                               type="button"
-                              onClick={() => setTempSection(opt.key)}
-                              className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
-                                isActive
-                                  ? 'text-white'
-                                  : 'text-slate-400 hover:text-slate-200'
-                              }`}
-                            >
-                              <span
-                                className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
-                                  isActive
-                                    ? 'border-indigo-400 bg-indigo-500 text-white'
-                                    : 'border-white/25'
-                                }`}
-                              >
-                                {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
-                              </span>
-                              <span className="flex-1 min-w-0 text-[13px] font-medium tracking-tight">
-                                {opt.label}
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Exam Year */}
-                    <div className="py-4 space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                          Exam Year
-                        </label>
-                        {drawerYearMin && drawerYearMax && (
-                          <span className="text-[9px] font-mono text-slate-500">
-                            {drawerYearMin}–{drawerYearMax}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => setTempYear('all')}
-                          className={`min-w-[3.25rem] px-2 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer border ${
-                            tempYear === 'all'
-                              ? 'bg-indigo-600 text-white border-indigo-400/40'
-                              : 'bg-white/5 text-slate-400 border-white/8 hover:bg-white/10 hover:text-white'
-                          }`}
-                        >
-                          All
-                        </button>
-                        {drawerYears.map((yr) => {
-                          const isActive = tempYear === yr;
-                          return (
-                            <button
-                              key={yr}
-                              type="button"
-                              onClick={() => setTempYear(yr)}
-                              className={`min-w-[3.25rem] px-2 py-1.5 rounded-lg text-[11px] font-bold font-mono transition-all cursor-pointer border ${
-                                isActive
+                              onClick={() => setTempYear('all')}
+                              className={`min-w-[3.25rem] px-2 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer border ${
+                                tempYear === 'all'
                                   ? 'bg-indigo-600 text-white border-indigo-400/40'
                                   : 'bg-white/5 text-slate-400 border-white/8 hover:bg-white/10 hover:text-white'
                               }`}
-                            >
-                              {yr}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
+                            >All</button>
+                            {drawerYears.map((yr) => {
+                              const isActive = tempYear === yr;
+                              return (
+                                <button
+                                  key={yr}
+                                  type="button"
+                                  onClick={() => setTempYear(yr)}
+                                  className={`min-w-[3.25rem] px-2 py-1.5 rounded-lg text-[11px] font-bold font-mono transition-all cursor-pointer border ${
+                                    isActive
+                                      ? 'bg-indigo-600 text-white border-indigo-400/40'
+                                      : 'bg-white/5 text-slate-400 border-white/8 hover:bg-white/10 hover:text-white'
+                                  }`}
+                                >{yr}</button>
+                              );
+                            })}
+                          </div>
+                        </div>
 
-                    {/* Progress */}
-                    <div className="pt-4 space-y-1">
-                      <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono tracking-wider">
-                        <span>REVISION PROGRESS</span>
-                        <span className="font-bold text-emerald-400">{answeredCount} / {questions.length}</span>
-                      </div>
-                      <div className="w-full bg-slate-900 rounded-full h-1 overflow-hidden">
-                        <div 
-                          className="bg-emerald-500 h-full transition-all duration-300"
-                          style={{ width: `${Math.min(100, (answeredCount / questions.length) * 100)}%` }}
-                        />
-                      </div>
-                    </div>
+                        {/* Progress */}
+                        <div className="pt-4 space-y-1">
+                          <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono tracking-wider">
+                            <span>REVISION PROGRESS</span>
+                            <span className="font-bold text-emerald-400">{answeredCount} / {questions.length}</span>
+                          </div>
+                          <div className="w-full bg-slate-900 rounded-full h-1 overflow-hidden">
+                            <div
+                              className="bg-emerald-500 h-full transition-all duration-300"
+                              style={{ width: `${Math.min(100, (answeredCount / questions.length) * 100)}%` }}
+                            />
+                          </div>
+                        </div>
 
+                      </div>
+                    ) : (
+                      /* ISS Notes Filters */
+                      <div className="divide-y divide-white/10">
+
+                        {/* Notes Paper — ISS only */}
+                        <div className="pb-4 space-y-2">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ISS Notes Paper</label>
+                          <div className="space-y-0.5">
+                            {([
+                              { key: 'paper1' as const, label: 'Paper I' },
+                              { key: 'paper2' as const, label: 'Paper II' },
+                              { key: 'paper3' as const, label: 'Paper III' },
+                              { key: 'paper4' as const, label: 'Paper IV' },
+                            ]).map((opt) => {
+                              const isActive = tempNotesPaper === opt.key;
+                              return (
+                                <button
+                                  key={opt.key}
+                                  type="button"
+                                  onClick={() => {
+                                    setTempNotesPaper(opt.key);
+                                    const paperNotes = notes[opt.key] || {};
+                                    const keys = Object.keys(paperNotes);
+                                    setTempNotesSectionKey(keys.length > 0 ? keys[0] : '');
+                                  }}
+                                  className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
+                                    isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'
+                                  }`}
+                                >
+                                  <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                                    isActive ? 'border-indigo-400 bg-indigo-500 text-white' : 'border-white/25'
+                                  }`}>
+                                    {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
+                                  </span>
+                                  <span className="text-[13px] font-medium tracking-tight">{opt.label}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Paper Topics */}
+                        <div className="pt-4 space-y-2">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Paper Topics</label>
+                          <div className="space-y-0.5">
+                            {Object.keys(notes[tempNotesPaper] || {}).map((key) => {
+                              const isActive = tempNotesSectionKey === key;
+                              return (
+                                <button
+                                  key={key}
+                                  onClick={() => setTempNotesSectionKey(key)}
+                                  className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
+                                    isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'
+                                  }`}
+                                >
+                                  <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                                    isActive ? 'border-indigo-400 bg-indigo-500 text-white' : 'border-white/25'
+                                  }`}>
+                                    {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
+                                  </span>
+                                  <span className="text-[13px] font-medium tracking-tight">
+                                    {notes[tempNotesPaper]?.[key]?.title || key}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="divide-y divide-white/10">
-                    
-                    {/* Notes Paper */}
-                    <div className="pb-4 space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Notes Paper</label>
-                      <div className="space-y-0.5">
-                        {([
-                          { key: 'paper1' as const, label: 'Paper I' },
-                          { key: 'paper2' as const, label: 'Paper II' },
-                          { key: 'paper3' as const, label: 'Paper III' },
-                          { key: 'paper4' as const, label: 'Paper IV' },
-                        ]).map((opt) => {
-                          const isActive = tempNotesPaper === opt.key;
-                          return (
-                            <button
-                              key={opt.key}
-                              type="button"
-                              onClick={() => {
-                                setTempNotesPaper(opt.key);
-                                const paperNotes = notes[opt.key] || {};
-                                const keys = Object.keys(paperNotes);
-                                setTempNotesSectionKey(keys.length > 0 ? keys[0] : '');
-                              }}
-                              className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
-                                isActive
-                                  ? 'text-white'
-                                  : 'text-slate-400 hover:text-slate-200'
-                              }`}
-                            >
-                              <span
-                                className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
-                                  isActive
-                                    ? 'border-indigo-400 bg-indigo-500 text-white'
-                                    : 'border-white/25'
-                                }`}
-                              >
-                                {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
-                              </span>
-                              <span className="text-[13px] font-medium tracking-tight">{opt.label}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
 
-                    {/* Notes Topics */}
-                    <div className="pt-4 space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Paper Topics</label>
-                      <div className="space-y-0.5">
-                        {Object.keys(notes[tempNotesPaper] || {}).map((key) => {
-                          const isActive = tempNotesSectionKey === key;
-                          return (
-                            <button
-                              key={key}
-                              onClick={() => setTempNotesSectionKey(key)}
-                              className={`w-full flex items-center gap-2.5 py-1.5 text-left transition-colors cursor-pointer rounded-md ${
-                                isActive
-                                  ? 'text-white'
-                                  : 'text-slate-400 hover:text-slate-200'
-                              }`}
-                            >
-                              <span
-                                className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
-                                  isActive
-                                    ? 'border-indigo-400 bg-indigo-500 text-white'
-                                    : 'border-white/25'
-                                }`}
-                              >
-                                {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
-                              </span>
-                              <span className="text-[13px] font-medium tracking-tight">
-                                {notes[tempNotesPaper]?.[key]?.title || key}
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
+                  {/* ISS Apply Button */}
+                  <div className="shrink-0 px-5 py-3 border-t border-white/10">
+                    <button
+                      onClick={() => {
+                        setActiveTab(tempTab);
+                        setSelectedPaper(tempPaper);
+                        setSelectedSection(tempSection);
+                        const yearsForPaper = new Set(
+                          questions.filter((q) => q.paper === tempPaper).map((q) => q.year.toString())
+                        );
+                        setSelectedYear(tempYear !== 'all' && !yearsForPaper.has(tempYear) ? 'all' : tempYear);
+                        setSelectedNotesPaper(tempNotesPaper);
+                        setActiveNotesSectionKey(tempNotesSectionKey);
+                        setIsLeftDrawerOpen(false);
+                      }}
+                      className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md shadow-indigo-600/15"
+                    >
+                      <Filter className="w-3.5 h-3.5 text-white" />
+                      Apply Filters
+                    </button>
                   </div>
-                )}
-              </div>
+                </>
+              ) : (
+                /* ── UPHESC Mode Content ── */
+                <div className="flex-1 px-5 pt-4 pb-3 space-y-3 overflow-y-auto scrollbar-none">
 
-              {/* Action Button — pinned, outside filter scroll */}
-              <div className="shrink-0 px-5 py-3 border-t border-white/10">
-                <button
-                  onClick={() => {
-                    setActiveTab(tempTab);
-                    setSelectedPaper(tempPaper);
-                    setSelectedSection(tempSection);
-                    const yearsForPaper = new Set(
-                      questions.filter((q) => q.paper === tempPaper).map((q) => q.year.toString())
-                    );
-                    setSelectedYear(
-                      tempYear !== 'all' && !yearsForPaper.has(tempYear) ? 'all' : tempYear
-                    );
-                    setSelectedNotesPaper(tempNotesPaper);
-                    setActiveNotesSectionKey(tempNotesSectionKey);
-                    setIsLeftDrawerOpen(false);
-                  }}
-                  className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md shadow-indigo-600/15"
-                >
-                  <Filter className="w-3.5 h-3.5 text-white" />
-                  Apply Filters
-                </button>
-              </div>
+                  {/* UPHESC Syllabus Quick Link */}
+                  <button
+                    onClick={() => { setSyllabusDefaultSource('uphesc'); setIsSyllabusOpen(true); setIsLeftDrawerOpen(false); }}
+                    className="w-full py-1 text-left text-[11px] font-semibold text-violet-400 hover:text-violet-300 flex items-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" />
+                    <span>UPHESC Statistics Syllabus</span>
+                  </button>
+
+                  <div className="border-t border-white/8 pt-3">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Select Unit</label>
+                    <div className="space-y-0.5">
+                      {Object.entries(notes['uphesc'] || {}).map(([key, topic]) => {
+                        const isActive = activeNotesSectionKey === key;
+                        return (
+                          <button
+                            key={key}
+                            onClick={() => {
+                              setActiveNotesSectionKey(key);
+                              setSelectedNotesPaper('uphesc');
+                              setActiveTab('notes');
+                              setIsLeftDrawerOpen(false);
+                            }}
+                            className={`w-full flex items-center gap-2.5 py-2 text-left transition-colors cursor-pointer rounded-lg ${
+                              isActive ? 'bg-violet-500/10 text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                            }`}
+                          >
+                            <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
+                              isActive ? 'border-violet-400 bg-violet-500 text-white' : 'border-white/25'
+                            }`}>
+                              {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
+                            </span>
+                            <span className="text-[12.5px] font-medium tracking-tight leading-tight">
+                              {(topic as any).title}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                </div>
+              )}
             </div>
 
             {/* Drawer Footer with Admin Login */}
@@ -963,15 +1037,17 @@ export default function App() {
             onClick={() => setIsLeftDrawerOpen(true)}
             className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 hover:border-white/20 text-[11px] font-semibold text-slate-300 flex items-center gap-1 shrink-0 cursor-pointer"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+            <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${examMode === 'uphesc' ? 'bg-violet-500' : 'bg-indigo-500'}`} />
             <b className="text-white">
-              {activeTab === 'pyq'
-                ? selectedPaper === 'paper1' || selectedPaper === 'paper2'
-                  ? 'Objective PYQs'
-                  : selectedPaper === 'general_english' || selectedPaper === 'general_studies'
-                    ? 'General PYQs'
-                    : 'Subjective PYQs'
-                : 'Revision Notes'}
+              {examMode === 'uphesc'
+                ? 'UPHESC A.P.'
+                : activeTab === 'pyq'
+                  ? selectedPaper === 'paper1' || selectedPaper === 'paper2'
+                    ? 'Objective PYQs'
+                    : selectedPaper === 'general_english' || selectedPaper === 'general_studies'
+                      ? 'General PYQs'
+                      : 'Subjective PYQs'
+                  : 'Revision Notes'}
             </b>
           </button>
 
@@ -1016,13 +1092,32 @@ export default function App() {
                 </button>
               )}
             </>
+          ) : examMode === 'uphesc' ? (
+            <>
+              <button
+                onClick={() => setIsLeftDrawerOpen(true)}
+                className="px-2.5 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/20 text-[11px] font-semibold text-violet-300 shrink-0 cursor-pointer"
+              >
+                <b className="text-white">UPHESC Asst. Prof.</b>
+              </button>
+              {activeNotesSectionKey && notes['uphesc']?.[activeNotesSectionKey] && (
+                <button
+                  onClick={() => setIsLeftDrawerOpen(true)}
+                  className="px-2.5 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/20 text-[11px] font-semibold text-violet-300 shrink-0 cursor-pointer"
+                >
+                  <b className="text-white">{(notes['uphesc'][activeNotesSectionKey] as any).title}</b>
+                </button>
+              )}
+            </>
           ) : (
             <>
               <button 
                 onClick={() => setIsLeftDrawerOpen(true)}
                 className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 hover:border-white/20 text-[11px] font-semibold text-slate-300 shrink-0 cursor-pointer"
               >
-                <b className="text-white">{selectedNotesPaper.toUpperCase().replace('PAPER', 'Paper ')}</b>
+                <b className="text-white">
+                  {selectedNotesPaper.toUpperCase().replace('PAPER', 'Paper ')}
+                </b>
               </button>
 
               {activeNotesSectionKey && notes[selectedNotesPaper]?.[activeNotesSectionKey] && (
@@ -1057,7 +1152,7 @@ export default function App() {
           
 
           {/* ==================== PYQ BOARD ==================== */}
-          {activeTab === 'pyq' && (
+          {examMode === 'iss' && activeTab === 'pyq' && (
             <div className="space-y-4" ref={questionsTopRef}>
 
               {/* Top bar: range chip + page chip — consistent with filter chip theme */}
@@ -1184,12 +1279,11 @@ export default function App() {
           )}
 
           {/* ==================== REVISION NOTES BOARD ==================== */}
-          {activeTab === 'notes' && (
+          {(examMode === 'uphesc' || (examMode === 'iss' && activeTab === 'notes')) && (
             <div className="space-y-6">
-              {/* Notes display rendering */}
               <RevisionNotes
                 notesData={notes}
-                paper={selectedNotesPaper}
+                paper={examMode === 'uphesc' ? 'uphesc' : selectedNotesPaper}
                 isAdmin={isAdmin}
                 activeSectionKey={activeNotesSectionKey}
                 setActiveSectionKey={setActiveNotesSectionKey}
@@ -1214,6 +1308,7 @@ export default function App() {
       <SyllabusModal
         isOpen={isSyllabusOpen}
         onClose={() => setIsSyllabusOpen(false)}
+        defaultSource={syllabusDefaultSource}
       />
 
       {/* ==================== HOISTED MODALS FOR ADMIN EDITS (Z-INDEX SAFE WITH LIVE PREVIEW) ==================== */}

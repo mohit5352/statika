@@ -67,7 +67,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
                 }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold font-display whitespace-nowrap transition-all duration-150 cursor-pointer ${
                   isActive
-                    ? 'bg-indigo-600 text-white shadow-md'
+                    ? `${paper === 'uphesc' ? 'bg-violet-600' : 'bg-indigo-600'} text-white shadow-md`
                     : 'bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white'
                 }`}
               >
@@ -92,7 +92,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
               }}
               className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold font-display tracking-tight transition-all duration-150 cursor-pointer ${
                 isActive
-                  ? 'bg-indigo-600 text-white shadow-md'
+                  ? `${paper === 'uphesc' ? 'bg-violet-600' : 'bg-indigo-600'} text-white shadow-md`
                   : 'bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white'
               }`}
             >
@@ -108,7 +108,9 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
           <>
             {/* Header Title Banner */}
             <p className="text-xs text-slate-400 font-medium tracking-wide">
-              Comprehensive revision formulas & proofs for ISS
+              {paper === 'uphesc'
+                ? 'UPHESC Assistant Professor — Comprehensive unit-wise preparation notes'
+                : 'Comprehensive revision formulas & proofs for ISS'}
             </p>
 
             {/* Accordion List for Section Topics */}
@@ -175,13 +177,21 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
 
             {/* Exam Tips Block */}
             {currentTopic.tips && (
-              <div className="bg-indigo-500/10 border-l-3 border-indigo-500 rounded-xl p-4 flex gap-3 shadow-md">
-                <Lightbulb className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
+              <div className={`rounded-xl p-4 flex gap-3 shadow-md border-l-[3px] ${
+                paper === 'uphesc'
+                  ? 'bg-violet-500/10 border-violet-500'
+                  : 'bg-indigo-500/10 border-indigo-500'
+              }`}>
+                <Lightbulb className={`w-5 h-5 shrink-0 mt-0.5 ${paper === 'uphesc' ? 'text-violet-400' : 'text-indigo-400'}`} />
                 <div>
-                  <h5 className="text-xs font-bold font-display text-indigo-300 uppercase tracking-wider mb-1">
+                  <h5 className={`text-xs font-bold font-display uppercase tracking-wider mb-1 ${
+                    paper === 'uphesc' ? 'text-violet-300' : 'text-indigo-300'
+                  }`}>
                     Exam Tips & Common Pitfalls
                   </h5>
-                  <div className="text-xs text-indigo-200 leading-relaxed font-sans">
+                  <div className={`text-xs leading-relaxed font-sans ${
+                    paper === 'uphesc' ? 'text-violet-100' : 'text-indigo-200'
+                  }`}>
                     <MathJaxRenderer html={currentTopic.tips} className="markdown-body" />
                   </div>
                 </div>

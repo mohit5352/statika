@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
-import { X, BookOpen, Layers, GraduationCap, FileText, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, BookOpen, Layers, GraduationCap, CheckCircle2 } from 'lucide-react';
 
 interface SyllabusModalProps {
   isOpen: boolean;
   onClose: () => void;
+  defaultSource?: 'iss' | 'uphesc';
 }
 
 type ActivePaper = 'paper1' | 'paper2' | 'paper3' | 'paper4';
 
-export const SyllabusModal: React.FC<SyllabusModalProps> = ({ isOpen, onClose }) => {
+export const SyllabusModal: React.FC<SyllabusModalProps> = ({ isOpen, onClose, defaultSource = 'iss' }) => {
+  const [activeSource, setActiveSource] = useState<'iss' | 'uphesc'>(defaultSource);
   const [activePaper, setActivePaper] = useState<ActivePaper>('paper1');
+  const [activeUphescUnit, setActiveUphescUnit] = useState<number>(1);
+
+  // Snap to the correct tab whenever the modal is (re-)opened
+  useEffect(() => {
+    if (isOpen) setActiveSource(defaultSource);
+  }, [isOpen, defaultSource]);
 
   if (!isOpen) return null;
 
@@ -200,104 +208,326 @@ export const SyllabusModal: React.FC<SyllabusModalProps> = ({ isOpen, onClose })
 
   const currentPaper = paperDetails[activePaper];
 
+  // ── UPHESC Official Syllabus (exact as per U.P. Higher Education Services Commission notification) ──
+  const uphescUnits = [
+    {
+      num: 1,
+      title: 'Unit-1 : Probability Theory',
+      topics: [
+        'Random experiment: Trial, sample point, sample space.',
+        'Definitions of equally likely, mutually exclusive and exhaustive events; events class.',
+        'Definition of probability — classical and relative frequency approach to probability.',
+        'Axiomatic approach to probability and its properties.',
+        'Merits and demerits of these approaches.',
+        'Total and compound probability theorems.',
+        'Conditional probability; independence of events.',
+        "Bayes' theorem and its applications.",
+      ],
+    },
+    {
+      num: 2,
+      title: 'Unit-2 : Distribution Theory',
+      topics: [
+        'Random Variable: Concept of discrete random variable, probability mass function and distribution function, joint probability mass function of several discrete random variables, marginal and conditional probability mass functions.',
+        'Continuous random variable: Probability density function, distribution function, joint density function of two continuous variables, marginal and conditional probability density functions, independence of random variables.',
+        'Mathematical expectation, moments, factorial moments, moment generating function of a random variable — their properties and uses.',
+        'Probability generating function.',
+        "Chebyshev's inequality and its applications; basic ideas of convergence in probability and convergence in distribution; Markov's inequality.",
+        'Functions of random variables.',
+        'Bernoulli, Binomial, Poisson, Geometric, Negative Binomial, Hyper-Geometric, Multinomial, Uniform distributions.',
+        'Normal distribution and its relationship with the Binomial and Poisson distributions; Cauchy distribution.',
+        'Bivariate normal distribution and its marginal and conditional distributions.',
+      ],
+    },
+    {
+      num: 3,
+      title: 'Unit-3 : Statistical Methods',
+      topics: [
+        'Concept of Statistical population and sample; classification of data — quantitative and qualitative, ordinal and nominal, time series and cross-sectional, multivariate data.',
+        'Construction of tables (with one or more factors); diagrammatic and graphical representation of grouped data.',
+        'Frequency and cumulative frequency distribution and their applications; histogram, frequency polygon, ogives, stem-and-leaf charts, box plot.',
+        'Concept of central tendency and its measures; partition values; dispersion and relative dispersion.',
+        "Moments; Sheppard's correction for moments (without derivation); skewness, kurtosis and their measures.",
+        'Bivariate data: Scatter diagram, product moment correlation coefficient and its properties, coefficient of determination, correlation ratio, interclass correlation.',
+        'Concept of error in regression; principle of least squares; fitting of linear regression and related results; rank correlation.',
+        'Partial and multiple correlation in three variables — their measures and related results.',
+        'Theory of attributes: Independence and Association of attributes; various measures of association for two-way classified data.',
+      ],
+    },
+    {
+      num: 4,
+      title: 'Unit-4 : Statistical Quality Control and Time Series',
+      topics: [
+        'Statistical process and product control: Quality of a product; need for quality control; basic concept of process control; process capability and product control.',
+        'General theory of control charts; causes of variation in quality; control limits; sub-grouping; summary of out-of-control criteria.',
+        'Charts for attributes: p-chart, np-chart, c-chart.',
+        'Charts for variables: X̄-chart, R-chart.',
+        'Acceptance sampling: problem of lot acceptance; stipulation of good and bad lots; producers and consumers risks; single and double sampling plans; OC functions; concepts of AQL, LTPD, AOQL, average amount of inspection and ASN function.',
+        'Measurement of Fertility: Crude birth rate, general fertility rate, age-specific birth rate, total fertility rate, gross reproduction rate, net reproduction rate, logistic model for population projection.',
+        'Time Series Analysis: Economic time series; different components and their illustrations; additive and multiplicative models; determination of trend, seasonal and cyclical fluctuations.',
+      ],
+    },
+    {
+      num: 5,
+      title: 'Unit-5 : Demography and Index Numbers',
+      topics: [
+        'Measurement of Mortality and Life Table: Crude death rate; standardized death rates; age-specific death rates; infant mortality rate; death rate by cause.',
+        'Complete and abridged life table and its main features; uses of life table.',
+        'Index Numbers: Price relatives and quantity/volume relatives; link and chain relatives; composition of index numbers.',
+        "Laspeyres', Paasche's, Marshall-Edgeworth's and Fisher's index numbers.",
+        'Chain-base index number; tests for index numbers; cost of living index number.',
+      ],
+    },
+    {
+      num: 6,
+      title: 'Unit-6 : Statistical Inference',
+      topics: [
+        'Sampling distribution of a statistic; derivation of χ², t, F and Z distributions.',
+        'Beta, Gamma and Laplace densities.',
+        'Point estimation: properties of estimators — MSE, MMSE, unbiasedness, MVUE; Cramér–Rao lower bound; amount of information.',
+        'Consistency of estimators and sufficient conditions; relative efficiency; asymptotic efficiency.',
+        'Sufficiency; factorization theorem (without proof); complete sufficient statistics; Rao–Blackwell theorem; Lehmann–Scheffé theorem; one-parameter exponential family; Cramér–Rao inequality; BLUE.',
+        'Methods of estimation: moments, MLE, minimum chi-square, least squares — BAN and CAN estimators.',
+        'Concepts of confidence interval and confidence coefficient; CIs for univariate normal, two independent normal distributions, and exponential distributions.',
+        'Statistical hypotheses; critical region; size and power of a test; most powerful test; randomized and non-randomized tests.',
+        'Neyman–Pearson lemma and its applications; UMP unbiased test; power likelihood ratio test; functions of UMP.',
+        'Applications of χ², t, F and Z in tests of significance; likelihood ratio test; χ²-test of goodness of fit; test of equality of several variances; significance test for correlation coefficient.',
+      ],
+    },
+    {
+      num: 7,
+      title: 'Unit-7 : Sampling Theory',
+      topics: [
+        'Concept of population and sample; need for sampling; complete enumeration vs sampling; basic concepts; sampling and non-sampling errors.',
+        'Simple random sampling (SRSWR & SRSWOR): estimation of population mean, proportion and their standard errors.',
+        'Stratified random sampling: proportional and optimum allocation; comparison with SRS; post stratification; double sampling with post stratification.',
+        'Ratio, product and regression methods of estimation: estimation of population mean; bias and variance to first order of approximation; comparison with SRS.',
+        'Systematic sampling; cluster sampling with equal clusters; two-stage sampling.',
+        'Unequal probability sampling: PPSWR/PPSWOR methods (cumulative total method and Lahiri\'s scheme); comparison of SRSWR and PPSWR; Des Raj and Murthy ordered estimators (n=2); construction of unordered estimators.',
+        'Horvitz–Thompson estimator; variance expression and unbiased estimator of variance; Yates–Grundy modification.',
+        'Non-sampling errors; Hansen–Hurwitz estimator; concept of randomized response and well-known techniques for sensitive characteristics.',
+      ],
+    },
+    {
+      num: 8,
+      title: 'Unit-8 : Linear Estimation and Design of Experiments',
+      topics: [
+        'General linear model: assumptions; estimation of parameters by least squares; estimable functions; error and estimation space; Gauss–Markov theorem.',
+        'Distribution of quadratic forms and application in ANOVA; estimable linear hypothesis; generalized F and t tests.',
+        'One-way ANOVA; two-way ANOVA with single observation per cell and equal observations per cell; Tukey\'s test.',
+        'Randomization, Replication, Local Control; CRD, RBD, LSD; missing plot technique.',
+        'General block design and its information matrix (C); criteria for connectedness, balance and orthogonality; intra-block analysis; BIBD.',
+        'General factorial experiments; factorial effects; 2ⁿ and 3ⁿ factorial experiments in randomized blocks; complete and partial confounding; construction of confounded factorial experiments; split-plot experiment.',
+      ],
+    },
+    {
+      num: 9,
+      title: 'Unit-9 : Multivariate Analysis',
+      topics: [
+        'Multivariate normal distribution (MND): normal generating function, characteristic function, marginal and conditional distributions, multiple and partial correlation coefficients.',
+        'MLE of mean vector and covariance matrix; distribution of sample mean vector.',
+        'Null distribution of sample correlation coefficient; sample multiple and partial correlation coefficients and their null sampling distributions; distribution of sample regression coefficient.',
+        "Null and non-null distributions of Hotelling's T² statistic; applications to tests for mean vector(s) and components; Mahalanobis' D²; Wishart distribution and its properties.",
+        'Classification and discrimination procedures for two multivariate normal populations; sample discriminant function; tests associated with discriminant functions; probabilities of misclassification and their estimation.',
+        'Classification into more than two multivariate normal populations; Fisher–Behrens problem.',
+      ],
+    },
+    {
+      num: 10,
+      title: 'Unit-10 : Advance Probability Theory',
+      topics: [
+        'Classes of sets; fields; sigma-fields; minimal sigma-field; Borel sigma-field; sequence of sets and limit of a sequence of sets.',
+        'Measure; probability measure; properties of measure; Carathéodory, Lebesgue and Lebesgue–Stieltjes measures.',
+        'Measurable functions; random variables; sequence of random variables; integration of a measurable function w.r.t. a measure.',
+        'Monotone convergence theorem; Fatou\'s lemma; dominated convergence theorem.',
+        'Characteristic function; uniqueness theorem; Lévy\'s continuity theorem (statement only).',
+        'Convergence in distribution; convergence in probability; almost sure convergence.',
+        'Decomposition of distribution functions in purely discrete, absolutely continuous and singular components.',
+        "Hölder's inequality; Minkowski inequality; Lyapunov and Kolmogorov's inequalities.",
+        'Weak (WLLN) and Strong (SLLN) law of Large Numbers; Khintchine theorem; Kolmogorov SLLN; Borel zero-one law; Borel–Cantelli lemma.',
+        'Weak and complete convergence of sequence of distribution functions; weak compactness theorem; Helly–Bray lemma and theorem.',
+        'One-dimensional Central Limit Theorems: Lindeberg–Lévy for i.i.d. random variables.',
+      ],
+    },
+  ];
+
   return (
     <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
       <div className="bg-slate-900 border border-white/15 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-150 text-slate-100">
-        
+
         {/* Header */}
         <div className="p-5 border-b border-white/10 flex items-center justify-between bg-white/5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 border border-indigo-500/20">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center border ${
+              activeSource === 'uphesc'
+                ? 'bg-violet-500/20 text-violet-400 border-violet-500/20'
+                : 'bg-indigo-500/20 text-indigo-400 border-indigo-500/20'
+            }`}>
               <BookOpen className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold font-display text-white">UPSC ISS Official Syllabus</h2>
-              <p className="text-[11px] text-slate-400">Indian Statistical Service (Statistics I, II, III & IV)</p>
+              <h2 className="text-base font-bold font-display text-white">
+                {activeSource === 'uphesc' ? 'UPHESC Statistics Syllabus' : 'UPSC ISS Official Syllabus'}
+              </h2>
+              <p className="text-[11px] text-slate-400">
+                {activeSource === 'uphesc'
+                  ? 'U.P. Higher Education Services Commission, Prayagraj — Statistics (Subject Code-77)'
+                  : 'Indian Statistical Service (Statistics I, II, III & IV)'}
+              </p>
             </div>
           </div>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white flex items-center justify-center text-slate-400 cursor-pointer transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Paper Switcher Tabs */}
-        <div className="bg-slate-950/40 p-2 border-b border-white/5 flex gap-1 overflow-x-auto scrollbar-none shrink-0">
-          {(Object.keys(paperDetails) as Array<ActivePaper>).map((key) => {
-            const paper = paperDetails[key];
-            const isActive = activePaper === key;
-            return (
-              <button
-                key={key}
-                onClick={() => setActivePaper(key)}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
-                  isActive 
-                    ? 'bg-indigo-600 text-white shadow-md' 
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <Layers className="w-3.5 h-3.5" />
-                {paper.title.split(' ')[0]} {paper.title.split(' ')[1]}
-              </button>
-            );
-          })}
+        {/* Source Switcher */}
+        <div className="bg-slate-950/40 px-4 py-2 border-b border-white/5 flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => setActiveSource('iss')}
+            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeSource === 'iss' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <GraduationCap className="w-3.5 h-3.5" />
+            UPSC ISS
+          </button>
+          <button
+            onClick={() => setActiveSource('uphesc')}
+            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeSource === 'uphesc' ? 'bg-violet-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            UPHESC Asst. Prof.
+          </button>
         </div>
 
-        {/* Content Body */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-6">
-          
-          {/* Paper Summary Header Banner */}
-          <div className="bg-gradient-to-r from-indigo-950/40 to-slate-900 border border-white/5 p-4 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3.5">
-            <div className="space-y-1">
-              <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-mono uppercase font-semibold">
-                {currentPaper.weight.split('•')[0].trim()}
-              </span>
-              <h3 className="text-sm font-bold text-white mt-1">{currentPaper.title}</h3>
-              <p className="text-xs text-slate-400 max-w-2xl">{currentPaper.description}</p>
+        {/* ── ISS Content ── */}
+        {activeSource === 'iss' && (
+          <>
+            {/* ISS Paper tabs */}
+            <div className="bg-slate-950/20 p-2 border-b border-white/5 flex gap-1 overflow-x-auto scrollbar-none shrink-0">
+              {(Object.keys(paperDetails) as Array<ActivePaper>).map((key) => {
+                const paper = paperDetails[key];
+                const isActive = activePaper === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setActivePaper(key)}
+                    className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                      isActive ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    {paper.title.split(' ')[0]} {paper.title.split(' ')[1]}
+                  </button>
+                );
+              })}
             </div>
-            <div className="text-xs font-semibold text-slate-400 border-l border-white/10 pl-4 py-1 font-mono flex items-center gap-2">
-              <GraduationCap className="w-4.5 h-4.5 text-indigo-400" />
-              <span>{currentPaper.weight}</span>
-            </div>
-          </div>
 
-          {/* Core Syllabus Chapters / Sub-sections */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {currentPaper.sections.map((sec, sIdx) => (
-              <div 
-                key={sIdx}
-                className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex flex-col gap-3 hover:border-white/10 transition-all duration-200"
-              >
-                <div className="flex items-center gap-2 pb-2 border-b border-white/5">
-                  <div className="w-6 h-6 rounded-md bg-indigo-500/10 flex items-center justify-center text-indigo-400 text-xs font-bold">
-                    {sIdx + 1}
-                  </div>
-                  <h4 className="text-xs font-bold text-indigo-300 tracking-wide line-clamp-1" title={sec.name}>
-                    {sec.name}
-                  </h4>
+            <div className="p-6 overflow-y-auto flex-1 space-y-6">
+              <div className="bg-gradient-to-r from-indigo-950/40 to-slate-900 border border-white/5 p-4 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3.5">
+                <div className="space-y-1">
+                  <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-mono uppercase font-semibold">
+                    {currentPaper.weight.split('•')[0].trim()}
+                  </span>
+                  <h3 className="text-sm font-bold text-white mt-1">{currentPaper.title}</h3>
+                  <p className="text-xs text-slate-400 max-w-2xl">{currentPaper.description}</p>
                 </div>
-
-                <ul className="space-y-2.5 flex-1 overflow-y-auto max-h-[220px] scrollbar-none pr-1">
-                  {sec.topics.map((topic, tIdx) => (
-                    <li key={tIdx} className="flex gap-2 text-[11px] leading-relaxed text-slate-300 font-sans">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-indigo-500 shrink-0 mt-0.5" />
-                      <span>{topic}</span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="text-xs font-semibold text-slate-400 border-l border-white/10 pl-4 py-1 font-mono flex items-center gap-2">
+                  <GraduationCap className="w-4.5 h-4.5 text-indigo-400" />
+                  <span>{currentPaper.weight}</span>
+                </div>
               </div>
-            ))}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {currentPaper.sections.map((sec, sIdx) => (
+                  <div key={sIdx} className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex flex-col gap-3 hover:border-white/10 transition-all duration-200">
+                    <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                      <div className="w-6 h-6 rounded-md bg-indigo-500/10 flex items-center justify-center text-indigo-400 text-xs font-bold">{sIdx + 1}</div>
+                      <h4 className="text-xs font-bold text-indigo-300 tracking-wide line-clamp-1" title={sec.name}>{sec.name}</h4>
+                    </div>
+                    <ul className="space-y-2.5 flex-1 overflow-y-auto max-h-[220px] scrollbar-none pr-1">
+                      {sec.topics.map((topic, tIdx) => (
+                        <li key={tIdx} className="flex gap-2 text-[11px] leading-relaxed text-slate-300 font-sans">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-indigo-500 shrink-0 mt-0.5" />
+                          <span>{topic}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-white/10 bg-slate-950/60 flex items-center justify-between text-[10px] text-slate-500 shrink-0">
+              <span>Official Union Public Service Commission (UPSC) Indian Statistical Service Scheme</span>
+              <span className="font-mono">ISS 2026 Reference</span>
+            </div>
+          </>
+        )}
+
+        {/* ── UPHESC Content ── */}
+        {activeSource === 'uphesc' && (
+          <div className="flex flex-1 min-h-0 overflow-hidden">
+
+            {/* Left — Unit Selector */}
+            <div className="w-[200px] shrink-0 border-r border-white/8 overflow-y-auto scrollbar-none bg-slate-950/30 p-2 space-y-0.5">
+              {uphescUnits.map((u) => (
+                <button
+                  key={u.num}
+                  onClick={() => setActiveUphescUnit(u.num)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-[11px] font-semibold transition-all cursor-pointer leading-tight ${
+                    activeUphescUnit === u.num
+                      ? 'bg-violet-600 text-white shadow-md'
+                      : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <span className={`block text-[9px] font-bold uppercase tracking-widest mb-0.5 ${
+                    activeUphescUnit === u.num ? 'text-violet-200' : 'text-slate-500'
+                  }`}>Unit {u.num}</span>
+                  {u.title.replace(/^Unit-\d+ : /, '')}
+                </button>
+              ))}
+            </div>
+
+            {/* Right — Unit Content */}
+            {(() => {
+              const unit = uphescUnits[activeUphescUnit - 1];
+              return (
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                  {/* Unit Header */}
+                  <div className="bg-gradient-to-r from-violet-950/30 to-slate-900 border border-violet-500/10 p-4 rounded-xl">
+                    <span className="text-[9px] font-bold text-violet-400 uppercase tracking-widest">
+                      UPHESC Statistics · Unit {unit.num} of 10
+                    </span>
+                    <h3 className="text-sm font-bold text-white mt-1">{unit.title}</h3>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      U.P. Higher Education Services Commission, Prayagraj &mdash; Subject Code-77
+                    </p>
+                  </div>
+
+                  {/* Topic List */}
+                  <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
+                    <h4 className="text-[10px] font-bold text-violet-300 uppercase tracking-wider mb-3">Syllabus Topics</h4>
+                    <ul className="space-y-3">
+                      {unit.topics.map((topic, idx) => (
+                        <li key={idx} className="flex gap-2.5 text-[12px] leading-relaxed text-slate-300">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-violet-500 shrink-0 mt-0.5" />
+                          <span>{topic}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
-
-        </div>
-
-        {/* Footer */}
-        <div className="p-4 border-t border-white/10 bg-slate-950/60 flex items-center justify-between text-[10px] text-slate-500 shrink-0">
-          <span>Official Union Public Service Commission (UPSC) Indian Statistical Service Scheme</span>
-          <span className="font-mono">ISS 2026 Reference</span>
-        </div>
+        )}
 
       </div>
     </div>
