@@ -286,7 +286,7 @@ export const StudyAssistant: React.FC<StudyAssistantProps> = ({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white/5">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black/[0.015] dark:bg-white/5">
         {messages.map((m) => (
           <div
             key={m.id}
@@ -313,8 +313,8 @@ export const StudyAssistant: React.FC<StudyAssistantProps> = ({
             <div
               className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed w-full overflow-x-auto shadow-md ${
                 m.role === 'user'
-                  ? 'bg-indigo-600/25 border border-indigo-500/30 text-white whitespace-pre-wrap break-words rounded-tr-none'
-                  : 'bg-white/5 border border-white/10 text-slate-100 rounded-tl-none'
+                  ? 'bg-indigo-600 text-white border border-indigo-600 whitespace-pre-wrap break-words rounded-tr-none'
+                  : 'bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 text-slate-800 dark:text-slate-100 rounded-tl-none'
               }`}
             >
               {m.role === 'user' ? (
@@ -339,7 +339,7 @@ export const StudyAssistant: React.FC<StudyAssistantProps> = ({
             <div className="w-7 h-7 rounded-full bg-indigo-500/15 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 flex items-center justify-center shrink-0 animate-spin border border-indigo-400/20 dark:border-indigo-500/20">
               <RefreshCw className="w-4 h-4" />
             </div>
-            <div className="bg-white/5 border border-white/10 px-4 py-3 rounded-2xl rounded-tl-none shadow-md text-sm text-slate-400 flex items-center gap-2">
+            <div className="bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 px-4 py-3 rounded-2xl rounded-tl-none shadow-md text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-indigo-500 dark:bg-indigo-500 animate-bounce"></span>
               <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce [animation-delay:0.2s]"></span>
               <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce [animation-delay:0.4s]"></span>
@@ -352,14 +352,14 @@ export const StudyAssistant: React.FC<StudyAssistantProps> = ({
 
       {/* Preset Suggestions */}
       {messages.length <= 1 && (
-        <div className="px-4 py-2 bg-white/5 border-t border-black/8 dark:border-white/10">
-          <p className="text-[11px] text-slate-400 mb-1.5 font-medium">Try asking:</p>
+        <div className="px-4 py-2 bg-black/[0.02] dark:bg-white/5 border-t border-black/8 dark:border-white/10">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-1.5 font-medium">Try asking:</p>
           <div className="flex flex-wrap gap-1.5">
             {presetPrompts.map((p) => (
               <button
                 key={p}
                 onClick={() => handlePresetClick(p)}
-                className="text-[11px] bg-white/5 hover:bg-black/8 dark:hover:bg-white/10 hover:text-indigo-600 dark:hover:text-indigo-300 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-full border border-black/8 dark:border-white/10 hover:border-indigo-400/30 dark:hover:border-indigo-500/30 transition-all font-sans cursor-pointer"
+                className="text-[11px] bg-black/5 dark:bg-white/5 hover:bg-black/8 dark:hover:bg-white/10 hover:text-indigo-600 dark:hover:text-indigo-300 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-full border border-black/8 dark:border-white/10 hover:border-indigo-400/30 dark:hover:border-indigo-500/30 transition-all font-sans cursor-pointer"
               >
                 {p}
               </button>
@@ -370,13 +370,13 @@ export const StudyAssistant: React.FC<StudyAssistantProps> = ({
 
       {/* Context indicator if any */}
       {currentContextText && (
-        <div className="px-4 py-1.5 bg-indigo-500/10 border-t border-black/8 dark:border-white/10 flex items-center justify-between text-[11px] text-indigo-300">
+        <div className="px-4 py-1.5 bg-indigo-500/10 border-t border-black/8 dark:border-white/10 flex items-center justify-between text-[11px] text-indigo-700 dark:text-indigo-300">
           <span className="truncate">📎 Active question context attached</span>
         </div>
       )}
 
       {/* Form */}
-      <form onSubmit={handleSend} className="p-3 border-t border-black/8 dark:border-white/10 flex gap-2 bg-white/5">
+      <form onSubmit={handleSend} className="p-3 border-t border-black/8 dark:border-white/10 flex gap-2 bg-black/[0.02] dark:bg-white/5">
         <input
           type="text"
           value={input}

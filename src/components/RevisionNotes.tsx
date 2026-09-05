@@ -155,7 +155,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
                               content: section.content,
                             });
                           }}
-                          className="p-1.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:text-indigo-300 rounded-md transition-colors flex items-center justify-center cursor-pointer"
+                          className="p-1.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 rounded-md transition-colors flex items-center justify-center cursor-pointer"
                           title="Edit Note"
                           aria-label="Edit Note"
                         >

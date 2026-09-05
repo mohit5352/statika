@@ -136,7 +136,7 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   value={editTopic}
                   onChange={(e) => setEditTopic(e.target.value)}
                   placeholder="e.g. Probability Basics"
-                  className="w-full bg-white/5 border border-white/10 focus:border-indigo-500 focus:outline-hidden text-sm px-3.5 py-2 rounded-xl transition-all font-sans text-white placeholder:text-slate-600"
+                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 focus:border-indigo-500 focus:outline-hidden text-sm px-3.5 py-2 rounded-xl transition-all font-sans text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
                 />
               </div>
 
@@ -149,7 +149,7 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   onChange={(e) => setEditText(e.target.value)}
                   rows={8}
                   placeholder="State the question... Use \( ... \) for inline math and \[ ... \] for block math equations."
-                  className="w-full bg-white/5 border border-white/10 focus:border-indigo-500 focus:outline-hidden text-sm px-3.5 py-2.5 rounded-xl transition-all font-mono text-white placeholder:text-slate-600 h-44 sm:h-52 resize-none"
+                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 focus:border-indigo-500 focus:outline-hidden text-sm px-3.5 py-2.5 rounded-xl transition-all font-mono text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 h-44 sm:h-52 resize-none"
                 />
               </div>
 
@@ -157,7 +157,7 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Options</label>
                 {editOptions.map((opt, idx) => (
                   <div key={opt.label} className="flex gap-2.5 items-center">
-                    <span className="uppercase text-xs font-bold w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                    <span className="uppercase text-xs font-bold w-7 h-7 rounded-lg bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-slate-600 dark:text-slate-400">
                       {opt.label}
                     </span>
                     <input
@@ -168,7 +168,7 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                         updated[idx].text = e.target.value;
                         setEditOptions(updated);
                       }}
-                      className="flex-1 bg-white/5 border border-white/10 focus:border-indigo-500 focus:outline-hidden text-sm px-3.5 py-2 rounded-xl transition-all font-sans text-white"
+                      className="flex-1 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 focus:border-indigo-500 focus:outline-hidden text-sm px-3.5 py-2 rounded-xl transition-all font-sans text-slate-900 dark:text-white"
                     />
                   </div>
                 ))}
@@ -184,25 +184,25 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           >
             <div className="max-w-xl mx-auto space-y-4">
               <div className="flex items-center gap-1.5">
-                <span className="bg-indigo-500/25 text-indigo-300 border border-indigo-500/20 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase font-mono">
+                <span className="bg-indigo-500/15 dark:bg-indigo-500/25 text-indigo-700 dark:text-indigo-300 border border-indigo-400/30 dark:border-indigo-500/20 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase font-mono">
                   LIVE PREVIEW
                 </span>
                 <span className="text-slate-500 text-[11px] font-medium">• Responsive view styling</span>
               </div>
 
               {/* Question Preview Card Layout */}
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-5 shadow-lg flex flex-col gap-4 font-sans backdrop-blur-xl pointer-events-none">
+              <div className="bg-white/80 dark:bg-white/5 border border-black/8 dark:border-white/10 rounded-2xl p-5 shadow-lg flex flex-col gap-4 font-sans backdrop-blur-xl pointer-events-none">
                 {/* Meta Row */}
-                <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-3">
+                <div className="flex items-center justify-between gap-2 border-b border-black/8 dark:border-white/10 pb-3">
                   <div className="flex items-center gap-2">
-                    <span className="bg-indigo-500/25 text-indigo-300 border border-indigo-500/20 text-xs font-semibold px-2.5 py-1 rounded-lg">
+                    <span className="bg-indigo-500/15 dark:bg-indigo-500/25 text-indigo-700 dark:text-indigo-300 border border-indigo-400/30 dark:border-indigo-500/20 text-xs font-semibold px-2.5 py-1 rounded-lg">
                       Q{question.number}
                     </span>
-                    <span className="bg-white/10 text-slate-300 border border-white/10 text-xs font-semibold px-2.5 py-1 rounded-lg font-mono">
+                    <span className="bg-black/5 dark:bg-white/10 text-slate-700 dark:text-slate-300 border border-black/8 dark:border-white/10 text-xs font-semibold px-2.5 py-1 rounded-lg font-mono">
                       {question.year}
                     </span>
                     {editTopic && (
-                      <span className="text-slate-400 text-xs font-medium bg-white/5 border border-white/10 px-2 py-1 rounded-lg truncate max-w-[150px]">
+                      <span className="text-slate-600 dark:text-slate-400 text-xs font-medium bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 px-2 py-1 rounded-lg truncate max-w-[150px]">
                         {editTopic}
                       </span>
                     )}
@@ -211,13 +211,13 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
                 {/* Context (inherited if exists) */}
                 {question.context && (
-                  <div className="bg-indigo-500/10 border-l-3 border-indigo-500 rounded-r-xl p-3.5 text-sm text-slate-300 font-sans leading-relaxed">
+                  <div className="bg-indigo-500/10 border-l-3 border-indigo-500 rounded-r-xl p-3.5 text-sm text-slate-700 dark:text-slate-300 font-sans leading-relaxed">
                     <MathJaxRenderer html={question.context} />
                   </div>
                 )}
 
                 {/* Question Stem text */}
-                <div className="text-[15px] text-slate-100 font-sans font-medium leading-relaxed break-words">
+                <div className="text-[15px] text-slate-800 dark:text-slate-100 font-sans font-medium leading-relaxed break-words">
                   {editText.trim() ? (
                     <MathJaxRenderer html={editText} />
                   ) : (
@@ -237,9 +237,9 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   {editOptions.map((opt) => (
                     <div
                       key={opt.label}
-                      className="flex items-start text-left gap-3 p-3.5 rounded-xl border border-white/10 bg-white/5 text-slate-300 text-sm"
+                      className="flex items-start text-left gap-3 p-3.5 rounded-xl border border-black/8 dark:border-white/10 bg-black/5 dark:bg-white/5 text-slate-700 dark:text-slate-300 text-sm"
                     >
-                      <span className="px-1.5 py-0.5 rounded-md text-xs font-semibold shrink-0 uppercase bg-white/10 text-slate-400">
+                      <span className="px-1.5 py-0.5 rounded-md text-xs font-semibold shrink-0 uppercase bg-black/8 dark:bg-white/10 text-slate-600 dark:text-slate-400">
                         {opt.label}
                       </span>
                       {opt.text.trim() ? (

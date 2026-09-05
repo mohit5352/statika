@@ -147,17 +147,17 @@ export const EditExplanationModal: React.FC<EditExplanationModalProps> = ({
           >
             <div className="max-w-2xl mx-auto space-y-4">
               <div className="flex items-center gap-1.5">
-                <span className="bg-indigo-500/25 text-indigo-300 border border-indigo-500/20 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase font-mono">
+                <span className="bg-indigo-500/15 dark:bg-indigo-500/25 text-indigo-700 dark:text-indigo-300 border border-indigo-400/30 dark:border-indigo-500/20 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase font-mono">
                   LIVE PREVIEW
                 </span>
                 <span className="text-slate-500 text-[11px] font-medium">• Rendered formulas block</span>
               </div>
 
               {/* Explanation preview block styled like the card */}
-              <div className="bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 rounded-2xl p-5 shadow-lg flex flex-col gap-3 font-sans backdrop-blur-xl pointer-events-none">
+              <div className="bg-white/80 dark:bg-white/5 border border-black/8 dark:border-white/10 rounded-2xl p-5 shadow-lg flex flex-col gap-3 font-sans backdrop-blur-xl pointer-events-none">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Official Answer & Explanation</h4>
-                <div className="text-sm font-sans text-slate-300 leading-relaxed space-y-2">
-                  <div className="font-semibold text-indigo-400 text-sm mb-2">
+                <div className="text-sm font-sans text-slate-700 dark:text-slate-300 leading-relaxed space-y-2">
+                  <div className="font-semibold text-indigo-600 dark:text-indigo-400 text-sm mb-2">
                     Correct Answer Option: ({question.options[0]?.label || 'A'})
                   </div>
                   {editExplText.trim() ? (

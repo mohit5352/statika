@@ -140,7 +140,7 @@ export const EditNoteModal: React.FC<EditNoteModalProps> = ({
                   value={editLabel}
                   onChange={(e) => setEditLabel(e.target.value)}
                   placeholder="e.g. 1. Probability Definitions"
-                  className="w-full bg-white/5 border border-white/10 focus:border-indigo-500 focus:outline-hidden text-sm px-3.5 py-2.5 rounded-xl transition-all font-sans text-white placeholder:text-slate-600"
+                  className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 focus:border-indigo-500 focus:outline-hidden text-sm px-3.5 py-2.5 rounded-xl transition-all font-sans text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600"
                 />
               </div>
 
@@ -166,19 +166,19 @@ export const EditNoteModal: React.FC<EditNoteModalProps> = ({
           >
             <div className="max-w-2xl mx-auto space-y-4">
               <div className="flex items-center gap-1.5">
-                <span className="bg-indigo-500/25 text-indigo-300 border border-indigo-500/20 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase font-mono">
+                <span className="bg-indigo-500/15 dark:bg-indigo-500/25 text-indigo-700 dark:text-indigo-300 border border-indigo-400/30 dark:border-indigo-500/20 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase font-mono">
                   LIVE PREVIEW
                 </span>
                 <span className="text-slate-500 text-[11px] font-medium">• Accordion styling preview</span>
               </div>
 
               {/* Note preview block styled like RevisionNotes accordion body */}
-              <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden backdrop-blur-xl pointer-events-none">
-                <div className="px-4 py-3.5 bg-white/5 border-b border-white/5 text-xs font-bold text-slate-200 flex items-center gap-2">
-                  <span className="text-indigo-400">▼</span>
-                  {editLabel.trim() ? editLabel : <span className="text-slate-600 italic">No Title Given</span>}
+              <div className="bg-white/80 dark:bg-white/5 border border-black/8 dark:border-white/10 rounded-xl overflow-hidden backdrop-blur-xl pointer-events-none">
+                <div className="px-4 py-3.5 bg-black/[0.03] dark:bg-white/5 border-b border-black/8 dark:border-white/5 text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                  <span className="text-indigo-600 dark:text-indigo-400">▼</span>
+                  {editLabel.trim() ? editLabel : <span className="text-slate-400 italic">No Title Given</span>}
                 </div>
-                <div className="px-5 py-5 bg-white/5 text-sm text-slate-300 font-sans leading-relaxed">
+                <div className="px-5 py-5 bg-black/[0.02] dark:bg-white/5 text-sm text-slate-700 dark:text-slate-300 font-sans leading-relaxed">
                   {editContent.trim() ? (
                     <MathJaxRenderer html={editContent} className="markdown-body" />
                   ) : (

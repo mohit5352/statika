@@ -548,8 +548,8 @@ export default function App() {
                 <span className="font-serif text-base tracking-widest text-slate-900 dark:text-white uppercase font-light">Statika</span>
                 <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-mono uppercase tracking-wider font-semibold ${
                   examMode === 'uphesc'
-                    ? 'bg-violet-600/20 text-violet-300'
-                    : 'bg-indigo-600/20 text-indigo-300'
+                    ? 'bg-violet-600/15 text-violet-700 dark:bg-violet-600/20 dark:text-violet-300'
+                    : 'bg-indigo-600/15 text-indigo-700 dark:bg-indigo-600/20 dark:text-indigo-300'
                 }`}>
                   {examMode === 'uphesc' ? 'UPHESC A.P.' : 'UPSC ISS'}
                 </span>
@@ -567,14 +567,14 @@ export default function App() {
 
               {/* ── Top-Level Exam Mode Switcher ── */}
               <div className="shrink-0 px-5 pt-4 pb-3 border-b border-black/6 dark:border-white/8">
-                <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Exam Mode</p>
+                <p className="text-[9px] font-bold text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-2">Exam Mode</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setExamMode('iss')}
                     className={`flex-1 py-2 rounded-xl text-[11px] font-bold tracking-wide transition-all cursor-pointer ${
                       examMode === 'iss'
                         ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                        : 'bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-black/8 dark:border-white/10 hover:bg-black/8 dark:hover:bg-white/8'
+                        : 'bg-black/5 dark:bg-white/5 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-black/8 dark:border-white/10 hover:bg-black/8 dark:hover:bg-white/8'
                     }`}
                   >
                     UPSC ISS
@@ -593,7 +593,7 @@ export default function App() {
                     className={`flex-1 py-2 rounded-xl text-[11px] font-bold tracking-wide transition-all cursor-pointer ${
                       examMode === 'uphesc'
                         ? 'bg-violet-600 text-white shadow-md shadow-violet-600/20'
-                        : 'bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-black/8 dark:border-white/10 hover:bg-black/8 dark:hover:bg-white/8'
+                        : 'bg-black/5 dark:bg-white/5 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-black/8 dark:border-white/10 hover:bg-black/8 dark:hover:bg-white/8'
                     }`}
                   >
                     UPHESC A.P.
@@ -641,7 +641,7 @@ export default function App() {
 
                         {/* ISS Paper */}
                         <div className="pb-4 space-y-2">
-                          <label className="text-[10px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">ISS Paper</label>
+                          <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider block">ISS Paper</label>
                           <div className="space-y-0.5">
                             {([
                               { key: 'paper1' as const, label: 'Paper I', meta: 'Objective', group: 'stats' },
@@ -656,7 +656,7 @@ export default function App() {
                               const showGroupRule = idx > 0 && prev.group !== opt.group;
                               return (
                                 <React.Fragment key={opt.key}>
-                                  {showGroupRule && <div className="my-1.5 border-t border-dashed border-white/10" />}
+                                  {showGroupRule && <div className="my-1.5 border-t border-dashed border-black/10 dark:border-white/10" />}
                                   <button
                                     type="button"
                                     onClick={() => {
@@ -691,7 +691,7 @@ export default function App() {
 
                         {/* Subject Section */}
                         <div className="py-4 space-y-2">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Subject Section</label>
+                          <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Subject Section</label>
                           <div className="space-y-0.5">
                             {([
                               { key: 'all', label: 'All Sections' },
@@ -722,7 +722,7 @@ export default function App() {
                         {/* Exam Year */}
                         <div className="py-4 space-y-2">
                           <div className="flex items-center justify-between gap-2">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Exam Year</label>
+                            <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Exam Year</label>
                             {drawerYearMin && drawerYearMax && (
                               <span className="text-[9px] font-mono text-slate-500">{drawerYearMin}–{drawerYearMax}</span>
                             )}
@@ -776,7 +776,7 @@ export default function App() {
 
                         {/* Notes Paper — ISS only */}
                         <div className="pb-4 space-y-2">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ISS Notes Paper</label>
+                          <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">ISS Notes Paper</label>
                           <div className="space-y-0.5">
                             {([
                               { key: 'paper1' as const, label: 'Paper I' },
@@ -813,7 +813,7 @@ export default function App() {
 
                         {/* Paper Topics */}
                         <div className="pt-4 space-y-2">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Paper Topics</label>
+                          <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Paper Topics</label>
                           <div className="space-y-0.5">
                             {Object.keys(notes[tempNotesPaper] || {}).map((key) => {
                               const isActive = tempNotesSectionKey === key;
@@ -872,14 +872,14 @@ export default function App() {
                   {/* UPHESC Syllabus Quick Link */}
                   <button
                     onClick={() => { setSyllabusDefaultSource('uphesc'); setIsSyllabusOpen(true); setIsLeftDrawerOpen(false); }}
-                    className="w-full py-1 text-left text-[11px] font-semibold text-violet-400 hover:text-violet-300 flex items-center gap-2 transition-colors cursor-pointer"
+                    className="w-full py-1 text-left text-[11px] font-semibold text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 flex items-center gap-2 transition-colors cursor-pointer"
                   >
                     <BookOpen className="w-3.5 h-3.5" />
                     <span>UPHESC Statistics Syllabus</span>
                   </button>
 
                   <div className="border-t border-black/6 dark:border-white/8 pt-3">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Select Unit</label>
+                    <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-2">Select Unit</label>
                     <div className="space-y-0.5">
                       {Object.entries(notes['uphesc'] || {}).map(([key, topic]) => {
                         const isActive = activeNotesSectionKey === key;
@@ -916,9 +916,9 @@ export default function App() {
 
             {/* Drawer Footer with Admin Login */}
             <div className="p-4 border-t border-black/5 dark:border-white/5 bg-white dark:bg-slate-950 space-y-3 shrink-0">
-              <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
+              <div className="flex items-center justify-between text-[10px] text-slate-600 dark:text-slate-400">
                 <span className="font-medium uppercase tracking-wider">System Role</span>
-                <span className={`font-mono font-bold ${isAdmin ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                <span className={`font-mono font-bold ${isAdmin ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-500'}`}>
                   {isAdmin ? 'ADMINISTRATOR' : 'GUEST STUDENT'}
                 </span>
               </div>
@@ -1040,7 +1040,7 @@ export default function App() {
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white font-semibold"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-800 dark:hover:text-white font-semibold"
               >
                 Clear
               </button>
