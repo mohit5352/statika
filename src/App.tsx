@@ -434,9 +434,11 @@ export default function App() {
     setCurrentPage(1);
   }, [selectedSection, selectedYear, searchQuery]);
 
-  // Set default notes section when paper changes, but preserve a valid URL-restored key
+  // Set default notes section when the visible notes paper changes, but preserve a valid URL-restored key.
+  // UPHESC always reads the 'uphesc' notebook, even if the ISS paper selection is still the default.
   useEffect(() => {
-    const paperNotes = notes[selectedNotesPaper] || {};
+    const paperKey = examMode === 'uphesc' ? 'uphesc' : selectedNotesPaper;
+    const paperNotes = notes[paperKey] || {};
     const keys = Object.keys(paperNotes);
     if (keys.length > 0) {
       if (!activeNotesSectionKey || !keys.includes(activeNotesSectionKey)) {
@@ -445,7 +447,7 @@ export default function App() {
     } else {
       setActiveNotesSectionKey('');
     }
-  }, [selectedNotesPaper, notes]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedNotesPaper, examMode, notes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Filtered Questions list — newest year first, then paper section order, then Q number
   const filteredQuestions = questions
@@ -570,7 +572,10 @@ export default function App() {
                 <p className="text-[9px] font-bold text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-2">Exam Mode</p>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setExamMode('iss')}
+                    onClick={() => {
+                      setExamMode('iss');
+                      if (selectedNotesPaper === 'uphesc') setSelectedNotesPaper('paper1');
+                    }}
                     className={`flex-1 py-2 rounded-xl text-[11px] font-bold tracking-wide transition-all cursor-pointer ${
                       examMode === 'iss'
                         ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'

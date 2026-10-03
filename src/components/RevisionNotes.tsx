@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
-import { BookOpen, HelpCircle, ChevronDown, ChevronRight, Edit3, Lightbulb } from 'lucide-react';
-import { NoteBook, NoteTopic, NoteSection } from '../types';
+import React, { useRef, useState } from 'react';
+import { BookOpen, ChevronLeft, ChevronRight, Edit3, Lightbulb } from 'lucide-react';
+import { NoteBook, NoteSection } from '../types';
 import MathJaxRenderer from './MathJaxRenderer';
+
+interface NoteEntry {
+  topicKey: string;
+  section: NoteSection;
+}
 
 interface RevisionNotesProps {
   notesData: NoteBook;
@@ -24,21 +29,56 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
   const paperNotes = notesData[paper] || {};
   const sectionKeys = Object.keys(paperNotes);
 
-  const [expandedSectionId, setExpandedSectionId] = useState<string | null>(null);
+  const notesTopRef = useRef<HTMLDivElement>(null);
+  // Section chosen by the pager. Null means "first section of the active topic"
+  // (sidebar or paper change), so finishing a topic can continue into the next one.
+  const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
+  const intendedNoteId = useRef<string | null>(null);
 
-  const currentTopic: NoteTopic | undefined = paperNotes[activeSectionKey];
+  const entries: NoteEntry[] = sectionKeys.flatMap((topicKey) =>
+    (paperNotes[topicKey]?.sections ?? []).map((section) => ({ topicKey, section }))
+  );
 
-  // Reset expanded notes section when paper or topic changes
   React.useEffect(() => {
-    setExpandedSectionId(null);
-  }, [paper, activeSectionKey]);
-
-  const toggleSection = (id: string) => {
-    if (expandedSectionId === id) {
-      setExpandedSectionId(null);
+    const topic = paperNotes[activeSectionKey];
+    const ids = topic?.sections.map((section) => section.id) ?? [];
+    const intended = intendedNoteId.current;
+    intendedNoteId.current = null;
+    if (intended && ids.includes(intended)) {
+      setActiveNoteId(intended);
     } else {
-      setExpandedSectionId(id);
+      setActiveNoteId(ids[0] ?? null);
     }
+  }, [paper, activeSectionKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const matchedIndex = entries.findIndex(
+    (entry) => entry.topicKey === activeSectionKey && entry.section.id === activeNoteId
+  );
+  const topicStart = entries.findIndex((entry) => entry.topicKey === activeSectionKey);
+  const currentIndex = matchedIndex >= 0 ? matchedIndex : Math.max(0, topicStart);
+  const currentEntry = entries[currentIndex];
+  const currentTopic = currentEntry ? paperNotes[currentEntry.topicKey] : undefined;
+  const topicSections = currentTopic?.sections ?? [];
+  const indexInTopic = Math.max(0, topicSections.findIndex((section) => section.id === currentEntry?.section.id));
+  const isLastInTopic = topicSections.length > 0 && indexInTopic === topicSections.length - 1;
+
+  const goToEntry = (index: number) => {
+    const entry = entries[index];
+    if (!entry) return;
+    intendedNoteId.current = entry.section.id;
+    setActiveNoteId(entry.section.id);
+    if (entry.topicKey !== activeSectionKey) {
+      setActiveSectionKey(entry.topicKey);
+    }
+    notesTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const selectTopic = (key: string) => {
+    intendedNoteId.current = null;
+    const firstId = paperNotes[key]?.sections[0]?.id ?? null;
+    setActiveNoteId(firstId);
+    setActiveSectionKey(key);
+    notesTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   if (sectionKeys.length === 0) {
@@ -50,8 +90,11 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
     );
   }
 
+  const pagerButtonClass =
+    'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/8 dark:hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-all';
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 font-sans">
+    <div ref={notesTopRef} className="grid grid-cols-1 lg:grid-cols-4 gap-6 font-sans scroll-mt-32">
       {/* Mobile-only Horizontal Topics Selector */}
       <div className="lg:hidden flex flex-col gap-1.5">
         <h4 className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">Topics List</h4>
@@ -61,10 +104,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
             return (
               <button
                 key={key}
-                onClick={() => {
-                  setActiveSectionKey(key);
-                  setExpandedSectionId(null);
-                }}
+                onClick={() => selectTopic(key)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold font-display whitespace-nowrap transition-all duration-150 cursor-pointer ${
                   isActive
                     ? `${paper === 'uphesc' ? 'bg-violet-600' : 'bg-indigo-600'} text-white shadow-md`
@@ -86,10 +126,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
           return (
             <button
               key={key}
-              onClick={() => {
-                setActiveSectionKey(key);
-                setExpandedSectionId(null);
-              }}
+              onClick={() => selectTopic(key)}
               className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold font-display tracking-tight transition-all duration-150 cursor-pointer ${
                 isActive
                   ? `${paper === 'uphesc' ? 'bg-violet-600' : 'bg-indigo-600'} text-white shadow-md`
@@ -102,81 +139,78 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
         })}
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Content Area — one open section, pager stays top-right */}
       <div className="lg:col-span-3 space-y-5">
-        {currentTopic && (
+        {currentEntry && currentTopic && (
           <>
-            {/* Header Title Banner */}
+            <div className="flex items-center justify-between gap-3">
+              <span className="px-3 py-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 text-[11px] font-semibold text-slate-600 dark:text-slate-300 font-mono select-none">
+                <b className="text-slate-900 dark:text-white">{indexInTopic + 1}</b>
+                <span className="text-slate-400 dark:text-slate-500 mx-1">/</span>
+                {topicSections.length}
+                <span className="text-slate-400 dark:text-slate-500 ml-1 font-sans font-medium">sections</span>
+              </span>
+
+              {entries.length > 1 && (
+                <div className="flex items-center gap-0 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 overflow-hidden shrink-0">
+                  <button
+                    onClick={() => goToEntry(currentIndex - 1)}
+                    disabled={currentIndex === 0}
+                    className={`px-2.5 py-1.5 border-r border-black/8 dark:border-white/10 ${pagerButtonClass}`}
+                    aria-label="Previous section"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="px-3 py-1 text-[11px] font-semibold font-mono text-slate-600 dark:text-slate-300 select-none">
+                    <b className="text-slate-900 dark:text-white">{currentIndex + 1}</b>
+                    <span className="text-slate-400 dark:text-slate-500 mx-1">/</span>
+                    {entries.length}
+                  </span>
+                  <button
+                    onClick={() => goToEntry(currentIndex + 1)}
+                    disabled={currentIndex >= entries.length - 1}
+                    className={`px-2.5 py-1.5 border-l border-black/8 dark:border-white/10 ${pagerButtonClass}`}
+                    aria-label="Next section"
+                  >
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">
               {paper === 'uphesc'
                 ? 'UPHESC Assistant Professor — Comprehensive unit-wise preparation notes'
                 : 'Comprehensive revision formulas & proofs for ISS'}
             </p>
 
-            {/* Accordion List for Section Topics */}
-            <div className="space-y-3">
-              {currentTopic.sections.map((section) => {
-                const isExpanded = expandedSectionId === section.id;
-                return (
-                  <div
-                    key={section.id}
-                    className="bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/8 dark:border-white/10 rounded-xl overflow-hidden transition-all duration-200 shadow-sm dark:shadow-none"
+            <div className="bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/8 dark:border-white/10 rounded-xl overflow-hidden shadow-sm dark:shadow-none">
+              {isAdmin && (
+                <div className="flex justify-end px-3 pt-3">
+                  <button
+                    onClick={() =>
+                      onEditNoteClick({
+                        paper,
+                        sectionKey: currentEntry.topicKey,
+                        sectionId: currentEntry.section.id,
+                        label: currentEntry.section.label,
+                        content: currentEntry.section.content,
+                      })
+                    }
+                    className="p-1.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 rounded-md transition-colors flex items-center justify-center cursor-pointer shrink-0"
+                    title="Edit Note"
+                    aria-label="Edit Note"
                   >
-                    {/* Header Trigger */}
-                    <div
-                      onClick={() => toggleSection(section.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          toggleSection(section.id);
-                        }
-                      }}
-                      role="button"
-                      tabIndex={0}
-                      className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-black/5 dark:hover:bg-white/10 text-left transition-colors focus:outline-hidden cursor-pointer select-none"
-                    >
-                      <span className="text-xs font-bold text-slate-700 dark:text-slate-200 font-display flex items-center gap-2">
-                        {isExpanded ? (
-                          <ChevronDown className="w-4 h-4 text-indigo-500 dark:text-indigo-400 shrink-0" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4 text-slate-400 dark:text-slate-400 shrink-0" />
-                        )}
-                        {section.label}
-                      </span>
-                      {isAdmin && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent accordion toggling
-                            onEditNoteClick({
-                              paper,
-                              sectionKey: activeSectionKey,
-                              sectionId: section.id,
-                              label: section.label,
-                              content: section.content,
-                            });
-                          }}
-                          className="p-1.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 rounded-md transition-colors flex items-center justify-center cursor-pointer"
-                          title="Edit Note"
-                          aria-label="Edit Note"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Content Body */}
-                    {isExpanded && (
-                      <div className="px-4 sm:px-5 pb-5 pt-2 border-t border-black/8 dark:border-white/10 bg-black/[0.02] dark:bg-white/5 text-sm text-slate-600 dark:text-slate-300 font-sans leading-relaxed overflow-x-auto min-w-0 overscroll-x-contain">
-                        <MathJaxRenderer html={section.content} className="markdown-body" />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+              <div className="px-4 sm:px-5 py-4 text-sm text-slate-600 dark:text-slate-300 font-sans leading-relaxed overflow-x-auto min-w-0 overscroll-x-contain">
+                <MathJaxRenderer html={currentEntry.section.content} className="markdown-body" />
+              </div>
             </div>
 
-            {/* Exam Tips Block */}
-            {currentTopic.tips && (
+            {isLastInTopic && currentTopic.tips && (
               <div className={`rounded-xl p-4 flex gap-3 shadow-md border-l-[3px] ${
                 paper === 'uphesc'
                   ? 'bg-violet-500/10 border-violet-500'
@@ -194,6 +228,34 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
                   }`}>
                     <MathJaxRenderer html={currentTopic.tips} className="markdown-body" />
                   </div>
+                </div>
+              </div>
+            )}
+
+            {entries.length > 1 && (
+              <div className="flex items-center justify-center pt-2">
+                <div className="flex items-center gap-0 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 overflow-hidden">
+                  <button
+                    onClick={() => goToEntry(currentIndex - 1)}
+                    disabled={currentIndex === 0}
+                    className={`px-3 py-2 border-r border-black/8 dark:border-white/10 ${pagerButtonClass}`}
+                    aria-label="Previous section"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <span className="px-4 py-2 text-sm font-semibold font-mono text-slate-600 dark:text-slate-300 select-none">
+                    <b className="text-slate-900 dark:text-white">{currentIndex + 1}</b>
+                    <span className="text-slate-400 dark:text-slate-500 mx-1.5">/</span>
+                    {entries.length}
+                  </span>
+                  <button
+                    onClick={() => goToEntry(currentIndex + 1)}
+                    disabled={currentIndex >= entries.length - 1}
+                    className={`px-3 py-2 border-l border-black/8 dark:border-white/10 ${pagerButtonClass}`}
+                    aria-label="Next section"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             )}
