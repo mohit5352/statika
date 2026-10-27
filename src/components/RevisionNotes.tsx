@@ -93,50 +93,121 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
   const pagerButtonClass =
     'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/8 dark:hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-all';
 
+  // Determine active color scheme based on current section key
+  const isGKSection = activeSectionKey.startsWith('gk_');
+  const accentClass = paper !== 'uphesc'
+    ? 'bg-indigo-600'
+    : isGKSection
+      ? 'bg-emerald-600'
+      : 'bg-violet-600';
+  const tipAccent = paper !== 'uphesc'
+    ? { bg: 'bg-indigo-500/10', border: 'border-indigo-500', icon: 'text-indigo-500 dark:text-indigo-400', title: 'text-indigo-600 dark:text-indigo-300', text: 'text-indigo-800 dark:text-indigo-100' }
+    : isGKSection
+      ? { bg: 'bg-emerald-500/10', border: 'border-emerald-500', icon: 'text-emerald-500 dark:text-emerald-400', title: 'text-emerald-600 dark:text-emerald-300', text: 'text-emerald-800 dark:text-emerald-100' }
+      : { bg: 'bg-violet-500/10', border: 'border-violet-500', icon: 'text-violet-500 dark:text-violet-400', title: 'text-violet-600 dark:text-violet-300', text: 'text-violet-800 dark:text-violet-100' };
+
+  // Separate stats and GK keys for grouped sidebar (only when paper === 'uphesc')
+  const statsKeys = paper === 'uphesc' ? sectionKeys.filter(k => !k.startsWith('gk_')) : sectionKeys;
+  const gkKeys = paper === 'uphesc' ? sectionKeys.filter(k => k.startsWith('gk_')) : [];
+
+  const renderTopicBtn = (key: string, mobile = false) => {
+    const isActive = activeSectionKey === key;
+    const isGK = key.startsWith('gk_');
+    const activeClass = paper !== 'uphesc' ? 'bg-indigo-600' : isGK ? 'bg-emerald-600' : 'bg-violet-600';
+    if (mobile) {
+      return (
+        <button
+          key={key}
+          onClick={() => selectTopic(key)}
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold font-display whitespace-nowrap transition-all duration-150 cursor-pointer ${
+            isActive
+              ? `${activeClass} text-white shadow-md`
+              : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/8 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          {paperNotes[key].title}
+        </button>
+      );
+    }
+    return (
+      <button
+        key={key}
+        onClick={() => selectTopic(key)}
+        className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold font-display tracking-tight transition-all duration-150 cursor-pointer ${
+          isActive
+            ? `${activeClass} text-white shadow-md`
+            : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/8 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+        }`}
+      >
+        {paperNotes[key].title}
+      </button>
+    );
+  };
+
   return (
     <div ref={notesTopRef} className="grid grid-cols-1 lg:grid-cols-4 gap-6 font-sans scroll-mt-32">
       {/* Mobile-only Horizontal Topics Selector */}
-      <div className="lg:hidden flex flex-col gap-1.5">
-        <h4 className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">Topics List</h4>
-        <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-none -mx-4 px-4 sm:-mx-6 sm:px-6">
-          {sectionKeys.map((key) => {
-            const isActive = activeSectionKey === key;
-            return (
-              <button
-                key={key}
-                onClick={() => selectTopic(key)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold font-display whitespace-nowrap transition-all duration-150 cursor-pointer ${
-                  isActive
-                    ? `${paper === 'uphesc' ? 'bg-violet-600' : 'bg-indigo-600'} text-white shadow-md`
-                    : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/8 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                {paperNotes[key].title}
-              </button>
-            );
-          })}
-        </div>
+      <div className="lg:hidden flex flex-col gap-2">
+        {paper === 'uphesc' ? (
+          <>
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-2 px-1">
+                <span className="text-[9px] font-bold text-violet-500 uppercase tracking-widest">Statistics</span>
+                <span className="text-[9px] font-mono bg-violet-500/10 text-violet-600 dark:text-violet-300 px-1.5 py-0.5 rounded-full border border-violet-400/20">70 Qs</span>
+              </div>
+              <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-none -mx-4 px-4 sm:-mx-6 sm:px-6">
+                {statsKeys.map(k => renderTopicBtn(k, true))}
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5 mt-1">
+              <div className="flex items-center gap-2 px-1">
+                <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">General Knowledge</span>
+                <span className="text-[9px] font-mono bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 px-1.5 py-0.5 rounded-full border border-emerald-400/20">30 Qs</span>
+              </div>
+              <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-none -mx-4 px-4 sm:-mx-6 sm:px-6">
+                {gkKeys.map(k => renderTopicBtn(k, true))}
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <h4 className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">Topics List</h4>
+            <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-none -mx-4 px-4 sm:-mx-6 sm:px-6">
+              {sectionKeys.map(k => renderTopicBtn(k, true))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Desktop-only Sticky Sidebar Topics Selector */}
-      <div className="hidden lg:block lg:col-span-1 space-y-1.5 lg:sticky lg:top-[125px] self-start lg:max-h-[calc(100vh-160px)] lg:overflow-y-auto pr-1">
-        <h4 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2 mb-2">Topics List</h4>
-        {sectionKeys.map((key) => {
-          const isActive = activeSectionKey === key;
-          return (
-            <button
-              key={key}
-              onClick={() => selectTopic(key)}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold font-display tracking-tight transition-all duration-150 cursor-pointer ${
-                isActive
-                  ? `${paper === 'uphesc' ? 'bg-violet-600' : 'bg-indigo-600'} text-white shadow-md`
-                  : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/8 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              {paperNotes[key].title}
-            </button>
-          );
-        })}
+      <div className="hidden lg:block lg:col-span-1 space-y-1.5 lg:sticky lg:top-[125px] self-start lg:max-h-[calc(100vh-160px)] lg:overflow-y-auto pr-1 scrollbar-none">
+        {paper === 'uphesc' ? (
+          <div className="space-y-3">
+            <div>
+              <div className="flex items-center gap-2 px-2 mb-1.5">
+                <span className="text-[9px] font-bold text-violet-500 dark:text-violet-400 uppercase tracking-widest">Statistics</span>
+                <span className="text-[9px] font-mono bg-violet-500/10 text-violet-600 dark:text-violet-300 px-1.5 py-0.5 rounded-full border border-violet-400/20">70 Qs</span>
+              </div>
+              <div className="space-y-1">
+                {statsKeys.map(k => renderTopicBtn(k, false))}
+              </div>
+            </div>
+            <div className="border-t border-dashed border-black/10 dark:border-white/10 pt-3">
+              <div className="flex items-center gap-2 px-2 mb-1.5">
+                <span className="text-[9px] font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-widest">General Knowledge</span>
+                <span className="text-[9px] font-mono bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 px-1.5 py-0.5 rounded-full border border-emerald-400/20">30 Qs</span>
+              </div>
+              <div className="space-y-1">
+                {gkKeys.map(k => renderTopicBtn(k, false))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <h4 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2 mb-2">Topics List</h4>
+            {sectionKeys.map(k => renderTopicBtn(k, false))}
+          </>
+        )}
       </div>
 
       {/* Main Content Area — one open section, pager stays top-right */}
@@ -180,7 +251,9 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
 
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">
               {paper === 'uphesc'
-                ? 'UPHESC Assistant Professor — Comprehensive unit-wise preparation notes'
+                ? isGKSection
+                  ? 'UPHESC Assistant Professor — General Knowledge notes (30 Questions)'
+                  : 'UPHESC Assistant Professor — Statistics unit-wise preparation notes (70 Questions)'
                 : 'Comprehensive revision formulas & proofs for ISS'}
             </p>
 
@@ -211,21 +284,13 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
             </div>
 
             {isLastInTopic && currentTopic.tips && (
-              <div className={`rounded-xl p-4 flex gap-3 shadow-md border-l-[3px] ${
-                paper === 'uphesc'
-                  ? 'bg-violet-500/10 border-violet-500'
-                  : 'bg-indigo-500/10 border-indigo-500'
-              }`}>
-                <Lightbulb className={`w-5 h-5 shrink-0 mt-0.5 ${paper === 'uphesc' ? 'text-violet-500 dark:text-violet-400' : 'text-indigo-500 dark:text-indigo-400'}`} />
+              <div className={`rounded-xl p-4 flex gap-3 shadow-md border-l-[3px] ${tipAccent.bg} ${tipAccent.border}`}>
+                <Lightbulb className={`w-5 h-5 shrink-0 mt-0.5 ${tipAccent.icon}`} />
                 <div className="min-w-0 flex-1 overflow-x-auto">
-                  <h5 className={`text-xs font-bold font-display uppercase tracking-wider mb-1 ${
-                    paper === 'uphesc' ? 'text-violet-600 dark:text-violet-300' : 'text-indigo-600 dark:text-indigo-300'
-                  }`}>
+                  <h5 className={`text-xs font-bold font-display uppercase tracking-wider mb-1 ${tipAccent.title}`}>
                     Exam Tips & Common Pitfalls
                   </h5>
-                  <div className={`text-xs leading-relaxed font-sans ${
-                    paper === 'uphesc' ? 'text-violet-800 dark:text-violet-100' : 'text-indigo-800 dark:text-indigo-200'
-                  }`}>
+                  <div className={`text-xs leading-relaxed font-sans ${tipAccent.text}`}>
                     <MathJaxRenderer html={currentTopic.tips} className="markdown-body" />
                   </div>
                 </div>

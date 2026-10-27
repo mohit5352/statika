@@ -1,7 +1,7 @@
 # Statika — UPSC ISS & UPHESC Statistics Portal
 
 > **Interactive revision portal for UPSC Indian Statistical Service (ISS) and UPHESC Assistant Professor (Statistics) aspirants.**  
-> ISS Papers I–IV · General English · General Studies · UPHESC 10-unit notes · Official syllabi · Model answers · Light & dark themes · AI study assistant
+> ISS Papers I–IV · General English · General Studies · UPHESC 10-unit Statistics notes · UPHESC 6-unit GK notes · Official syllabi · Model answers · Light & dark themes · AI study assistant
 
 ---
 
@@ -55,7 +55,11 @@ Paper IV sections include Demography & Vital Statistics, SQC, Operations Researc
 
 ### UPHESC Assistant Professor — Statistics (Subject Code-77)
 
-Unit-wise preparation notes aligned to the official U.P. Higher Education Services Commission syllabus. Content lives in `uphesc_notes.json` (not mixed into ISS notes).
+The exam is **100 MCQs × 2 marks = 200 marks** (2 hours, no negative marking) split into two sections:
+
+#### Statistics — 70 Questions
+
+Unit-wise preparation notes aligned to the official U.P. Higher Education Services Commission syllabus. Content lives in `uphesc_notes.json`.
 
 | Unit | Title |
 |------|--------|
@@ -70,7 +74,22 @@ Unit-wise preparation notes aligned to the official U.P. Higher Education Servic
 | 9 | Multivariate Analysis |
 | 10 | Advance Probability Theory |
 
-Each unit includes syllabus-mapped sections, MathJax formulas, comparison tables, and exam tips / common pitfalls. The in-app syllabus view matches the official notification (no ISS/UPHESC tab mixing).
+Each unit includes syllabus-mapped sections, MathJax formulas, comparison tables, and exam tips / common pitfalls.
+
+#### General Knowledge — 30 Questions (Compulsory for All Disciplines)
+
+Six units covering the official GK syllabus (UPHESC notification). Content lives in `gk_notes.json` and is automatically merged into the `uphesc` notebook at runtime.
+
+| GK Unit | Title | Syllabus Sub-topics |
+|---------|-------|---------------------|
+| GK-1 | Current Affairs | National/International events, Personalities, Sports, Science & Research |
+| GK-2 | Teaching & Research Aptitude | Teaching methods & evaluation, Bloom's Taxonomy (all 3 domains), Research methodology, UGC & NEP 2020 |
+| GK-3 | Information & Communication Technology (ICT) | Computer hardware/software, Internet & e-mail, Abbreviations, AI & emerging tech |
+| GK-4 | People & Environment | Ecology, Environmental degradation, International conventions (Ramsar, Paris, COP), India's environmental laws |
+| GK-5 | Indian History & Geography | Indian culture, National Movement 1857–1950, Universe & Solar System, Indian physical geography |
+| GK-6 | Indian Constitution & Economy | Preamble/FRs/DPSP, Legislature/Executive/Judiciary, ECI & UPSC, Planning & economy, Agriculture & banking |
+
+**GK notes are visually distinguished from Statistics notes in the sidebar** — Statistics units appear in **violet** with a "70 Qs" badge; GK units in **emerald** with a "30 Qs" badge. The in-app syllabus view matches the official notification (no ISS/UPHESC tab mixing).
 
 ---
 
@@ -79,13 +98,15 @@ Each unit includes syllabus-mapped sections, MathJax formulas, comparison tables
 ### Exam modes
 - Sidebar switcher: **UPSC ISS** vs **UPHESC A.P.**
 - ISS mode: PYQs + revision notes + ISS syllabus
-- UPHESC mode: 10-unit notes + UPHESC syllabus only
+- UPHESC mode: 10-unit Statistics notes + 6-unit GK notes + UPHESC syllabus only
+- Sidebar groups UPHESC content into **Statistics (violet, 70 Qs)** and **General Knowledge (emerald, 30 Qs)** with a dashed separator
+- Active section accent color (violet / emerald / indigo) propagates to the sticky filter chip, tips box, and section pager
 - Filter chips and URL params (`mode`, paper, section, year, notes) stay consistent with the selected exam
 
 ### Theme
 - **Light / dark** toggle in the header (moon / sun)
 - Preference stored as `statika-theme` in `localStorage`
-- Shared indigo (ISS) / violet (UPHESC) accents on both themes
+- Three accent colors: indigo (ISS), violet (UPHESC Statistics), emerald (UPHESC GK)
 
 ### PYQ module (ISS)
 - Filter by **Paper → Subject section → Year** (borderless radio lists + year pills)
@@ -99,8 +120,11 @@ Each unit includes syllabus-mapped sections, MathJax formulas, comparison tables
 
 ### Revision notes
 - ISS: formula sheets and proofs for Papers I–IV
-- UPHESC: comprehensive notes for all 10 official units
-- Accordion layout; mobile-friendly topic chips and scrollable tables
+- UPHESC Statistics: comprehensive notes for all 10 official units (MathJax formulas + exam tips)
+- UPHESC GK: comprehensive notes for all 6 official GK units (tables, mnemonics, PYQ traps)
+- Sidebar grouped into Statistics / GK with colored badges; desktop sticky + mobile horizontal scroll
+- Tip panels adapt accent color dynamically (violet → Stats, emerald → GK)
+- Mobile-friendly: horizontal topic chips, scrollable tables, pager navigation
 
 ### Official syllabus
 - ISS: Papers I–IV sections (same pattern as the UPSC scheme)
@@ -165,7 +189,8 @@ Each unit includes syllabus-mapped sections, MathJax formulas, comparison tables
 │       ├── explanations.json        # Statistics model solutions
 │       ├── answers.json             # MCQ answer keys
 │       ├── notes.json               # ISS revision notes (Papers I–IV)
-│       ├── uphesc_notes.json        # UPHESC Asst. Prof. notes (Units 1–10)
+│       ├── uphesc_notes.json        # UPHESC Statistics notes (Units 1–10)
+│       ├── gk_notes.json            # UPHESC GK notes (Units 1–6, 30 Qs)
 │       ├── gen_papers_questions.json    # General English + Studies questions
 │       └── gen_papers_explanations.json # GE/GS model answers
 │
@@ -210,14 +235,26 @@ marks?: number | string
 
 The app merges statistics + general JSON at load time. Years in the filter are derived from loaded questions (no hard-coded year list).
 
-### Notes — `notes.json` / `uphesc_notes.json`
+### Notes — `notes.json` / `uphesc_notes.json` / `gk_notes.json`
 
 Same `NoteBook` shape: `paper → sectionKey → { title, sections[], tips? }`.
 
 - ISS books: `paper1` … `paper4`
-- UPHESC book: `uphesc` with keys `unit1` … `unit10`
+- UPHESC book: `uphesc` with keys `unit1`…`unit10` (Statistics) + `gk_unit1`…`gk_unit6` (GK)
 
-`App.tsx` merges both files into one notes store; the drawer only shows the book for the active exam mode.
+`App.tsx` deep-merges the two UPHESC files at startup:
+
+```ts
+notes = {
+  ...notesRaw,                           // ISS papers
+  uphesc: {
+    ...uphescNotesRaw['uphesc'],          // Statistics units (unit1–unit10)
+    ...gkNotesRaw['uphesc'],              // GK units (gk_unit1–gk_unit6)
+  },
+}
+```
+
+Keys prefixed `gk_` are rendered in **emerald** by `RevisionNotes`; all other UPHESC keys in **violet**. The drawer only shows the book for the active exam mode.
 
 ---
 
@@ -318,11 +355,18 @@ python3 gs_answers_2021_2026.py
 2. No App.tsx year-list change required — filters are data-driven.
 3. List order is sorted **newest year first** in the UI.
 
-### UPHESC notes
+### UPHESC Statistics notes
 1. Edit `src/data/uphesc_notes.json` under the relevant `unitN` key.
 2. Keep Markdown + MathJax (`\\( \\)` / `\\[ \\]`) consistent with existing units.
 3. Wide tables should be Markdown tables — the renderer wraps them for mobile scroll.
 4. Or use the Admin Panel **Edit Note** flow while in UPHESC mode.
+
+### UPHESC GK notes
+1. Edit `src/data/gk_notes.json` under the relevant `gk_unitN` key.
+2. GK content is plain Markdown (no LaTeX needed); use tables, bullet lists, and blockquotes.
+3. All keys must start with `gk_` — this prefix controls the emerald colour scheme and "General Knowledge" group label in the sidebar.
+4. To add a new GK topic, add a new `gk_*` key at the same level as `gk_unit1`…`gk_unit6` inside the `"uphesc"` object.
+5. GK tips boxes render in emerald; Statistics tips boxes render in violet — no config needed.
 
 ---
 
@@ -349,3 +393,13 @@ Set `GEMINI_API_KEY` (and any admin secrets) as environment variables on the hos
 ---
 
 *Built for UPSC ISS and UPHESC Statistics aspirants who take preparation seriously.*
+
+---
+
+## Changelog
+
+| Version | What changed |
+|---------|-------------|
+| **Latest** | UPHESC GK notes (6 units, 30 Qs) added; sidebar groups Stats/GK with colored badges; emerald accent for GK sections throughout UI |
+| Previous | UPHESC 10-unit Statistics notes; light/dark theme; paginated notes reader |
+| Initial | UPSC ISS Papers I–IV PYQs with answers, explanations, AI assistant |

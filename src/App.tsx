@@ -21,6 +21,7 @@ import answersRaw from './data/answers.json';
 import explanationsRaw from './data/explanations.json';
 import notesRaw from './data/notes.json';
 import uphescNotesRaw from './data/uphesc_notes.json';
+import gkNotesRaw from './data/gk_notes.json';
 import genQuestionsRaw from './data/gen_papers_questions.json';
 import genExplanationsRaw from './data/gen_papers_explanations.json';
 
@@ -110,7 +111,10 @@ export default function App() {
   );
   const [notes, setNotes] = useState<NoteBook>({
     ...(notesRaw as NoteBook),
-    ...(uphescNotesRaw as NoteBook),
+    uphesc: {
+      ...((uphescNotesRaw as NoteBook)['uphesc'] || {}),
+      ...((gkNotesRaw as NoteBook)['uphesc'] || {}),
+    },
   });
 
   // Filter States (initialised from URL so reload restores position)
@@ -883,10 +887,12 @@ export default function App() {
                     <span>UPHESC Statistics Syllabus</span>
                   </button>
 
-                  <div className="border-t border-black/6 dark:border-white/8 pt-3">
-                    <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-2">Select Unit</label>
-                    <div className="space-y-0.5">
-                      {Object.entries(notes['uphesc'] || {}).map(([key, topic]) => {
+                  <div className="border-t border-black/6 dark:border-white/8 pt-3 space-y-4">
+                    {(() => {
+                      const allEntries = Object.entries(notes['uphesc'] || {});
+                      const statsEntries = allEntries.filter(([k]) => !k.startsWith('gk_'));
+                      const gkEntries = allEntries.filter(([k]) => k.startsWith('gk_'));
+                      const renderBtn = (key: string, topic: any, activeColor: string, activeBg: string, activeBorder: string) => {
                         const isActive = activeNotesSectionKey === key;
                         return (
                           <button
@@ -898,11 +904,11 @@ export default function App() {
                               setIsLeftDrawerOpen(false);
                             }}
                             className={`w-full flex items-center gap-2.5 py-2 text-left transition-colors cursor-pointer rounded-lg ${
-                              isActive ? 'bg-violet-500/10 text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-black/5 dark:hover:bg-white/5'
+                              isActive ? `${activeBg} text-slate-900 dark:text-white` : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-black/5 dark:hover:bg-white/5'
                             }`}
                           >
                             <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
-                              isActive ? 'border-violet-400 bg-violet-500 text-white' : 'border-black/20 dark:border-white/25'
+                              isActive ? `${activeBorder} ${activeColor} text-white` : 'border-black/20 dark:border-white/25'
                             }`}>
                               {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
                             </span>
@@ -911,8 +917,33 @@ export default function App() {
                             </span>
                           </button>
                         );
-                      })}
-                    </div>
+                      };
+                      return (
+                        <>
+                          {/* Statistics group */}
+                          <div>
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <span className="text-[9px] font-bold text-violet-500 dark:text-violet-400 uppercase tracking-widest">Statistics</span>
+                              <span className="text-[9px] font-mono bg-violet-500/10 text-violet-600 dark:text-violet-300 px-1.5 py-0.5 rounded-full border border-violet-400/20">70 Qs</span>
+                            </div>
+                            <div className="space-y-0.5">
+                              {statsEntries.map(([k, t]) => renderBtn(k, t, 'bg-violet-500', 'bg-violet-500/10', 'border-violet-400'))}
+                            </div>
+                          </div>
+                          <div className="border-t border-dashed border-black/10 dark:border-white/10" />
+                          {/* GK group */}
+                          <div>
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <span className="text-[9px] font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-widest">General Knowledge</span>
+                              <span className="text-[9px] font-mono bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 px-1.5 py-0.5 rounded-full border border-emerald-400/20">30 Qs</span>
+                            </div>
+                            <div className="space-y-0.5">
+                              {gkEntries.map(([k, t]) => renderBtn(k, t, 'bg-emerald-500', 'bg-emerald-500/10', 'border-emerald-400'))}
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
 
                 </div>
@@ -1126,15 +1157,23 @@ export default function App() {
             </>
           ) : examMode === 'uphesc' ? (
             <>
-              {/* Only show the unit title chip (no redundant "UPHESC Asst. Prof." chip) */}
-              {activeNotesSectionKey && notes['uphesc']?.[activeNotesSectionKey] && (
-                <button
-                  onClick={() => setIsLeftDrawerOpen(true)}
-                  className="px-2.5 py-1 rounded-full bg-violet-500/10 dark:bg-violet-500/15 border border-violet-400/30 dark:border-violet-500/30 hover:bg-violet-500/20 text-[11px] font-semibold shrink-0 cursor-pointer transition-colors"
-                >
-                  <b className="text-violet-700 dark:text-violet-300">{(notes['uphesc'][activeNotesSectionKey] as any).title}</b>
-                </button>
-              )}
+              {activeNotesSectionKey && notes['uphesc']?.[activeNotesSectionKey] && (() => {
+                const isGK = activeNotesSectionKey.startsWith('gk_');
+                return (
+                  <button
+                    onClick={() => setIsLeftDrawerOpen(true)}
+                    className={`px-2.5 py-1 rounded-full text-[11px] font-semibold shrink-0 cursor-pointer transition-colors border ${
+                      isGK
+                        ? 'bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-400/30 dark:border-emerald-500/30 hover:bg-emerald-500/20'
+                        : 'bg-violet-500/10 dark:bg-violet-500/15 border-violet-400/30 dark:border-violet-500/30 hover:bg-violet-500/20'
+                    }`}
+                  >
+                    <b className={isGK ? 'text-emerald-700 dark:text-emerald-300' : 'text-violet-700 dark:text-violet-300'}>
+                      {(notes['uphesc'][activeNotesSectionKey] as any).title}
+                    </b>
+                  </button>
+                );
+              })()}
             </>
           ) : (
             <>
