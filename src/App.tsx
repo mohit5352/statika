@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BookOpen, Filter, Search, Sparkles, ChevronLeft, ChevronRight, AlertCircle, Menu, X, Check, Sun, Moon } from 'lucide-react';
+import { BookOpen, Filter, Search, Sparkles, ChevronLeft, ChevronRight, ChevronDown, AlertCircle, Menu, X, Check, Sun, Moon } from 'lucide-react';
 
 // Type declarations
 import { Question, AnswerKey, ExplanationKey, NoteBook, Paper } from './types';
@@ -225,6 +225,11 @@ export default function App() {
   const [initialAssistantQuestion, setInitialAssistantQuestion] = useState<string | null>(null);
   const [isSyllabusOpen, setIsSyllabusOpen] = useState<boolean>(false);
   const [syllabusDefaultSource, setSyllabusDefaultSource] = useState<'iss' | 'uphesc'>('iss');
+
+  // ── Desktop persistent sidebar state ──────────────────────────────────────
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [statsGroupExpanded, setStatsGroupExpanded] = useState(true);
+  const [gkGroupExpanded, setGkGroupExpanded] = useState(true);
 
   // ── Light / Dark theme ────────────────────────────────────────────────────
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
@@ -504,6 +509,13 @@ export default function App() {
 
   const drawerYearMin = drawerYears.length > 0 ? drawerYears[drawerYears.length - 1] : '';
   const drawerYearMax = drawerYears.length > 0 ? drawerYears[0] : '';
+
+  // Years for the persistent sidebar (uses selectedPaper directly — no draft state)
+  const sidebarYears = Array.from(
+    new Set(questions.filter((q) => q.paper === selectedPaper).map((q) => q.year.toString()))
+  ).sort((a: string, b: string) => Number(b) - Number(a));
+  const sidebarYearMin = sidebarYears.length > 0 ? sidebarYears[sidebarYears.length - 1] : '';
+  const sidebarYearMax = sidebarYears.length > 0 ? sidebarYears[0] : '';
 
   // Pagination bounds
   const totalQuestions = filteredQuestions.length;
@@ -998,14 +1010,22 @@ export default function App() {
       <header className="bg-white/60 dark:bg-slate-950/60 border-b border-black/8 dark:border-white/10 backdrop-blur-xl sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between relative">
           
-          {/* Left menu trigger button */}
+          {/* Mobile hamburger (hidden on desktop — persistent sidebar handles it there) */}
           <button
             onClick={() => setIsLeftDrawerOpen(true)}
-            className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer transition-colors flex items-center gap-1.5"
+            className="p-1.5 lg:hidden rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer transition-colors flex items-center gap-1.5"
             aria-label="Open sidebar menu"
           >
             <Menu className="w-5 h-5" />
-            <span className="hidden sm:inline text-xs font-semibold font-display tracking-wide uppercase">Menu</span>
+          </button>
+          {/* Desktop sidebar collapse toggle */}
+          <button
+            onClick={() => setSidebarCollapsed((c) => !c)}
+            className="hidden lg:flex p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer transition-colors items-center gap-1.5"
+            aria-label="Toggle sidebar"
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            <Menu className="w-5 h-5" />
           </button>
 
           {/* Centered Serif Logo "Statika" */}
@@ -1085,8 +1105,8 @@ export default function App() {
         </div>
       )}
 
-      {/* ==================== STICKY ACTIVE FILTERS ROW ==================== */}
-      <div className="bg-white/60 dark:bg-slate-950/60 border-b border-black/5 dark:border-white/5 sticky top-[56px] z-30 shadow-xs backdrop-blur-xl py-2">
+      {/* ==================== STICKY ACTIVE FILTERS ROW (mobile only) ==================== */}
+      <div className="lg:hidden bg-white/60 dark:bg-slate-950/60 border-b border-black/5 dark:border-white/5 sticky top-[56px] z-30 shadow-xs backdrop-blur-xl py-2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-auto scrollbar-none">
           <div className="flex items-center gap-1.5 flex-nowrap min-w-max">
 
@@ -1211,10 +1231,330 @@ export default function App() {
         </div>
       </div>
 
-      {/* Main Container Layout */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col lg:flex-row gap-6">
+      {/* ==================== MAIN LAYOUT: Persistent Sidebar + Content ==================== */}
+      <div className="flex flex-1 min-h-0">
+
+        {/* ── Persistent Desktop Sidebar ── */}
+        <aside className={`hidden lg:flex flex-col border-r border-black/8 dark:border-white/10 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl sticky top-14 h-[calc(100vh-56px)] shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out ${sidebarCollapsed ? 'w-14' : 'w-[260px] xl:w-[280px]'}`}>
+
+          {/* Sidebar top: exam mode switcher */}
+          {!sidebarCollapsed ? (
+            <div className="px-3 pt-3 pb-2 border-b border-black/8 dark:border-white/10 shrink-0 space-y-2">
+              <div className="flex gap-1.5">
+                <button
+                  onClick={() => { setExamMode('iss'); if (selectedNotesPaper === 'uphesc') setSelectedNotesPaper('paper1'); }}
+                  className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition-all cursor-pointer ${examMode === 'iss' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-black/8 dark:border-white/10'}`}
+                >UPSC ISS</button>
+                <button
+                  onClick={() => { setExamMode('uphesc'); setActiveTab('notes'); setSelectedNotesPaper('uphesc'); const k = Object.keys(notes['uphesc'] || {}); if (!activeNotesSectionKey || !k.includes(activeNotesSectionKey)) setActiveNotesSectionKey(k[0] || ''); }}
+                  className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition-all cursor-pointer ${examMode === 'uphesc' ? 'bg-violet-600 text-white shadow-sm' : 'bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-black/8 dark:border-white/10'}`}
+                >UPHESC</button>
+              </div>
+            </div>
+          ) : (
+            /* Collapsed: icon mode exam switcher */
+            <div className="flex flex-col items-center gap-2 pt-3 pb-2 border-b border-black/8 dark:border-white/10 shrink-0">
+              <button onClick={() => { setExamMode('iss'); setSidebarCollapsed(false); if (selectedNotesPaper === 'uphesc') setSelectedNotesPaper('paper1'); }} title="UPSC ISS"
+                className={`w-9 h-9 rounded-xl flex items-center justify-center text-[9px] font-black transition-all cursor-pointer ${examMode === 'iss' ? 'bg-indigo-600 text-white' : 'bg-black/5 dark:bg-white/5 text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+              >IS</button>
+              <button onClick={() => { setExamMode('uphesc'); setActiveTab('notes'); setSidebarCollapsed(false); const k = Object.keys(notes['uphesc'] || {}); if (!activeNotesSectionKey || !k.includes(activeNotesSectionKey)) setActiveNotesSectionKey(k[0] || ''); }} title="UPHESC A.P."
+                className={`w-9 h-9 rounded-xl flex items-center justify-center text-[9px] font-black transition-all cursor-pointer ${examMode === 'uphesc' ? 'bg-violet-600 text-white' : 'bg-black/5 dark:bg-white/5 text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+              >UP</button>
+            </div>
+          )}
+
+          {/* Scrollable nav content */}
+          <div className="flex-1 overflow-y-auto scrollbar-none py-2">
+            {!sidebarCollapsed ? (
+              examMode === 'uphesc' ? (
+                /* ── UPHESC Navigation ── */
+                <div className="px-2 space-y-0.5">
+
+                  {/* Statistics group header */}
+                  <button
+                    onClick={() => setStatsGroupExpanded((v) => !v)}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest">Statistics</span>
+                      <span className="text-[9px] bg-violet-500/10 text-violet-600 dark:text-violet-300 px-1.5 py-0.5 rounded-full border border-violet-400/20 font-mono">70 Qs</span>
+                    </div>
+                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${statsGroupExpanded ? '' : '-rotate-90'}`} />
+                  </button>
+
+                  {statsGroupExpanded && (
+                    <div className="space-y-0.5 mb-1">
+                      {Object.entries(notes['uphesc'] || {}).filter(([k]) => !k.startsWith('gk_')).map(([key, topicRaw]) => {
+                        const topic = topicRaw as any;
+                        const isActive = activeNotesSectionKey === key;
+                        return (
+                          <div key={key}>
+                            <button
+                              onClick={() => { setActiveNotesSectionKey(key); setSelectedNotesPaper('uphesc'); setActiveTab('notes'); }}
+                              className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-left transition-all cursor-pointer text-[12px] font-semibold leading-tight ${isActive ? 'bg-violet-600 text-white shadow-sm shadow-violet-600/15' : 'text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'}`}
+                            >
+                              <span className="truncate">{topic.title}</span>
+                              <span className={`text-[9px] shrink-0 font-mono ${isActive ? 'text-white/60' : 'text-slate-400 dark:text-slate-500'}`}>{topic.sections.length}§</span>
+                            </button>
+                            {/* Sub-sections visible under active unit */}
+                            {isActive && (
+                              <div className="ml-5 pl-3 border-l-2 border-violet-400/30 dark:border-violet-500/30 mt-0.5 mb-1.5 space-y-0.5">
+                                {topic.sections.map((sec: any, idx: number) => (
+                                  <div key={sec.id} className="flex items-center gap-2 py-0.5 px-1">
+                                    <span className="w-4 h-4 shrink-0 rounded text-[8px] font-black bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 flex items-center justify-center">
+                                      {String.fromCharCode(65 + idx)}
+                                    </span>
+                                    <span className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight truncate">
+                                      {sec.label.replace(/^[A-Za-z]\.\s+/, '')}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Dashed divider between Stats and GK */}
+                  <div className="border-t border-dashed border-black/8 dark:border-white/10 my-2" />
+
+                  {/* General Knowledge group header */}
+                  <button
+                    onClick={() => setGkGroupExpanded((v) => !v)}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">General Knowledge</span>
+                      <span className="text-[9px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 px-1.5 py-0.5 rounded-full border border-emerald-400/20 font-mono">30 Qs</span>
+                    </div>
+                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${gkGroupExpanded ? '' : '-rotate-90'}`} />
+                  </button>
+
+                  {gkGroupExpanded && (
+                    <div className="space-y-0.5 mb-1">
+                      {Object.entries(notes['uphesc'] || {}).filter(([k]) => k.startsWith('gk_')).map(([key, topicRaw]) => {
+                        const topic = topicRaw as any;
+                        const isActive = activeNotesSectionKey === key;
+                        return (
+                          <div key={key}>
+                            <button
+                              onClick={() => { setActiveNotesSectionKey(key); setSelectedNotesPaper('uphesc'); setActiveTab('notes'); }}
+                              className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-left transition-all cursor-pointer text-[12px] font-semibold leading-tight ${isActive ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/15' : 'text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'}`}
+                            >
+                              <span className="truncate">{topic.title}</span>
+                              <span className={`text-[9px] shrink-0 font-mono ${isActive ? 'text-white/60' : 'text-slate-400 dark:text-slate-500'}`}>{topic.sections.length}§</span>
+                            </button>
+                            {isActive && (
+                              <div className="ml-5 pl-3 border-l-2 border-emerald-400/30 dark:border-emerald-500/30 mt-0.5 mb-1.5 space-y-0.5">
+                                {topic.sections.map((sec: any, idx: number) => (
+                                  <div key={sec.id} className="flex items-center gap-2 py-0.5 px-1">
+                                    <span className="w-4 h-4 shrink-0 rounded text-[8px] font-black bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
+                                      {String.fromCharCode(65 + idx)}
+                                    </span>
+                                    <span className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight truncate">
+                                      {sec.label.replace(/^[A-Za-z]\.\s+/, '')}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Syllabus link */}
+                  <div className="pt-2 mt-2 border-t border-black/5 dark:border-white/5">
+                    <button
+                      onClick={() => { setSyllabusDefaultSource('uphesc'); setIsSyllabusOpen(true); }}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-[11px] font-semibold text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 rounded-lg hover:bg-violet-500/5 transition-colors cursor-pointer"
+                    >
+                      <BookOpen className="w-3.5 h-3.5 shrink-0" />
+                      <span>UPHESC Syllabus</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* ── ISS Navigation ── */
+                <div className="px-2 space-y-3">
+
+                  {/* PYQ / Notes sub-tabs */}
+                  <div className="flex gap-1 px-1 pt-1">
+                    <button onClick={() => setActiveTab('pyq')}
+                      className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${activeTab === 'pyq' ? 'bg-indigo-600 text-white' : 'bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-black/8 dark:border-white/10 hover:text-slate-900 dark:hover:text-white'}`}
+                    >PYQ</button>
+                    <button onClick={() => setActiveTab('notes')}
+                      className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${activeTab === 'notes' ? 'bg-indigo-600 text-white' : 'bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-black/8 dark:border-white/10 hover:text-slate-900 dark:hover:text-white'}`}
+                    >Notes</button>
+                  </div>
+
+                  {activeTab === 'pyq' ? (
+                    <div className="px-1 space-y-4">
+                      {/* ISS Syllabus link */}
+                      <button onClick={() => { setSyllabusDefaultSource('iss'); setIsSyllabusOpen(true); }}
+                        className="w-full flex items-center gap-2 py-1 text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 cursor-pointer transition-colors"
+                      >
+                        <BookOpen className="w-3.5 h-3.5 shrink-0" />
+                        ISS Syllabus
+                      </button>
+
+                      {/* Paper selection (direct, no Apply) */}
+                      <div className="space-y-0.5">
+                        <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">ISS Paper</label>
+                        {([
+                          { key: 'paper1', label: 'Paper I', meta: 'Obj.' },
+                          { key: 'paper2', label: 'Paper II', meta: 'Obj.' },
+                          { key: 'paper3', label: 'Paper III', meta: 'Sub.' },
+                          { key: 'paper4', label: 'Paper IV', meta: 'Sub.' },
+                          { key: 'general_english', label: 'General English', meta: 'Written' },
+                          { key: 'general_studies', label: 'General Studies', meta: 'Written' },
+                        ] as const).map((opt, idx) => (
+                          <React.Fragment key={opt.key}>
+                            {idx === 4 && <div className="my-1 border-t border-dashed border-black/8 dark:border-white/10" />}
+                            <button
+                              onClick={() => {
+                                setSelectedPaper(opt.key as any);
+                                if (selectedSection !== 'all' && !PAPER_SECTIONS[opt.key]?.includes(selectedSection)) setSelectedSection('all');
+                                setCurrentPage(1);
+                              }}
+                              className={`w-full flex items-center gap-2 py-1.5 rounded-lg text-left transition-colors cursor-pointer ${selectedPaper === opt.key ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                            >
+                              <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${selectedPaper === opt.key ? 'border-indigo-400 bg-indigo-500' : 'border-black/20 dark:border-white/25'}`}>
+                                {selectedPaper === opt.key && <Check className="w-2 h-2 text-white" strokeWidth={3} />}
+                              </span>
+                              <span className="text-[12px] font-medium flex-1 truncate">{opt.label}</span>
+                              <span className="text-[10px] text-slate-400 dark:text-slate-500 shrink-0">{opt.meta}</span>
+                            </button>
+                          </React.Fragment>
+                        ))}
+                      </div>
+
+                      {/* Section selection */}
+                      <div className="space-y-0.5">
+                        <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Section</label>
+                        {[{ key: 'all', label: 'All Sections' }, ...(PAPER_SECTIONS[selectedPaper] ?? []).map((s) => ({ key: s, label: SUBJECT_LABELS[s] || s }))].map((opt) => (
+                          <button key={opt.key} onClick={() => setSelectedSection(opt.key)}
+                            className={`w-full flex items-center gap-2 py-1.5 rounded-lg text-left transition-colors cursor-pointer ${selectedSection === opt.key ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                          >
+                            <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${selectedSection === opt.key ? 'border-indigo-400 bg-indigo-500' : 'border-black/20 dark:border-white/25'}`}>
+                              {selectedSection === opt.key && <Check className="w-2 h-2 text-white" strokeWidth={3} />}
+                            </span>
+                            <span className="text-[12px] font-medium truncate">{opt.label}</span>
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Year filter */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Year</label>
+                          {sidebarYearMin && sidebarYearMax && <span className="text-[9px] font-mono text-slate-500">{sidebarYearMin}–{sidebarYearMax}</span>}
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          <button onClick={() => setSelectedYear('all')} className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${selectedYear === 'all' ? 'bg-indigo-600 text-white border-indigo-400/40' : 'bg-black/5 dark:bg-white/5 text-slate-500 border-black/8 dark:border-white/8 hover:text-slate-900 dark:hover:text-white'}`}>All</button>
+                          {sidebarYears.map((yr) => (
+                            <button key={yr} onClick={() => { setSelectedYear(yr); setCurrentPage(1); }} className={`px-2 py-1 rounded-lg text-[10px] font-bold font-mono border transition-all cursor-pointer ${selectedYear === yr ? 'bg-indigo-600 text-white border-indigo-400/40' : 'bg-black/5 dark:bg-white/5 text-slate-500 border-black/8 dark:border-white/8 hover:text-slate-900 dark:hover:text-white'}`}>{yr}</button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Progress */}
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between text-[9px] text-slate-400 font-mono tracking-wider">
+                          <span>PROGRESS</span>
+                          <span className="font-bold text-indigo-500 dark:text-indigo-400">{answeredCount} / {questions.length}</span>
+                        </div>
+                        <div className="w-full bg-slate-200 dark:bg-slate-900 rounded-full h-1 overflow-hidden">
+                          <div className="bg-indigo-500 h-full transition-all duration-300" style={{ width: `${Math.min(100, (answeredCount / questions.length) * 100)}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    /* ISS Notes */
+                    <div className="px-1 space-y-4">
+                      <div className="space-y-0.5">
+                        <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">ISS Notes Paper</label>
+                        {(['paper1', 'paper2', 'paper3', 'paper4'] as const).map((p) => (
+                          <button key={p}
+                            onClick={() => { setSelectedNotesPaper(p); const keys = Object.keys(notes[p] || {}); if (keys.length > 0) setActiveNotesSectionKey(keys[0]); }}
+                            className={`w-full flex items-center gap-2 py-1.5 rounded-lg text-left transition-colors cursor-pointer ${selectedNotesPaper === p ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                          >
+                            <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${selectedNotesPaper === p ? 'border-indigo-400 bg-indigo-500' : 'border-black/20 dark:border-white/25'}`}>
+                              {selectedNotesPaper === p && <Check className="w-2 h-2 text-white" strokeWidth={3} />}
+                            </span>
+                            <span className="text-[12px] font-medium">Paper {p.replace('paper', '')}</span>
+                          </button>
+                        ))}
+                      </div>
+                      <div className="space-y-0.5">
+                        <label className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Topics</label>
+                        {Object.entries(notes[selectedNotesPaper] || {}).map(([key, topicRaw]) => {
+                          const topic = topicRaw as any;
+                          const isActive = activeNotesSectionKey === key;
+                          return (
+                            <button key={key} onClick={() => setActiveNotesSectionKey(key)}
+                              className={`w-full flex items-center gap-2 py-1.5 rounded-lg text-left transition-colors cursor-pointer ${isActive ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                            >
+                              <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${isActive ? 'border-indigo-400 bg-indigo-500' : 'border-black/20 dark:border-white/25'}`}>
+                                {isActive && <Check className="w-2 h-2 text-white" strokeWidth={3} />}
+                              </span>
+                              <span className="text-[12px] font-medium truncate">{topic.title || key}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            ) : (
+              /* Collapsed icon mode — unit number buttons */
+              <div className="flex flex-col items-center gap-1 py-1 px-1">
+                {examMode === 'uphesc'
+                  ? Object.entries(notes['uphesc'] || {}).map(([key]) => {
+                      const isGK = key.startsWith('gk_');
+                      const isActive = activeNotesSectionKey === key;
+                      const num = key.replace(/^(gk_)?unit/, '');
+                      return (
+                        <button key={key}
+                          onClick={() => { setActiveNotesSectionKey(key); setSelectedNotesPaper('uphesc'); setActiveTab('notes'); setSidebarCollapsed(false); }}
+                          title={key}
+                          className={`w-9 h-9 rounded-lg flex items-center justify-center text-[10px] font-black transition-all cursor-pointer ${isActive ? (isGK ? 'bg-emerald-600 text-white' : 'bg-violet-600 text-white') : 'bg-black/5 dark:bg-white/5 text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+                        >
+                          {isGK ? `G${num}` : `U${num}`}
+                        </button>
+                      );
+                    })
+                  : null
+                }
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar admin footer */}
+          {!sidebarCollapsed && (
+            <div className="border-t border-black/8 dark:border-white/10 px-3 py-2.5 shrink-0 space-y-1.5">
+              <div className="flex items-center justify-between text-[9px] text-slate-500">
+                <span className="font-medium uppercase tracking-wider">System Role</span>
+                <span className={`font-mono font-bold ${isAdmin ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-500'}`}>{isAdmin ? 'ADMIN' : 'STUDENT'}</span>
+              </div>
+              <div className="flex justify-center">
+                <AdminPanel isAdmin={isAdmin} onAdminChange={setIsAdmin} />
+              </div>
+            </div>
+          )}
+        </aside>
+
+        {/* ── Right: Main content column ── */}
+        <div className="flex flex-col flex-1 min-w-0">
+
+        {/* Main Container Layout */}
+        <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
         
-        {/* Left Core Area (Question list, notes list) */}
+        {/* Content area */}
         <div className="flex-1 flex flex-col gap-6 min-w-0">
           
 
@@ -1361,15 +1701,18 @@ export default function App() {
 
         </div>
 
-      </main>
+        </main>
 
-      {/* Footer credits info */}
-      <footer className="bg-slate-100/60 dark:bg-slate-950/40 border-t border-black/5 dark:border-white/5 mt-12 py-6 text-center text-xs text-slate-400 dark:text-slate-500 font-medium backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-400 dark:text-slate-500">
-          <span>© {new Date().getFullYear()} Statika. UPSC Indian Statistical Service (ISS) Revision Portal.</span>
-          <span className="text-[10px] text-slate-400 dark:text-slate-600">Official Prep & Revision Companion</span>
-        </div>
-      </footer>
+        {/* Footer credits info */}
+        <footer className="bg-slate-100/60 dark:bg-slate-950/40 border-t border-black/5 dark:border-white/5 py-6 text-center text-xs text-slate-400 dark:text-slate-500 font-medium backdrop-blur-md">
+          <div className="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-400 dark:text-slate-500">
+            <span>© {new Date().getFullYear()} Statika. UPSC ISS & UPHESC Assistant Professor Revision Portal.</span>
+            <span className="text-[10px] text-slate-400 dark:text-slate-600">Official Prep & Revision Companion</span>
+          </div>
+        </footer>
+
+        </div>{/* end right content column */}
+      </div>{/* end main layout flex */}
 
       {/* ==================== SYLLABUS QUICK REFERENCE MODAL ==================== */}
       <SyllabusModal

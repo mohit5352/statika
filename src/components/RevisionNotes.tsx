@@ -10,11 +10,17 @@ interface NoteEntry {
 
 interface RevisionNotesProps {
   notesData: NoteBook;
-  paper: string; // 'paper1' | 'paper2' | 'paper3' | 'paper4'
+  paper: string;
   isAdmin: boolean;
   activeSectionKey: string;
   setActiveSectionKey: (key: string) => void;
-  onEditNoteClick: (noteInfo: { paper: string; sectionKey: string; sectionId: string; label: string; content: string }) => void;
+  onEditNoteClick: (noteInfo: {
+    paper: string;
+    sectionKey: string;
+    sectionId: string;
+    label: string;
+    content: string;
+  }) => void;
 }
 
 export const RevisionNotes: React.FC<RevisionNotesProps> = ({
@@ -25,310 +31,246 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
   setActiveSectionKey,
   onEditNoteClick,
 }) => {
-  // Get notes sections available for this paper
   const paperNotes = notesData[paper] || {};
   const sectionKeys = Object.keys(paperNotes);
-
   const notesTopRef = useRef<HTMLDivElement>(null);
-  // Section chosen by the pager. Null means "first section of the active topic"
-  // (sidebar or paper change), so finishing a topic can continue into the next one.
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
   const intendedNoteId = useRef<string | null>(null);
 
+  // Flat list of all entries across all topics (for global prev/next navigation)
   const entries: NoteEntry[] = sectionKeys.flatMap((topicKey) =>
     (paperNotes[topicKey]?.sections ?? []).map((section) => ({ topicKey, section }))
   );
 
+  // When unit (activeSectionKey) changes, default to first section — unless an intended section is set
   React.useEffect(() => {
     const topic = paperNotes[activeSectionKey];
-    const ids = topic?.sections.map((section) => section.id) ?? [];
+    const ids = topic?.sections.map((s) => s.id) ?? [];
     const intended = intendedNoteId.current;
     intendedNoteId.current = null;
-    if (intended && ids.includes(intended)) {
-      setActiveNoteId(intended);
-    } else {
-      setActiveNoteId(ids[0] ?? null);
-    }
+    setActiveNoteId(intended && ids.includes(intended) ? intended : (ids[0] ?? null));
   }, [paper, activeSectionKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const matchedIndex = entries.findIndex(
-    (entry) => entry.topicKey === activeSectionKey && entry.section.id === activeNoteId
+    (e) => e.topicKey === activeSectionKey && e.section.id === activeNoteId
   );
-  const topicStart = entries.findIndex((entry) => entry.topicKey === activeSectionKey);
+  const topicStart = entries.findIndex((e) => e.topicKey === activeSectionKey);
   const currentIndex = matchedIndex >= 0 ? matchedIndex : Math.max(0, topicStart);
   const currentEntry = entries[currentIndex];
   const currentTopic = currentEntry ? paperNotes[currentEntry.topicKey] : undefined;
   const topicSections = currentTopic?.sections ?? [];
-  const indexInTopic = Math.max(0, topicSections.findIndex((section) => section.id === currentEntry?.section.id));
+  const indexInTopic = Math.max(
+    0,
+    topicSections.findIndex((s) => s.id === currentEntry?.section.id)
+  );
   const isLastInTopic = topicSections.length > 0 && indexInTopic === topicSections.length - 1;
 
+  // Global prev/next (crosses unit boundaries)
   const goToEntry = (index: number) => {
     const entry = entries[index];
     if (!entry) return;
     intendedNoteId.current = entry.section.id;
     setActiveNoteId(entry.section.id);
-    if (entry.topicKey !== activeSectionKey) {
-      setActiveSectionKey(entry.topicKey);
-    }
+    if (entry.topicKey !== activeSectionKey) setActiveSectionKey(entry.topicKey);
     notesTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const selectTopic = (key: string) => {
-    intendedNoteId.current = null;
-    const firstId = paperNotes[key]?.sections[0]?.id ?? null;
-    setActiveNoteId(firstId);
-    setActiveSectionKey(key);
+  // Section tab click — stays within current unit
+  const selectSection = (sectionId: string) => {
+    intendedNoteId.current = sectionId;
+    setActiveNoteId(sectionId);
     notesTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   if (sectionKeys.length === 0) {
     return (
-      <div className="bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 rounded-2xl p-8 text-center text-slate-500 dark:text-slate-400 font-sans backdrop-blur-xl">
-        <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-50 text-slate-400" />
-        No revision notes compiled for this paper yet.
+      <div className="bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 rounded-2xl p-12 text-center text-slate-500 dark:text-slate-400 font-sans backdrop-blur-xl">
+        <BookOpen className="w-8 h-8 mx-auto mb-3 opacity-40" />
+        <p className="text-sm font-medium">No revision notes compiled for this paper yet.</p>
       </div>
     );
   }
 
-  const pagerButtonClass =
-    'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/8 dark:hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-all';
-
-  // Determine active color scheme based on current section key
+  // ── Accent color system ────────────────────────────────────────────────────
   const isGKSection = activeSectionKey.startsWith('gk_');
-  const accentClass = paper !== 'uphesc'
-    ? 'bg-indigo-600'
-    : isGKSection
-      ? 'bg-emerald-600'
-      : 'bg-violet-600';
-  const tipAccent = paper !== 'uphesc'
-    ? { bg: 'bg-indigo-500/10', border: 'border-indigo-500', icon: 'text-indigo-500 dark:text-indigo-400', title: 'text-indigo-600 dark:text-indigo-300', text: 'text-indigo-800 dark:text-indigo-100' }
-    : isGKSection
-      ? { bg: 'bg-emerald-500/10', border: 'border-emerald-500', icon: 'text-emerald-500 dark:text-emerald-400', title: 'text-emerald-600 dark:text-emerald-300', text: 'text-emerald-800 dark:text-emerald-100' }
-      : { bg: 'bg-violet-500/10', border: 'border-violet-500', icon: 'text-violet-500 dark:text-violet-400', title: 'text-violet-600 dark:text-violet-300', text: 'text-violet-800 dark:text-violet-100' };
 
-  // Separate stats and GK keys for grouped sidebar (only when paper === 'uphesc')
-  const statsKeys = paper === 'uphesc' ? sectionKeys.filter(k => !k.startsWith('gk_')) : sectionKeys;
-  const gkKeys = paper === 'uphesc' ? sectionKeys.filter(k => k.startsWith('gk_')) : [];
+  const colors =
+    paper !== 'uphesc'
+      ? {
+          tabActive: 'border-indigo-500 text-indigo-700 dark:text-indigo-300 bg-indigo-500/5',
+          badgeActive: 'bg-indigo-600',
+          tip: {
+            bg: 'bg-indigo-500/10',
+            border: 'border-indigo-500',
+            icon: 'text-indigo-500 dark:text-indigo-400',
+            title: 'text-indigo-600 dark:text-indigo-300',
+            text: 'text-indigo-800 dark:text-indigo-100',
+          },
+        }
+      : isGKSection
+      ? {
+          tabActive: 'border-emerald-500 text-emerald-700 dark:text-emerald-300 bg-emerald-500/5',
+          badgeActive: 'bg-emerald-600',
+          tip: {
+            bg: 'bg-emerald-500/10',
+            border: 'border-emerald-500',
+            icon: 'text-emerald-500 dark:text-emerald-400',
+            title: 'text-emerald-600 dark:text-emerald-300',
+            text: 'text-emerald-800 dark:text-emerald-100',
+          },
+        }
+      : {
+          tabActive: 'border-violet-500 text-violet-700 dark:text-violet-300 bg-violet-500/5',
+          badgeActive: 'bg-violet-600',
+          tip: {
+            bg: 'bg-violet-500/10',
+            border: 'border-violet-500',
+            icon: 'text-violet-500 dark:text-violet-400',
+            title: 'text-violet-600 dark:text-violet-300',
+            text: 'text-violet-800 dark:text-violet-100',
+          },
+        };
 
-  const renderTopicBtn = (key: string, mobile = false) => {
-    const isActive = activeSectionKey === key;
-    const isGK = key.startsWith('gk_');
-    const activeClass = paper !== 'uphesc' ? 'bg-indigo-600' : isGK ? 'bg-emerald-600' : 'bg-violet-600';
-    if (mobile) {
-      return (
-        <button
-          key={key}
-          onClick={() => selectTopic(key)}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold font-display whitespace-nowrap transition-all duration-150 cursor-pointer ${
-            isActive
-              ? `${activeClass} text-white shadow-md`
-              : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/8 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-          }`}
-        >
-          {paperNotes[key].title}
-        </button>
-      );
-    }
-    return (
-      <button
-        key={key}
-        onClick={() => selectTopic(key)}
-        className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold font-display tracking-tight transition-all duration-150 cursor-pointer ${
-          isActive
-            ? `${activeClass} text-white shadow-md`
-            : 'bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/8 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-        }`}
-      >
-        {paperNotes[key].title}
-      </button>
-    );
-  };
+  const contextLabel =
+    paper === 'uphesc'
+      ? isGKSection
+        ? 'UPHESC A.P. · General Knowledge (30 Qs)'
+        : 'UPHESC A.P. · Statistics (70 Qs)'
+      : `ISS · ${paper.replace('paper', 'Paper ')}`;
 
   return (
-    <div ref={notesTopRef} className="grid grid-cols-1 lg:grid-cols-4 gap-6 font-sans scroll-mt-32">
-      {/* Mobile-only Horizontal Topics Selector */}
-      <div className="lg:hidden flex flex-col gap-2">
-        {paper === 'uphesc' ? (
-          <>
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center gap-2 px-1">
-                <span className="text-[9px] font-bold text-violet-500 uppercase tracking-widest">Statistics</span>
-                <span className="text-[9px] font-mono bg-violet-500/10 text-violet-600 dark:text-violet-300 px-1.5 py-0.5 rounded-full border border-violet-400/20">70 Qs</span>
-              </div>
-              <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-none -mx-4 px-4 sm:-mx-6 sm:px-6">
-                {statsKeys.map(k => renderTopicBtn(k, true))}
-              </div>
+    <div ref={notesTopRef} className="space-y-0 font-sans scroll-mt-28">
+      {currentEntry && currentTopic ? (
+        <>
+          {/* ── Unit Header ── */}
+          <div className="flex items-start justify-between gap-4 pb-5">
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 mb-2 tracking-wider uppercase">
+                {contextLabel}
+              </p>
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white leading-snug">
+                {currentTopic.title}
+              </h2>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-2 font-medium">
+                {topicSections.length} section{topicSections.length !== 1 ? 's' : ''} · viewing{' '}
+                <b className="text-slate-600 dark:text-slate-300">
+                  {indexInTopic + 1} of {topicSections.length}
+                </b>
+              </p>
             </div>
-            <div className="flex flex-col gap-1.5 mt-1">
-              <div className="flex items-center gap-2 px-1">
-                <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">General Knowledge</span>
-                <span className="text-[9px] font-mono bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 px-1.5 py-0.5 rounded-full border border-emerald-400/20">30 Qs</span>
-              </div>
-              <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-none -mx-4 px-4 sm:-mx-6 sm:px-6">
-                {gkKeys.map(k => renderTopicBtn(k, true))}
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <h4 className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">Topics List</h4>
-            <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-none -mx-4 px-4 sm:-mx-6 sm:px-6">
-              {sectionKeys.map(k => renderTopicBtn(k, true))}
-            </div>
-          </>
-        )}
-      </div>
+            {isAdmin && (
+              <button
+                onClick={() =>
+                  onEditNoteClick({
+                    paper,
+                    sectionKey: currentEntry.topicKey,
+                    sectionId: currentEntry.section.id,
+                    label: currentEntry.section.label,
+                    content: currentEntry.section.content,
+                  })
+                }
+                className="p-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 rounded-lg transition-colors cursor-pointer shrink-0 mt-1"
+                title="Edit Note"
+                aria-label="Edit Note"
+              >
+                <Edit3 className="w-4 h-4" />
+              </button>
+            )}
+          </div>
 
-      {/* Desktop-only Sticky Sidebar Topics Selector */}
-      <div className="hidden lg:block lg:col-span-1 space-y-1.5 lg:sticky lg:top-[125px] self-start lg:max-h-[calc(100vh-160px)] lg:overflow-y-auto pr-1 scrollbar-none">
-        {paper === 'uphesc' ? (
-          <div className="space-y-3">
-            <div>
-              <div className="flex items-center gap-2 px-2 mb-1.5">
-                <span className="text-[9px] font-bold text-violet-500 dark:text-violet-400 uppercase tracking-widest">Statistics</span>
-                <span className="text-[9px] font-mono bg-violet-500/10 text-violet-600 dark:text-violet-300 px-1.5 py-0.5 rounded-full border border-violet-400/20">70 Qs</span>
-              </div>
-              <div className="space-y-1">
-                {statsKeys.map(k => renderTopicBtn(k, false))}
-              </div>
-            </div>
-            <div className="border-t border-dashed border-black/10 dark:border-white/10 pt-3">
-              <div className="flex items-center gap-2 px-2 mb-1.5">
-                <span className="text-[9px] font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-widest">General Knowledge</span>
-                <span className="text-[9px] font-mono bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 px-1.5 py-0.5 rounded-full border border-emerald-400/20">30 Qs</span>
-              </div>
-              <div className="space-y-1">
-                {gkKeys.map(k => renderTopicBtn(k, false))}
-              </div>
+          {/* ── Section Tabs ── */}
+          <div className="border-b border-black/8 dark:border-white/10 -mx-0.5">
+            <div className="flex overflow-x-auto scrollbar-none -mb-px">
+              {topicSections.map((sec, idx) => {
+                const isActive = activeNoteId === sec.id;
+                const letter = String.fromCharCode(65 + idx);
+                // Strip leading "A. " prefix if data already has it
+                const cleanLabel = sec.label.replace(/^[A-Za-z]\.\s+/, '');
+                return (
+                  <button
+                    key={sec.id}
+                    onClick={() => selectSection(sec.id)}
+                    title={sec.label}
+                    className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 text-xs font-semibold whitespace-nowrap border-b-2 transition-all duration-150 shrink-0 cursor-pointer ${
+                      isActive
+                        ? colors.tabActive
+                        : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600'
+                    }`}
+                  >
+                    {/* Letter badge */}
+                    <span
+                      className={`w-5 h-5 rounded text-[9px] font-black flex items-center justify-center shrink-0 transition-colors ${
+                        isActive
+                          ? `${colors.badgeActive} text-white`
+                          : 'bg-black/8 dark:bg-white/10 text-slate-600 dark:text-slate-400'
+                      }`}
+                    >
+                      {letter}
+                    </span>
+                    {/* Label — truncated on small screens */}
+                    <span className="hidden sm:inline truncate max-w-[140px] xl:max-w-[220px]">
+                      {cleanLabel}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
-        ) : (
-          <>
-            <h4 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2 mb-2">Topics List</h4>
-            {sectionKeys.map(k => renderTopicBtn(k, false))}
-          </>
-        )}
-      </div>
 
-      {/* Main Content Area — one open section, pager stays top-right */}
-      <div className="lg:col-span-3 space-y-5">
-        {currentEntry && currentTopic && (
-          <>
-            <div className="flex items-center justify-between gap-3">
-              <span className="px-3 py-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 text-[11px] font-semibold text-slate-600 dark:text-slate-300 font-mono select-none">
-                <b className="text-slate-900 dark:text-white">{indexInTopic + 1}</b>
-                <span className="text-slate-400 dark:text-slate-500 mx-1">/</span>
-                {topicSections.length}
-                <span className="text-slate-400 dark:text-slate-500 ml-1 font-sans font-medium">sections</span>
+          {/* ── Content Card ── */}
+          <div className="bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/8 dark:border-white/10 rounded-xl overflow-hidden shadow-sm dark:shadow-none mt-5">
+            <div className="px-4 sm:px-6 py-5 text-sm text-slate-600 dark:text-slate-300 leading-relaxed overflow-x-auto overscroll-x-contain">
+              <MathJaxRenderer html={currentEntry.section.content} className="markdown-body" />
+            </div>
+          </div>
+
+          {/* ── Exam Tips (shown only on the last section of a unit) ── */}
+          {isLastInTopic && currentTopic.tips && (
+            <div
+              className={`rounded-xl p-4 flex gap-3 shadow-md border-l-[3px] mt-5 ${colors.tip.bg} ${colors.tip.border}`}
+            >
+              <Lightbulb className={`w-5 h-5 shrink-0 mt-0.5 ${colors.tip.icon}`} />
+              <div className="min-w-0 flex-1 overflow-x-auto">
+                <h5 className={`text-xs font-bold uppercase tracking-wider mb-1 ${colors.tip.title}`}>
+                  Exam Tips & Common Pitfalls
+                </h5>
+                <div className={`text-xs leading-relaxed ${colors.tip.text}`}>
+                  <MathJaxRenderer html={currentTopic.tips} className="markdown-body" />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Global Prev / Next Navigation ── */}
+          {entries.length > 1 && (
+            <div className="flex items-center justify-between gap-4 pt-6 mt-2 border-t border-black/5 dark:border-white/5">
+              <button
+                onClick={() => goToEntry(currentIndex - 1)}
+                disabled={currentIndex === 0}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 hover:bg-black/8 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                Previous
+              </button>
+              <span className="text-xs text-slate-400 dark:text-slate-500 font-mono select-none">
+                <b className="text-slate-700 dark:text-slate-300">{currentIndex + 1}</b>
+                <span className="mx-1 opacity-50">/</span>
+                {entries.length}
               </span>
-
-              {entries.length > 1 && (
-                <div className="flex items-center gap-0 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 overflow-hidden shrink-0">
-                  <button
-                    onClick={() => goToEntry(currentIndex - 1)}
-                    disabled={currentIndex === 0}
-                    className={`px-2.5 py-1.5 border-r border-black/8 dark:border-white/10 ${pagerButtonClass}`}
-                    aria-label="Previous section"
-                  >
-                    <ChevronLeft className="w-3.5 h-3.5" />
-                  </button>
-                  <span className="px-3 py-1 text-[11px] font-semibold font-mono text-slate-600 dark:text-slate-300 select-none">
-                    <b className="text-slate-900 dark:text-white">{currentIndex + 1}</b>
-                    <span className="text-slate-400 dark:text-slate-500 mx-1">/</span>
-                    {entries.length}
-                  </span>
-                  <button
-                    onClick={() => goToEntry(currentIndex + 1)}
-                    disabled={currentIndex >= entries.length - 1}
-                    className={`px-2.5 py-1.5 border-l border-black/8 dark:border-white/10 ${pagerButtonClass}`}
-                    aria-label="Next section"
-                  >
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
+              <button
+                onClick={() => goToEntry(currentIndex + 1)}
+                disabled={currentIndex >= entries.length - 1}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 hover:bg-black/8 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+              >
+                Next
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
             </div>
-
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">
-              {paper === 'uphesc'
-                ? isGKSection
-                  ? 'UPHESC Assistant Professor — General Knowledge notes (30 Questions)'
-                  : 'UPHESC Assistant Professor — Statistics unit-wise preparation notes (70 Questions)'
-                : 'Comprehensive revision formulas & proofs for ISS'}
-            </p>
-
-            <div className="bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/8 dark:border-white/10 rounded-xl overflow-hidden shadow-sm dark:shadow-none">
-              {isAdmin && (
-                <div className="flex justify-end px-3 pt-3">
-                  <button
-                    onClick={() =>
-                      onEditNoteClick({
-                        paper,
-                        sectionKey: currentEntry.topicKey,
-                        sectionId: currentEntry.section.id,
-                        label: currentEntry.section.label,
-                        content: currentEntry.section.content,
-                      })
-                    }
-                    className="p-1.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 rounded-md transition-colors flex items-center justify-center cursor-pointer shrink-0"
-                    title="Edit Note"
-                    aria-label="Edit Note"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-              <div className="px-4 sm:px-5 py-4 text-sm text-slate-600 dark:text-slate-300 font-sans leading-relaxed overflow-x-auto min-w-0 overscroll-x-contain">
-                <MathJaxRenderer html={currentEntry.section.content} className="markdown-body" />
-              </div>
-            </div>
-
-            {isLastInTopic && currentTopic.tips && (
-              <div className={`rounded-xl p-4 flex gap-3 shadow-md border-l-[3px] ${tipAccent.bg} ${tipAccent.border}`}>
-                <Lightbulb className={`w-5 h-5 shrink-0 mt-0.5 ${tipAccent.icon}`} />
-                <div className="min-w-0 flex-1 overflow-x-auto">
-                  <h5 className={`text-xs font-bold font-display uppercase tracking-wider mb-1 ${tipAccent.title}`}>
-                    Exam Tips & Common Pitfalls
-                  </h5>
-                  <div className={`text-xs leading-relaxed font-sans ${tipAccent.text}`}>
-                    <MathJaxRenderer html={currentTopic.tips} className="markdown-body" />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {entries.length > 1 && (
-              <div className="flex items-center justify-center pt-2">
-                <div className="flex items-center gap-0 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 overflow-hidden">
-                  <button
-                    onClick={() => goToEntry(currentIndex - 1)}
-                    disabled={currentIndex === 0}
-                    className={`px-3 py-2 border-r border-black/8 dark:border-white/10 ${pagerButtonClass}`}
-                    aria-label="Previous section"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <span className="px-4 py-2 text-sm font-semibold font-mono text-slate-600 dark:text-slate-300 select-none">
-                    <b className="text-slate-900 dark:text-white">{currentIndex + 1}</b>
-                    <span className="text-slate-400 dark:text-slate-500 mx-1.5">/</span>
-                    {entries.length}
-                  </span>
-                  <button
-                    onClick={() => goToEntry(currentIndex + 1)}
-                    disabled={currentIndex >= entries.length - 1}
-                    className={`px-3 py-2 border-l border-black/8 dark:border-white/10 ${pagerButtonClass}`}
-                    aria-label="Next section"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
+          )}
+        </>
+      ) : null}
     </div>
   );
 };
+
 export default RevisionNotes;
