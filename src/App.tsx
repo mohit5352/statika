@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BookOpen, Filter, Search, Sparkles, ChevronLeft, ChevronRight, ChevronDown, AlertCircle, Menu, X, Check, Sun, Moon } from 'lucide-react';
+import { BookOpen, Filter, Search, Sparkles, ChevronLeft, ChevronRight, AlertCircle, Menu, X, Check, Sun, Moon } from 'lucide-react';
 
 // Type declarations
 import { Question, AnswerKey, ExplanationKey, NoteBook, Paper } from './types';
@@ -228,8 +228,13 @@ export default function App() {
 
   // ── Desktop persistent sidebar state ──────────────────────────────────────
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [statsGroupExpanded, setStatsGroupExpanded] = useState(true);
-  const [gkGroupExpanded, setGkGroupExpanded] = useState(true);
+  // Which UPHESC group the sidebar is showing. GK stays one click away
+  // instead of sitting under all ten Statistics units.
+  const [navGroup, setNavGroup] = useState<'stats' | 'gk'>('stats');
+  // Section id the sidebar asked the notes view to open.
+  const [requestedSectionId, setRequestedSectionId] = useState<string | null>(null);
+  const [sectionRequestTick, setSectionRequestTick] = useState(0);
+  const [visibleNoteId, setVisibleNoteId] = useState<string | null>(null);
 
   // ── Light / Dark theme ────────────────────────────────────────────────────
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
@@ -458,6 +463,12 @@ export default function App() {
     }
   }, [selectedNotesPaper, examMode, notes]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Keep the sidebar group in step with whichever unit is actually open.
+  useEffect(() => {
+    if (examMode !== 'uphesc' || !activeNotesSectionKey) return;
+    setNavGroup(activeNotesSectionKey.startsWith('gk_') ? 'gk' : 'stats');
+  }, [activeNotesSectionKey, examMode]);
+
   // Filtered Questions list — newest year first, then paper section order, then Q number
   const filteredQuestions = questions
     .filter((q) => {
@@ -584,18 +595,17 @@ export default function App() {
             <div className="flex-1 flex flex-col min-h-0">
 
               {/* ── Top-Level Exam Mode Switcher ── */}
-              <div className="shrink-0 px-5 pt-4 pb-3 border-b border-black/6 dark:border-white/8">
-                <p className="text-[9px] font-bold text-slate-500 dark:text-slate-500 uppercase tracking-widest mb-2">Exam Mode</p>
-                <div className="flex gap-2">
+              <div className="shrink-0 px-5 pt-4 pb-3">
+                <div className="flex gap-5 border-b border-black/8 dark:border-white/10">
                   <button
                     onClick={() => {
                       setExamMode('iss');
                       if (selectedNotesPaper === 'uphesc') setSelectedNotesPaper('paper1');
                     }}
-                    className={`flex-1 py-2 rounded-xl text-[11px] font-bold tracking-wide transition-all cursor-pointer ${
+                    className={`pb-2 text-[12px] font-semibold tracking-wide border-b-2 -mb-px transition-colors cursor-pointer ${
                       examMode === 'iss'
-                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                        : 'bg-black/5 dark:bg-white/5 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-black/8 dark:border-white/10 hover:bg-black/8 dark:hover:bg-white/8'
+                        ? 'border-indigo-400 text-indigo-700 dark:text-indigo-200'
+                        : 'border-transparent text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                     }`}
                   >
                     UPSC ISS
@@ -603,7 +613,6 @@ export default function App() {
                   <button
                     onClick={() => {
                       setExamMode('uphesc');
-                      // Immediately activate UPHESC notes
                       setActiveTab('notes');
                       setSelectedNotesPaper('uphesc');
                       const uphescKeys = Object.keys(notes['uphesc'] || {});
@@ -611,13 +620,13 @@ export default function App() {
                         setActiveNotesSectionKey(uphescKeys[0] || '');
                       }
                     }}
-                    className={`flex-1 py-2 rounded-xl text-[11px] font-bold tracking-wide transition-all cursor-pointer ${
+                    className={`pb-2 text-[12px] font-semibold tracking-wide border-b-2 -mb-px transition-colors cursor-pointer ${
                       examMode === 'uphesc'
-                        ? 'bg-violet-600 text-white shadow-md shadow-violet-600/20'
-                        : 'bg-black/5 dark:bg-white/5 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-black/8 dark:border-white/10 hover:bg-black/8 dark:hover:bg-white/8'
+                        ? 'border-violet-400 text-violet-700 dark:text-violet-200'
+                        : 'border-transparent text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                     }`}
                   >
-                    UPHESC A.P.
+                    UPHESC
                   </button>
                 </div>
               </div>
@@ -899,63 +908,50 @@ export default function App() {
                     <span>UPHESC Statistics Syllabus</span>
                   </button>
 
-                  <div className="border-t border-black/6 dark:border-white/8 pt-3 space-y-4">
-                    {(() => {
-                      const allEntries = Object.entries(notes['uphesc'] || {});
-                      const statsEntries = allEntries.filter(([k]) => !k.startsWith('gk_'));
-                      const gkEntries = allEntries.filter(([k]) => k.startsWith('gk_'));
-                      const renderBtn = (key: string, topic: any, activeColor: string, activeBg: string, activeBorder: string) => {
-                        const isActive = activeNotesSectionKey === key;
-                        return (
-                          <button
-                            key={key}
-                            onClick={() => {
-                              setActiveNotesSectionKey(key);
-                              setSelectedNotesPaper('uphesc');
-                              setActiveTab('notes');
-                              setIsLeftDrawerOpen(false);
-                            }}
-                            className={`w-full flex items-center gap-2.5 py-2 text-left transition-colors cursor-pointer rounded-lg ${
-                              isActive ? `${activeBg} text-slate-900 dark:text-white` : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-black/5 dark:hover:bg-white/5'
-                            }`}
-                          >
-                            <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
-                              isActive ? `${activeBorder} ${activeColor} text-white` : 'border-black/20 dark:border-white/25'
-                            }`}>
-                              {isActive && <Check className="w-2 h-2" strokeWidth={3} />}
-                            </span>
-                            <span className="text-[12.5px] font-medium tracking-tight leading-tight">
-                              {(topic as any).title}
-                            </span>
-                          </button>
-                        );
-                      };
-                      return (
-                        <>
-                          {/* Statistics group */}
-                          <div>
-                            <div className="flex items-center gap-2 mb-1.5">
-                              <span className="text-[9px] font-bold text-violet-500 dark:text-violet-400 uppercase tracking-widest">Statistics</span>
-                              <span className="text-[9px] font-mono bg-violet-500/10 text-violet-600 dark:text-violet-300 px-1.5 py-0.5 rounded-full border border-violet-400/20">70 Qs</span>
-                            </div>
-                            <div className="space-y-0.5">
-                              {statsEntries.map(([k, t]) => renderBtn(k, t, 'bg-violet-500', 'bg-violet-500/10', 'border-violet-400'))}
-                            </div>
-                          </div>
-                          <div className="border-t border-dashed border-black/10 dark:border-white/10" />
-                          {/* GK group */}
-                          <div>
-                            <div className="flex items-center gap-2 mb-1.5">
-                              <span className="text-[9px] font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-widest">General Knowledge</span>
-                              <span className="text-[9px] font-mono bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 px-1.5 py-0.5 rounded-full border border-emerald-400/20">30 Qs</span>
-                            </div>
-                            <div className="space-y-0.5">
-                              {gkEntries.map(([k, t]) => renderBtn(k, t, 'bg-emerald-500', 'bg-emerald-500/10', 'border-emerald-400'))}
-                            </div>
-                          </div>
-                        </>
-                      );
-                    })()}
+                  <div className="pt-1 space-y-3">
+                    <div className="flex flex-col">
+                      <button
+                        onClick={() => setNavGroup('stats')}
+                        className={`flex items-baseline justify-between gap-3 py-1.5 text-left cursor-pointer border-l-2 pl-2 ${navGroup === 'stats' ? 'border-violet-400 text-violet-800 dark:text-violet-100' : 'border-transparent text-slate-500'}`}
+                      >
+                        <span className="text-[13px] font-medium">Statistics</span>
+                        <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">(70 Qs)</span>
+                      </button>
+                      <button
+                        onClick={() => setNavGroup('gk')}
+                        className={`flex items-baseline justify-between gap-3 py-1.5 text-left cursor-pointer border-l-2 pl-2 ${navGroup === 'gk' ? 'border-violet-400 text-violet-800 dark:text-violet-100' : 'border-transparent text-slate-500'}`}
+                      >
+                        <span className="text-[13px] font-medium">General Knowledge</span>
+                        <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">(30 Qs)</span>
+                      </button>
+                    </div>
+                    <div className="space-y-0.5">
+                      {Object.entries(notes['uphesc'] || {})
+                        .filter(([k]) => navGroup === 'gk' ? k.startsWith('gk_') : !k.startsWith('gk_'))
+                        .map(([key, topicRaw]) => {
+                          const topic = topicRaw as any;
+                          const isActive = activeNotesSectionKey === key;
+                          return (
+                            <button
+                              key={key}
+                              onClick={() => {
+                                setActiveNotesSectionKey(key);
+                                setSelectedNotesPaper('uphesc');
+                                setActiveTab('notes');
+                                setRequestedSectionId(null);
+                                setIsLeftDrawerOpen(false);
+                              }}
+                              className={`w-full py-1.5 pl-2 text-left transition-colors cursor-pointer border-l-2 ${
+                                isActive
+                                  ? 'border-violet-400 text-violet-900 dark:text-violet-100'
+                                  : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                              }`}
+                            >
+                              <span className="text-[13px] font-medium tracking-tight leading-snug">{topic.title}</span>
+                            </button>
+                          );
+                        })}
+                    </div>
                   </div>
 
                 </div>
@@ -1007,27 +1003,24 @@ export default function App() {
       )}
 
       {/* Dynamic Header Banner */}
-      <header className="bg-white/60 dark:bg-slate-950/60 border-b border-black/8 dark:border-white/10 backdrop-blur-xl sticky top-0 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between relative">
+      <header className="bg-white/50 dark:bg-slate-950/45 border-b border-black/8 dark:border-white/10 backdrop-blur-2xl sticky top-0 z-40">
+        <div className="px-4 sm:px-6 h-14 flex items-center justify-between relative">
           
-          {/* Mobile hamburger (hidden on desktop — persistent sidebar handles it there) */}
           <button
             onClick={() => setIsLeftDrawerOpen(true)}
-            className="p-1.5 lg:hidden rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer transition-colors flex items-center gap-1.5"
-            aria-label="Open sidebar menu"
+            className="p-1.5 lg:hidden rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer transition-colors"
+            aria-label="Open menu"
           >
             <Menu className="w-5 h-5" />
           </button>
-          {/* Desktop sidebar collapse toggle */}
           <button
             onClick={() => setSidebarCollapsed((c) => !c)}
-            className="hidden lg:flex p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer transition-colors items-center gap-1.5"
+            className="hidden lg:flex p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer transition-colors"
             aria-label="Toggle sidebar"
-            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             <Menu className="w-5 h-5" />
           </button>
-
           {/* Centered Serif Logo "Statika" */}
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center pointer-events-none">
             <h1 className="text-xl md:text-2xl font-serif tracking-widest text-slate-800 dark:text-slate-100 uppercase pointer-events-auto cursor-pointer hover:text-slate-900 dark:hover:text-white select-none transition-colors">
@@ -1079,186 +1072,48 @@ export default function App() {
           </div>
         </div>
       </header>
-
-      {/* Header Search Overlay */}
-      {isHeaderSearchOpen && (
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-black/8 dark:border-white/10 py-3 px-4 animate-in slide-in-from-top duration-200">
-          <div className="max-w-md mx-auto relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search formulas, CLT, ANOVA, questions..."
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-black/12 dark:border-white/15 focus:border-indigo-500 text-xs px-3 py-2 pl-9 rounded-xl focus:outline-hidden transition-all text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
-              autoFocus
-            />
-            <Search className="w-4 h-4 text-slate-400 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-800 dark:hover:text-white font-semibold"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ==================== STICKY ACTIVE FILTERS ROW (mobile only) ==================== */}
-      <div className="lg:hidden bg-white/60 dark:bg-slate-950/60 border-b border-black/5 dark:border-white/5 sticky top-[56px] z-30 shadow-xs backdrop-blur-xl py-2">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-auto scrollbar-none">
-          <div className="flex items-center gap-1.5 flex-nowrap min-w-max">
-
-          {/* ── Mode chip (always visible) ── */}
-          <button 
-            onClick={() => setIsLeftDrawerOpen(true)}
-            className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold flex items-center gap-1 shrink-0 cursor-pointer transition-colors ${
-              examMode === 'uphesc'
-                ? 'bg-violet-500/10 dark:bg-violet-500/15 border-violet-400/30 dark:border-violet-500/30 hover:bg-violet-500/20'
-                : 'bg-indigo-500/10 dark:bg-indigo-500/15 border-indigo-400/30 dark:border-indigo-500/30 hover:bg-indigo-500/20'
-            }`}
-          >
-            <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${examMode === 'uphesc' ? 'bg-violet-500' : 'bg-indigo-500'}`} />
-            <b className={examMode === 'uphesc' ? 'text-violet-700 dark:text-violet-300' : 'text-indigo-700 dark:text-indigo-300'}>
-              {examMode === 'uphesc'
-                ? 'UPHESC A.P.'
-                : activeTab === 'pyq'
-                  ? selectedPaper === 'paper1' || selectedPaper === 'paper2'
-                    ? 'Objective PYQs'
-                    : selectedPaper === 'general_english' || selectedPaper === 'general_studies'
-                      ? 'General PYQs'
-                      : 'Subjective PYQs'
-                  : 'Revision Notes'}
-            </b>
-          </button>
-
-          {activeTab === 'pyq' ? (
-            <>
-              {/* Paper chip */}
-              <button 
-                onClick={() => setIsLeftDrawerOpen(true)}
-                className="px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/8 border border-black/8 dark:border-white/12 hover:bg-black/8 dark:hover:bg-white/12 text-[11px] font-semibold shrink-0 cursor-pointer transition-colors"
-              >
-                <b className="text-slate-700 dark:text-slate-200">
-                  {selectedPaper === 'paper1' 
-                    ? 'Paper I' 
-                    : selectedPaper === 'paper2' 
-                      ? 'Paper II' 
-                      : selectedPaper === 'paper3' 
-                        ? 'Paper III' 
-                        : selectedPaper === 'paper4'
-                          ? 'Paper IV'
-                          : selectedPaper === 'general_english'
-                            ? 'General English'
-                            : 'General Studies'}
-                </b>
-              </button>
-              
-              {selectedSection !== 'all' && (
-                <button 
-                  onClick={() => setSelectedSection('all')}
-                  className="px-2.5 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-400/30 dark:border-indigo-500/30 text-[11px] font-semibold hover:bg-indigo-500/20 shrink-0 cursor-pointer flex items-center gap-1 transition-colors"
-                >
-                  <b className="text-indigo-700 dark:text-indigo-300">{SUBJECT_LABELS[selectedSection] || selectedSection}</b>
-                  <X className="w-3 h-3 ml-0.5 text-indigo-500 dark:text-indigo-400" />
-                </button>
-              )}
-
-              {selectedYear !== 'all' && (
-                <button 
-                  onClick={() => setSelectedYear('all')}
-                  className="px-2.5 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-400/30 dark:border-indigo-500/30 text-[11px] font-semibold hover:bg-indigo-500/20 shrink-0 cursor-pointer flex items-center gap-1 transition-colors"
-                >
-                  <b className="text-indigo-700 dark:text-indigo-300">{selectedYear}</b>
-                  <X className="w-3 h-3 ml-0.5 text-indigo-500 dark:text-indigo-400" />
-                </button>
-              )}
-            </>
-          ) : examMode === 'uphesc' ? (
-            <>
-              {activeNotesSectionKey && notes['uphesc']?.[activeNotesSectionKey] && (() => {
-                const isGK = activeNotesSectionKey.startsWith('gk_');
-                return (
-                  <button
-                    onClick={() => setIsLeftDrawerOpen(true)}
-                    className={`px-2.5 py-1 rounded-full text-[11px] font-semibold shrink-0 cursor-pointer transition-colors border ${
-                      isGK
-                        ? 'bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-400/30 dark:border-emerald-500/30 hover:bg-emerald-500/20'
-                        : 'bg-violet-500/10 dark:bg-violet-500/15 border-violet-400/30 dark:border-violet-500/30 hover:bg-violet-500/20'
-                    }`}
-                  >
-                    <b className={isGK ? 'text-emerald-700 dark:text-emerald-300' : 'text-violet-700 dark:text-violet-300'}>
-                      {(notes['uphesc'][activeNotesSectionKey] as any).title}
-                    </b>
-                  </button>
-                );
-              })()}
-            </>
-          ) : (
-            <>
-              {/* ISS paper chip */}
-              <button 
-                onClick={() => setIsLeftDrawerOpen(true)}
-                className="px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/8 border border-black/8 dark:border-white/12 hover:bg-black/8 dark:hover:bg-white/12 text-[11px] font-semibold shrink-0 cursor-pointer transition-colors"
-              >
-                <b className="text-slate-700 dark:text-slate-200">
-                  {selectedNotesPaper.toUpperCase().replace('PAPER', 'Paper ')}
-                </b>
-              </button>
-
-              {activeNotesSectionKey && notes[selectedNotesPaper]?.[activeNotesSectionKey] && (
-                <button 
-                  onClick={() => setIsLeftDrawerOpen(true)}
-                  className="px-2.5 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-400/30 dark:border-indigo-500/30 hover:bg-indigo-500/20 text-[11px] font-semibold shrink-0 cursor-pointer transition-colors"
-                >
-                  <b className="text-indigo-700 dark:text-indigo-300">{notes[selectedNotesPaper][activeNotesSectionKey].title}</b>
-                </button>
-              )}
-            </>
-          )}
-
-          {searchQuery && (
-            <button 
-              onClick={() => setSearchQuery('')}
-              className="px-2.5 py-1 rounded-full bg-rose-500/10 dark:bg-rose-500/15 border border-rose-400/30 dark:border-rose-500/30 hover:bg-rose-500/20 text-[11px] font-semibold shrink-0 cursor-pointer flex items-center gap-1 transition-colors"
-            >
-              <b className="text-rose-700 dark:text-rose-300">"{searchQuery}"</b>
-              <X className="w-3 h-3 ml-0.5 text-rose-500 dark:text-rose-400" />
-            </button>
-          )}
-          </div>
-        </div>
-      </div>
-
-      {/* ==================== MAIN LAYOUT: Persistent Sidebar + Content ==================== */}
-      <div className="flex flex-1 min-h-0">
-
-        {/* ── Persistent Desktop Sidebar ── */}
-        <aside className={`hidden lg:flex flex-col border-r border-black/8 dark:border-white/10 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl sticky top-14 h-[calc(100vh-56px)] shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out ${sidebarCollapsed ? 'w-14' : 'w-[260px] xl:w-[280px]'}`}>
-
+      <div className="flex w-full flex-1 min-h-0">
+        <aside className={`hidden lg:flex flex-col self-start bg-transparent sticky top-14 h-[calc(100vh-56px)] shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out z-30 ${sidebarCollapsed ? 'w-14' : 'w-[260px] xl:w-[280px]'}`}>
           {/* Sidebar top: exam mode switcher */}
           {!sidebarCollapsed ? (
-            <div className="px-3 pt-3 pb-2 border-b border-black/8 dark:border-white/10 shrink-0 space-y-2">
-              <div className="flex gap-1.5">
+            <div className="px-4 pt-3 pb-2 shrink-0">
+              <div className="flex gap-5 border-b border-black/8 dark:border-white/10">
                 <button
                   onClick={() => { setExamMode('iss'); if (selectedNotesPaper === 'uphesc') setSelectedNotesPaper('paper1'); }}
-                  className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition-all cursor-pointer ${examMode === 'iss' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-black/8 dark:border-white/10'}`}
+                  className={`pb-2 text-[12px] font-semibold tracking-wide border-b-2 -mb-px transition-colors cursor-pointer ${examMode === 'iss' ? 'border-indigo-400 text-indigo-700 dark:text-indigo-200' : 'border-transparent text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
                 >UPSC ISS</button>
                 <button
                   onClick={() => { setExamMode('uphesc'); setActiveTab('notes'); setSelectedNotesPaper('uphesc'); const k = Object.keys(notes['uphesc'] || {}); if (!activeNotesSectionKey || !k.includes(activeNotesSectionKey)) setActiveNotesSectionKey(k[0] || ''); }}
-                  className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold tracking-wide transition-all cursor-pointer ${examMode === 'uphesc' ? 'bg-violet-600 text-white shadow-sm' : 'bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-black/8 dark:border-white/10'}`}
+                  className={`pb-2 text-[12px] font-semibold tracking-wide border-b-2 -mb-px transition-colors cursor-pointer ${examMode === 'uphesc' ? 'border-violet-400 text-violet-700 dark:text-violet-200' : 'border-transparent text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
                 >UPHESC</button>
               </div>
+              {examMode === 'uphesc' && (
+                <div className="flex flex-col pt-2">
+                  <button
+                    onClick={() => setNavGroup('stats')}
+                    className={`flex items-baseline justify-between gap-3 px-1 py-1.5 text-left cursor-pointer border-l-2 ${navGroup === 'stats' ? 'border-violet-400 text-violet-800 dark:text-violet-100' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                  >
+                    <span className="text-[12.5px] font-medium">Statistics</span>
+                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 shrink-0">(70 Qs)</span>
+                  </button>
+                  <button
+                    onClick={() => setNavGroup('gk')}
+                    className={`flex items-baseline justify-between gap-3 px-1 py-1.5 text-left cursor-pointer border-l-2 ${navGroup === 'gk' ? 'border-violet-400 text-violet-800 dark:text-violet-100' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                  >
+                    <span className="text-[12.5px] font-medium">General Knowledge</span>
+                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 shrink-0">(30 Qs)</span>
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             /* Collapsed: icon mode exam switcher */
             <div className="flex flex-col items-center gap-2 pt-3 pb-2 border-b border-black/8 dark:border-white/10 shrink-0">
               <button onClick={() => { setExamMode('iss'); setSidebarCollapsed(false); if (selectedNotesPaper === 'uphesc') setSelectedNotesPaper('paper1'); }} title="UPSC ISS"
-                className={`w-9 h-9 rounded-xl flex items-center justify-center text-[9px] font-black transition-all cursor-pointer ${examMode === 'iss' ? 'bg-indigo-600 text-white' : 'bg-black/5 dark:bg-white/5 text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center text-[9px] font-black transition-all cursor-pointer border ${examMode === 'iss' ? 'bg-indigo-500/20 text-indigo-800 dark:text-indigo-100 border-indigo-400/30' : 'bg-white/30 dark:bg-white/5 text-slate-500 border-transparent hover:text-slate-900 dark:hover:text-white'}`}
               >IS</button>
               <button onClick={() => { setExamMode('uphesc'); setActiveTab('notes'); setSidebarCollapsed(false); const k = Object.keys(notes['uphesc'] || {}); if (!activeNotesSectionKey || !k.includes(activeNotesSectionKey)) setActiveNotesSectionKey(k[0] || ''); }} title="UPHESC A.P."
-                className={`w-9 h-9 rounded-xl flex items-center justify-center text-[9px] font-black transition-all cursor-pointer ${examMode === 'uphesc' ? 'bg-violet-600 text-white' : 'bg-black/5 dark:bg-white/5 text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center text-[9px] font-black transition-all cursor-pointer border ${examMode === 'uphesc' ? 'bg-violet-500/20 text-violet-800 dark:text-violet-100 border-violet-400/30' : 'bg-white/30 dark:bg-white/5 text-slate-500 border-transparent hover:text-slate-900 dark:hover:text-white'}`}
               >UP</button>
             </div>
           )}
@@ -1267,104 +1122,57 @@ export default function App() {
           <div className="flex-1 overflow-y-auto scrollbar-none py-2">
             {!sidebarCollapsed ? (
               examMode === 'uphesc' ? (
-                /* ── UPHESC Navigation ── */
+                /* ── UPHESC Navigation — one group at a time ── */
                 <div className="px-2 space-y-0.5">
-
-                  {/* Statistics group header */}
-                  <button
-                    onClick={() => setStatsGroupExpanded((v) => !v)}
-                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest">Statistics</span>
-                      <span className="text-[9px] bg-violet-500/10 text-violet-600 dark:text-violet-300 px-1.5 py-0.5 rounded-full border border-violet-400/20 font-mono">70 Qs</span>
-                    </div>
-                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${statsGroupExpanded ? '' : '-rotate-90'}`} />
-                  </button>
-
-                  {statsGroupExpanded && (
-                    <div className="space-y-0.5 mb-1">
-                      {Object.entries(notes['uphesc'] || {}).filter(([k]) => !k.startsWith('gk_')).map(([key, topicRaw]) => {
-                        const topic = topicRaw as any;
-                        const isActive = activeNotesSectionKey === key;
-                        return (
-                          <div key={key}>
-                            <button
-                              onClick={() => { setActiveNotesSectionKey(key); setSelectedNotesPaper('uphesc'); setActiveTab('notes'); }}
-                              className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-left transition-all cursor-pointer text-[12px] font-semibold leading-tight ${isActive ? 'bg-violet-600 text-white shadow-sm shadow-violet-600/15' : 'text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'}`}
-                            >
-                              <span className="truncate">{topic.title}</span>
-                              <span className={`text-[9px] shrink-0 font-mono ${isActive ? 'text-white/60' : 'text-slate-400 dark:text-slate-500'}`}>{topic.sections.length}§</span>
-                            </button>
-                            {/* Sub-sections visible under active unit */}
-                            {isActive && (
-                              <div className="ml-5 pl-3 border-l-2 border-violet-400/30 dark:border-violet-500/30 mt-0.5 mb-1.5 space-y-0.5">
-                                {topic.sections.map((sec: any, idx: number) => (
-                                  <div key={sec.id} className="flex items-center gap-2 py-0.5 px-1">
-                                    <span className="w-4 h-4 shrink-0 rounded text-[8px] font-black bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 flex items-center justify-center">
+                  {Object.entries(notes['uphesc'] || {})
+                    .filter(([k]) => navGroup === 'gk' ? k.startsWith('gk_') : !k.startsWith('gk_'))
+                    .map(([key, topicRaw]) => {
+                      const topic = topicRaw as any;
+                      const isActive = activeNotesSectionKey === key;
+                      return (
+                        <div key={key}>
+                          <button
+                            onClick={() => {
+                              setActiveNotesSectionKey(key);
+                              setSelectedNotesPaper('uphesc');
+                              setActiveTab('notes');
+                              setRequestedSectionId(null);
+                              setSectionRequestTick((n) => n + 1);
+                            }}
+                            className={`w-full px-2 py-1 text-left transition-colors cursor-pointer text-[12.5px] font-medium leading-snug border-l-2 ${isActive ? 'border-violet-400 text-violet-900 dark:text-violet-100' : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
+                          >
+                            {topic.title}
+                          </button>
+                          {isActive && (
+                            <div className="ml-3 pl-2 border-l border-violet-400/30 mt-0.5 mb-1 space-y-0.5">
+                              {topic.sections.map((sec: any, idx: number) => {
+                                const secActive = visibleNoteId === sec.id;
+                                return (
+                                  <button
+                                    key={sec.id}
+                                    onClick={() => {
+                                      setActiveNotesSectionKey(key);
+                                      setSelectedNotesPaper('uphesc');
+                                      setActiveTab('notes');
+                                      setRequestedSectionId(sec.id);
+                                      setSectionRequestTick((n) => n + 1);
+                                    }}
+                                    className={`w-full flex items-start gap-2 py-1 px-1.5 rounded-md text-left cursor-pointer transition-colors ${secActive ? 'bg-black/5 dark:bg-white/10' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
+                                  >
+                                    <span className={`w-4 h-4 mt-0.5 shrink-0 rounded text-[8px] font-black flex items-center justify-center ${secActive ? 'bg-violet-500 text-white' : 'bg-violet-500/10 text-violet-700 dark:text-violet-300'}`}>
                                       {String.fromCharCode(65 + idx)}
                                     </span>
-                                    <span className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight truncate">
+                                    <span className={`text-[11px] leading-snug ${secActive ? 'text-slate-900 dark:text-white font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
                                       {sec.label.replace(/^[A-Za-z]\.\s+/, '')}
                                     </span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {/* Dashed divider between Stats and GK */}
-                  <div className="border-t border-dashed border-black/8 dark:border-white/10 my-2" />
-
-                  {/* General Knowledge group header */}
-                  <button
-                    onClick={() => setGkGroupExpanded((v) => !v)}
-                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">General Knowledge</span>
-                      <span className="text-[9px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 px-1.5 py-0.5 rounded-full border border-emerald-400/20 font-mono">30 Qs</span>
-                    </div>
-                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${gkGroupExpanded ? '' : '-rotate-90'}`} />
-                  </button>
-
-                  {gkGroupExpanded && (
-                    <div className="space-y-0.5 mb-1">
-                      {Object.entries(notes['uphesc'] || {}).filter(([k]) => k.startsWith('gk_')).map(([key, topicRaw]) => {
-                        const topic = topicRaw as any;
-                        const isActive = activeNotesSectionKey === key;
-                        return (
-                          <div key={key}>
-                            <button
-                              onClick={() => { setActiveNotesSectionKey(key); setSelectedNotesPaper('uphesc'); setActiveTab('notes'); }}
-                              className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-left transition-all cursor-pointer text-[12px] font-semibold leading-tight ${isActive ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/15' : 'text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'}`}
-                            >
-                              <span className="truncate">{topic.title}</span>
-                              <span className={`text-[9px] shrink-0 font-mono ${isActive ? 'text-white/60' : 'text-slate-400 dark:text-slate-500'}`}>{topic.sections.length}§</span>
-                            </button>
-                            {isActive && (
-                              <div className="ml-5 pl-3 border-l-2 border-emerald-400/30 dark:border-emerald-500/30 mt-0.5 mb-1.5 space-y-0.5">
-                                {topic.sections.map((sec: any, idx: number) => (
-                                  <div key={sec.id} className="flex items-center gap-2 py-0.5 px-1">
-                                    <span className="w-4 h-4 shrink-0 rounded text-[8px] font-black bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
-                                      {String.fromCharCode(65 + idx)}
-                                    </span>
-                                    <span className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight truncate">
-                                      {sec.label.replace(/^[A-Za-z]\.\s+/, '')}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
 
                   {/* Syllabus link */}
                   <div className="pt-2 mt-2 border-t border-black/5 dark:border-white/5">
@@ -1522,7 +1330,7 @@ export default function App() {
                         <button key={key}
                           onClick={() => { setActiveNotesSectionKey(key); setSelectedNotesPaper('uphesc'); setActiveTab('notes'); setSidebarCollapsed(false); }}
                           title={key}
-                          className={`w-9 h-9 rounded-lg flex items-center justify-center text-[10px] font-black transition-all cursor-pointer ${isActive ? (isGK ? 'bg-emerald-600 text-white' : 'bg-violet-600 text-white') : 'bg-black/5 dark:bg-white/5 text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+                          className={`w-9 h-9 rounded-lg flex items-center justify-center text-[10px] font-black transition-all cursor-pointer border ${isActive ? 'bg-violet-500/20 text-violet-800 dark:text-violet-100 border-violet-400/30' : 'bg-white/30 dark:bg-white/5 text-slate-500 border-transparent hover:text-slate-900 dark:hover:text-white'}`}
                         >
                           {isGK ? `G${num}` : `U${num}`}
                         </button>
@@ -1547,12 +1355,153 @@ export default function App() {
             </div>
           )}
         </aside>
+      <div className="flex min-w-0 flex-1 flex-col">
 
-        {/* ── Right: Main content column ── */}
-        <div className="flex flex-col flex-1 min-w-0">
+      {/* Header Search Overlay */}
+      {isHeaderSearchOpen && (
+        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-black/8 dark:border-white/10 py-3 px-4 animate-in slide-in-from-top duration-200">
+          <div className="max-w-md mx-auto relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search formulas, CLT, ANOVA, questions..."
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-black/12 dark:border-white/15 focus:border-indigo-500 text-xs px-3 py-2 pl-9 rounded-xl focus:outline-hidden transition-all text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+              autoFocus
+            />
+            <Search className="w-4 h-4 text-slate-400 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-800 dark:hover:text-white font-semibold"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
-        {/* Main Container Layout */}
-        <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+      {/* ==================== STICKY ACTIVE FILTERS ROW (mobile only) ==================== */}
+      <div className="lg:hidden bg-white/55 dark:bg-slate-950/50 border-b border-black/8 dark:border-white/10 sticky top-14 z-30 backdrop-blur-2xl py-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-1.5 flex-nowrap min-w-max">
+
+          {/* ── Mode chip (always visible) ── */}
+          <button 
+            onClick={() => setIsLeftDrawerOpen(true)}
+            className={`px-2.5 py-1 rounded-full border text-[11px] font-semibold flex items-center gap-1 shrink-0 cursor-pointer transition-colors ${
+              examMode === 'uphesc'
+                ? 'bg-violet-500/10 dark:bg-violet-500/15 border-violet-400/30 dark:border-violet-500/30 hover:bg-violet-500/20'
+                : 'bg-indigo-500/10 dark:bg-indigo-500/15 border-indigo-400/30 dark:border-indigo-500/30 hover:bg-indigo-500/20'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${examMode === 'uphesc' ? 'bg-violet-500' : 'bg-indigo-500'}`} />
+            <b className={examMode === 'uphesc' ? 'text-violet-700 dark:text-violet-300' : 'text-indigo-700 dark:text-indigo-300'}>
+              {examMode === 'uphesc'
+                ? 'UPHESC A.P.'
+                : activeTab === 'pyq'
+                  ? selectedPaper === 'paper1' || selectedPaper === 'paper2'
+                    ? 'Objective PYQs'
+                    : selectedPaper === 'general_english' || selectedPaper === 'general_studies'
+                      ? 'General PYQs'
+                      : 'Subjective PYQs'
+                  : 'Revision Notes'}
+            </b>
+          </button>
+
+          {activeTab === 'pyq' ? (
+            <>
+              {/* Paper chip */}
+              <button 
+                onClick={() => setIsLeftDrawerOpen(true)}
+                className="px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/8 border border-black/8 dark:border-white/12 hover:bg-black/8 dark:hover:bg-white/12 text-[11px] font-semibold shrink-0 cursor-pointer transition-colors"
+              >
+                <b className="text-slate-700 dark:text-slate-200">
+                  {selectedPaper === 'paper1' 
+                    ? 'Paper I' 
+                    : selectedPaper === 'paper2' 
+                      ? 'Paper II' 
+                      : selectedPaper === 'paper3' 
+                        ? 'Paper III' 
+                        : selectedPaper === 'paper4'
+                          ? 'Paper IV'
+                          : selectedPaper === 'general_english'
+                            ? 'General English'
+                            : 'General Studies'}
+                </b>
+              </button>
+              
+              {selectedSection !== 'all' && (
+                <button 
+                  onClick={() => setSelectedSection('all')}
+                  className="px-2.5 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-400/30 dark:border-indigo-500/30 text-[11px] font-semibold hover:bg-indigo-500/20 shrink-0 cursor-pointer flex items-center gap-1 transition-colors"
+                >
+                  <b className="text-indigo-700 dark:text-indigo-300">{SUBJECT_LABELS[selectedSection] || selectedSection}</b>
+                  <X className="w-3 h-3 ml-0.5 text-indigo-500 dark:text-indigo-400" />
+                </button>
+              )}
+
+              {selectedYear !== 'all' && (
+                <button 
+                  onClick={() => setSelectedYear('all')}
+                  className="px-2.5 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-400/30 dark:border-indigo-500/30 text-[11px] font-semibold hover:bg-indigo-500/20 shrink-0 cursor-pointer flex items-center gap-1 transition-colors"
+                >
+                  <b className="text-indigo-700 dark:text-indigo-300">{selectedYear}</b>
+                  <X className="w-3 h-3 ml-0.5 text-indigo-500 dark:text-indigo-400" />
+                </button>
+              )}
+            </>
+          ) : examMode === 'uphesc' ? (
+            activeNotesSectionKey && notes['uphesc']?.[activeNotesSectionKey] ? (
+              <button
+                onClick={() => setIsLeftDrawerOpen(true)}
+                className="px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/8 border border-black/8 dark:border-white/12 text-[11px] font-semibold shrink-0 cursor-pointer transition-colors text-left"
+              >
+                <span className="text-violet-700 dark:text-violet-300">
+                  {activeNotesSectionKey.startsWith('gk_') ? 'General Knowledge' : 'Statistics'}
+                </span>
+                <span className="text-slate-400 mx-1.5">/</span>
+                <b className="text-slate-800 dark:text-slate-100">{(notes['uphesc'][activeNotesSectionKey] as any).title}</b>
+              </button>
+            ) : null
+          ) : (
+            <>
+              {/* ISS paper chip */}
+              <button 
+                onClick={() => setIsLeftDrawerOpen(true)}
+                className="px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/8 border border-black/8 dark:border-white/12 hover:bg-black/8 dark:hover:bg-white/12 text-[11px] font-semibold shrink-0 cursor-pointer transition-colors"
+              >
+                <b className="text-slate-700 dark:text-slate-200">
+                  {selectedNotesPaper.toUpperCase().replace('PAPER', 'Paper ')}
+                </b>
+              </button>
+
+              {activeNotesSectionKey && notes[selectedNotesPaper]?.[activeNotesSectionKey] && (
+                <button 
+                  onClick={() => setIsLeftDrawerOpen(true)}
+                  className="px-2.5 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-400/30 dark:border-indigo-500/30 hover:bg-indigo-500/20 text-[11px] font-semibold shrink-0 cursor-pointer transition-colors"
+                >
+                  <b className="text-indigo-700 dark:text-indigo-300">{notes[selectedNotesPaper][activeNotesSectionKey].title}</b>
+                </button>
+              )}
+            </>
+          )}
+
+          {searchQuery && (
+            <button 
+              onClick={() => setSearchQuery('')}
+              className="px-2.5 py-1 rounded-full bg-rose-500/10 dark:bg-rose-500/15 border border-rose-400/30 dark:border-rose-500/30 hover:bg-rose-500/20 text-[11px] font-semibold shrink-0 cursor-pointer flex items-center gap-1 transition-colors"
+            >
+              <b className="text-rose-700 dark:text-rose-300">"{searchQuery}"</b>
+              <X className="w-3 h-3 ml-0.5 text-rose-500 dark:text-rose-400" />
+            </button>
+          )}
+          </div>
+        </div>
+      </div>
+
+        <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
         
         {/* Content area */}
         <div className="flex-1 flex flex-col gap-6 min-w-0">
@@ -1562,8 +1511,8 @@ export default function App() {
           {examMode === 'iss' && activeTab === 'pyq' && (
             <div className="space-y-4" ref={questionsTopRef}>
 
-              {/* Top bar: range chip + page chip — consistent with filter chip theme */}
-              <div className="flex items-center justify-between">
+              {/* Sticky range + page bar — same glass strip as the notes section bar */}
+              <div className="sticky top-[6.35rem] lg:top-14 z-20 -mx-4 sm:-mx-6 lg:-mx-8 -mt-6 mb-2 px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-2 bg-white/55 dark:bg-slate-950/50 backdrop-blur-2xl border-b border-black/8 dark:border-white/10">
 
                 {/* Left — range chip */}
                 <div className="flex items-center gap-2">
@@ -1590,7 +1539,7 @@ export default function App() {
 
                 {/* Right — single-chip pagination: ◀ 3/25 ▶ */}
                 {totalPages > 1 && (
-                  <div className="flex items-center gap-0 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 overflow-hidden">
+                  <div className="flex items-center gap-0 rounded-full bg-white/50 dark:bg-white/[0.04] border border-black/8 dark:border-white/10 overflow-hidden backdrop-blur-md">
                     <button
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
@@ -1651,7 +1600,7 @@ export default function App() {
               {/* Bottom pagination — same segmented chip, scrolls to list top */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-center pt-2">
-                  <div className="flex items-center gap-0 rounded-full bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 overflow-hidden">
+                  <div className="flex items-center gap-0 rounded-full bg-white/50 dark:bg-white/[0.04] border border-black/8 dark:border-white/10 overflow-hidden backdrop-blur-md">
                     <button
                       onClick={() => {
                         setCurrentPage((p) => Math.max(1, p - 1));
@@ -1694,6 +1643,9 @@ export default function App() {
                 isAdmin={isAdmin}
                 activeSectionKey={activeNotesSectionKey}
                 setActiveSectionKey={setActiveNotesSectionKey}
+                requestedSectionId={requestedSectionId}
+                sectionRequestTick={sectionRequestTick}
+                onVisibleNoteId={setVisibleNoteId}
                 onEditNoteClick={(noteInfo) => setEditingNote(noteInfo)}
               />
             </div>
@@ -1705,14 +1657,13 @@ export default function App() {
 
         {/* Footer credits info */}
         <footer className="bg-slate-100/60 dark:bg-slate-950/40 border-t border-black/5 dark:border-white/5 py-6 text-center text-xs text-slate-400 dark:text-slate-500 font-medium backdrop-blur-md">
-          <div className="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-400 dark:text-slate-500">
+          <div className="w-full px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-400 dark:text-slate-500">
             <span>© {new Date().getFullYear()} Statika. UPSC ISS & UPHESC Assistant Professor Revision Portal.</span>
             <span className="text-[10px] text-slate-400 dark:text-slate-600">Official Prep & Revision Companion</span>
           </div>
         </footer>
-
-        </div>{/* end right content column */}
-      </div>{/* end main layout flex */}
+      </div>
+      </div>
 
       {/* ==================== SYLLABUS QUICK REFERENCE MODAL ==================== */}
       <SyllabusModal

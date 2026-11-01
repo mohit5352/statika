@@ -23,7 +23,7 @@
 
 ## Overview
 
-Statika is a single-page study app with **light and dark** themes (persisted in `localStorage`) and a frosted glass UI. Switch **exam mode** in the sidebar between **UPSC ISS** and **UPHESC Assistant Professor** — filters, notes, and the syllabus modal stay scoped to that mode.
+Statika is a single-page study app with **light and dark** themes (persisted in `localStorage`) and a frosted glass UI. The header spans the full window. Its left menu button collapses the desktop sidebar, or opens the same navigation in a drawer on a phone. In the sidebar, **UPSC ISS** and **UPHESC** are underline tabs. Under UPHESC, **Statistics** and **General Knowledge** are separate rows. Filters, notes, and the syllabus modal stay scoped to the selected exam.
 
 ### UPSC ISS
 
@@ -89,24 +89,26 @@ Six units covering the official GK syllabus (UPHESC notification). Content lives
 | GK-5 | Indian History & Geography | Indian culture, National Movement 1857–1950, Universe & Solar System, Indian physical geography |
 | GK-6 | Indian Constitution & Economy | Preamble/FRs/DPSP, Legislature/Executive/Judiciary, ECI & UPSC, Planning & economy, Agriculture & banking |
 
-**GK notes are visually distinguished from Statistics notes in the sidebar** — Statistics units appear in **violet** with a "70 Qs" badge; GK units in **emerald** with a "30 Qs" badge. The in-app syllabus view matches the official notification (no ISS/UPHESC tab mixing).
+Statistics and General Knowledge share the UPHESC **violet** accent. The sidebar shows one group at a time: **Statistics `(70 Qs)`** or **General Knowledge `(30 Qs)`**. The bracketed counts are the official question split. The `gk_` key prefix selects the General Knowledge list; it does not change the color. The in-app syllabus view matches the official notification (no ISS/UPHESC tab mixing).
 
 ---
 
 ## Features
 
 ### Exam modes
-- Sidebar switcher: **UPSC ISS** vs **UPHESC A.P.**
+- Header menu collapses the desktop sidebar to a narrow rail, or opens a drawer on a phone. The icon stays on the left of the full-width header
+- Exam switcher: underline tabs **UPSC ISS** (indigo) and **UPHESC** (violet). These are separate from the subject rows below them
+- Under UPHESC, left-accent rows **Statistics `(70 Qs)`** and **General Knowledge `(30 Qs)`** — one unit list at a time. The collapsed rail keeps shortcuts `U1`–`U10` and `G1`–`G6`; choosing one expands the sidebar
+- The open unit lists its sections in the sidebar. The same sections sit in a sticky horizontal scroller above the note, with a `‹ n / total ›` pager
 - ISS mode: PYQs + revision notes + ISS syllabus
 - UPHESC mode: 10-unit Statistics notes + 6-unit GK notes + UPHESC syllabus only
-- Sidebar groups UPHESC content into **Statistics (violet, 70 Qs)** and **General Knowledge (emerald, 30 Qs)** with a dashed separator
-- Active section accent color (violet / emerald / indigo) propagates to the sticky filter chip, tips box, and section pager
+- The reading column uses the width beside the sidebar. Note text is not boxed in a card
 - Filter chips and URL params (`mode`, paper, section, year, notes) stay consistent with the selected exam
 
 ### Theme
 - **Light / dark** toggle in the header (moon / sun)
 - Preference stored as `statika-theme` in `localStorage`
-- Three accent colors: indigo (ISS), violet (UPHESC Statistics), emerald (UPHESC GK)
+- Two accent colors: indigo (ISS), violet (UPHESC Statistics and General Knowledge)
 
 ### PYQ module (ISS)
 - Filter by **Paper → Subject section → Year** (borderless radio lists + year pills)
@@ -122,9 +124,9 @@ Six units covering the official GK syllabus (UPHESC notification). Content lives
 - ISS: formula sheets and proofs for Papers I–IV
 - UPHESC Statistics: comprehensive notes for all 10 official units (MathJax formulas + exam tips)
 - UPHESC GK: comprehensive notes for all 6 official GK units (tables, mnemonics, PYQ traps)
-- Sidebar grouped into Statistics / GK with colored badges; desktop sticky + mobile horizontal scroll
-- Tip panels adapt accent color dynamically (violet → Stats, emerald → GK)
-- Mobile-friendly: horizontal topic chips, scrollable tables, pager navigation
+- One section at a time. Desktop and phone use the same sticky section scroller and the same pager as the PYQ view
+- Tip panels use indigo for ISS and violet for every UPHESC note
+- Wide tables scroll horizontally; the note body uses the full content column
 
 ### Official syllabus
 - ISS: Papers I–IV sections (same pattern as the UPSC scheme)
@@ -254,7 +256,7 @@ notes = {
 }
 ```
 
-Keys prefixed `gk_` are rendered in **emerald** by `RevisionNotes`; all other UPHESC keys in **violet**. The drawer only shows the book for the active exam mode.
+Keys prefixed `gk_` are the General Knowledge group. Every UPHESC note uses **violet**; ISS notes use **indigo**. The sidebar shows only the book for the active exam, and UPHESC shows one subject group at a time.
 
 ---
 
@@ -285,7 +287,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-App at **http://localhost:3000**.
+App at **http://localhost:3001**.
 
 ### 4. Production build
 
@@ -302,8 +304,8 @@ npm run start
 # Required for AI Study Assistant
 GEMINI_API_KEY=your_google_gemini_api_key_here
 
-# Optional
-PORT=3000
+# Optional. Defaults to 3001. Railway and similar hosts inject PORT themselves.
+PORT=3001
 ```
 
 See `.env.example` for the full template (including admin-related keys if present).
@@ -364,9 +366,9 @@ python3 gs_answers_2021_2026.py
 ### UPHESC GK notes
 1. Edit `src/data/gk_notes.json` under the relevant `gk_unitN` key.
 2. GK content is plain Markdown (no LaTeX needed); use tables, bullet lists, and blockquotes.
-3. All keys must start with `gk_` — this prefix controls the emerald colour scheme and "General Knowledge" group label in the sidebar.
+3. All keys must start with `gk_` — this prefix places the topic in the General Knowledge list beside `(30 Qs)`. The accent stays violet.
 4. To add a new GK topic, add a new `gk_*` key at the same level as `gk_unit1`…`gk_unit6` inside the `"uphesc"` object.
-5. GK tips boxes render in emerald; Statistics tips boxes render in violet — no config needed.
+5. UPHESC tip panels render in violet for Statistics and GK. ISS tip panels render in indigo.
 
 ---
 
@@ -400,6 +402,6 @@ Set `GEMINI_API_KEY` (and any admin secrets) as environment variables on the hos
 
 | Version | What changed |
 |---------|-------------|
-| **Latest** | UPHESC GK notes (6 units, 30 Qs) added; sidebar groups Stats/GK with colored badges; emerald accent for GK sections throughout UI |
-| Previous | UPHESC 10-unit Statistics notes; light/dark theme; paginated notes reader |
+| **Latest** | Collapsible full-width shell: header menu, underline exam tabs, Statistics `(70 Qs)` / General Knowledge `(30 Qs)` rows, borderless notes. UPHESC accent is violet for both groups |
+| Previous | UPHESC GK notes (6 units); GK current-affairs and economy sections updated to verified 2024–26 figures |
 | Initial | UPSC ISS Papers I–IV PYQs with answers, explanations, AI assistant |

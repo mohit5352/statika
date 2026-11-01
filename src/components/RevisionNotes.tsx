@@ -14,6 +14,9 @@ interface RevisionNotesProps {
   isAdmin: boolean;
   activeSectionKey: string;
   setActiveSectionKey: (key: string) => void;
+  requestedSectionId?: string | null;
+  sectionRequestTick?: number;
+  onVisibleNoteId?: (id: string | null) => void;
   onEditNoteClick: (noteInfo: {
     paper: string;
     sectionKey: string;
@@ -29,11 +32,15 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
   isAdmin,
   activeSectionKey,
   setActiveSectionKey,
+  requestedSectionId = null,
+  sectionRequestTick = 0,
+  onVisibleNoteId,
   onEditNoteClick,
 }) => {
   const paperNotes = notesData[paper] || {};
   const sectionKeys = Object.keys(paperNotes);
   const notesTopRef = useRef<HTMLDivElement>(null);
+  const sectionChipRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
   const intendedNoteId = useRef<string | null>(null);
 
@@ -42,14 +49,35 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
     (paperNotes[topicKey]?.sections ?? []).map((section) => ({ topicKey, section }))
   );
 
-  // When unit (activeSectionKey) changes, default to first section — unless an intended section is set
+  // When the unit changes, open the first section unless prev/next or the
+  // sidebar named a specific section in this unit.
   React.useEffect(() => {
     const topic = paperNotes[activeSectionKey];
     const ids = topic?.sections.map((s) => s.id) ?? [];
     const intended = intendedNoteId.current;
     intendedNoteId.current = null;
-    setActiveNoteId(intended && ids.includes(intended) ? intended : (ids[0] ?? null));
-  }, [paper, activeSectionKey]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (intended && ids.includes(intended)) {
+      setActiveNoteId(intended);
+    } else if (requestedSectionId && ids.includes(requestedSectionId)) {
+      setActiveNoteId(requestedSectionId);
+    } else {
+      setActiveNoteId(ids[0] ?? null);
+    }
+  }, [paper, activeSectionKey, requestedSectionId, sectionRequestTick]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  React.useEffect(() => {
+    onVisibleNoteId?.(activeNoteId);
+    if (activeNoteId) {
+      const chip = sectionChipRefs.current[activeNoteId];
+      const scroller = chip?.parentElement;
+      if (chip && scroller) {
+        scroller.scrollTo({
+          left: chip.offsetLeft - scroller.clientWidth / 2 + chip.clientWidth / 2,
+          behavior: 'smooth',
+        });
+      }
+    }
+  }, [activeNoteId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const matchedIndex = entries.findIndex(
     (e) => e.topicKey === activeSectionKey && e.section.id === activeNoteId
@@ -97,8 +125,8 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
   const colors =
     paper !== 'uphesc'
       ? {
-          tabActive: 'border-indigo-500 text-indigo-700 dark:text-indigo-300 bg-indigo-500/5',
-          badgeActive: 'bg-indigo-600',
+          chipOn: 'bg-indigo-500/20 text-indigo-800 dark:text-indigo-100 border-indigo-400/35',
+          badgeOn: 'bg-indigo-500 text-white',
           tip: {
             bg: 'bg-indigo-500/10',
             border: 'border-indigo-500',
@@ -107,21 +135,9 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
             text: 'text-indigo-800 dark:text-indigo-100',
           },
         }
-      : isGKSection
-      ? {
-          tabActive: 'border-emerald-500 text-emerald-700 dark:text-emerald-300 bg-emerald-500/5',
-          badgeActive: 'bg-emerald-600',
-          tip: {
-            bg: 'bg-emerald-500/10',
-            border: 'border-emerald-500',
-            icon: 'text-emerald-500 dark:text-emerald-400',
-            title: 'text-emerald-600 dark:text-emerald-300',
-            text: 'text-emerald-800 dark:text-emerald-100',
-          },
-        }
       : {
-          tabActive: 'border-violet-500 text-violet-700 dark:text-violet-300 bg-violet-500/5',
-          badgeActive: 'bg-violet-600',
+          chipOn: 'bg-violet-500/20 text-violet-800 dark:text-violet-100 border-violet-400/35',
+          badgeOn: 'bg-violet-500 text-white',
           tip: {
             bg: 'bg-violet-500/10',
             border: 'border-violet-500',
@@ -139,7 +155,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
       : `ISS · ${paper.replace('paper', 'Paper ')}`;
 
   return (
-    <div ref={notesTopRef} className="space-y-0 font-sans scroll-mt-28">
+    <div ref={notesTopRef} className="flex flex-col font-sans scroll-mt-32">
       {currentEntry && currentTopic ? (
         <>
           {/* ── Unit Header ── */}
@@ -152,7 +168,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
                 {currentTopic.title}
               </h2>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-2 font-medium">
-                {topicSections.length} section{topicSections.length !== 1 ? 's' : ''} · viewing{' '}
+                {topicSections.length} {topicSections.length === 1 ? 'section' : 'sections'} · viewing{' '}
                 <b className="text-slate-600 dark:text-slate-300">
                   {indexInTopic + 1} of {topicSections.length}
                 </b>
@@ -178,48 +194,62 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
             )}
           </div>
 
-          {/* ── Section Tabs ── */}
-          <div className="border-b border-black/8 dark:border-white/10 -mx-0.5">
-            <div className="flex overflow-x-auto scrollbar-none -mb-px">
+          {/* ── Sticky section + pager bar. One row, scrolls sideways. ── */}
+          <div className="order-first sticky top-[6.35rem] lg:top-14 z-20 -mx-4 sm:-mx-6 lg:-mx-8 -mt-6 mb-4 px-4 sm:px-6 lg:px-8 py-2 flex items-center gap-2 bg-white/55 dark:bg-slate-950/50 backdrop-blur-2xl border-b border-black/8 dark:border-white/10">
+            <div className="flex-1 flex gap-1.5 overflow-x-auto scrollbar-none min-w-0">
               {topicSections.map((sec, idx) => {
                 const isActive = activeNoteId === sec.id;
                 const letter = String.fromCharCode(65 + idx);
-                // Strip leading "A. " prefix if data already has it
                 const cleanLabel = sec.label.replace(/^[A-Za-z]\.\s+/, '');
                 return (
                   <button
                     key={sec.id}
+                    ref={(node) => { sectionChipRefs.current[sec.id] = node; }}
                     onClick={() => selectSection(sec.id)}
-                    title={sec.label}
-                    className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 text-xs font-semibold whitespace-nowrap border-b-2 transition-all duration-150 shrink-0 cursor-pointer ${
+                    className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap border backdrop-blur-md transition-all cursor-pointer ${
                       isActive
-                        ? colors.tabActive
-                        : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600'
+                        ? colors.chipOn
+                        : 'bg-white/40 dark:bg-white/[0.04] border-black/8 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-white/70 dark:hover:bg-white/10'
                     }`}
                   >
-                    {/* Letter badge */}
-                    <span
-                      className={`w-5 h-5 rounded text-[9px] font-black flex items-center justify-center shrink-0 transition-colors ${
-                        isActive
-                          ? `${colors.badgeActive} text-white`
-                          : 'bg-black/8 dark:bg-white/10 text-slate-600 dark:text-slate-400'
-                      }`}
-                    >
+                    <span className={`w-4 h-4 rounded text-[8px] font-black flex items-center justify-center shrink-0 ${isActive ? colors.badgeOn : 'bg-black/8 dark:bg-white/10 text-slate-500 dark:text-slate-400'}`}>
                       {letter}
                     </span>
-                    {/* Label — truncated on small screens */}
-                    <span className="hidden sm:inline truncate max-w-[140px] xl:max-w-[220px]">
-                      {cleanLabel}
-                    </span>
+                    {cleanLabel}
                   </button>
                 );
               })}
             </div>
+            {entries.length > 1 && (
+              <div className="shrink-0 flex items-center rounded-full bg-white/50 dark:bg-white/[0.04] border border-black/8 dark:border-white/10 overflow-hidden backdrop-blur-md">
+                <button
+                  onClick={() => goToEntry(currentIndex - 1)}
+                  disabled={currentIndex === 0}
+                  className="px-2 py-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed border-r border-black/8 dark:border-white/10"
+                  aria-label="Previous section"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </button>
+                <span className="px-2.5 py-1 text-[11px] font-semibold font-mono text-slate-600 dark:text-slate-300 select-none">
+                  <b className="text-slate-900 dark:text-white">{currentIndex + 1}</b>
+                  <span className="text-slate-400 mx-1">/</span>
+                  {entries.length}
+                </span>
+                <button
+                  onClick={() => goToEntry(currentIndex + 1)}
+                  disabled={currentIndex >= entries.length - 1}
+                  className="px-2 py-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed border-l border-black/8 dark:border-white/10"
+                  aria-label="Next section"
+                >
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* ── Content Card ── */}
-          <div className="bg-white/70 dark:bg-white/5 backdrop-blur-sm border border-black/8 dark:border-white/10 rounded-xl overflow-hidden shadow-sm dark:shadow-none mt-5">
-            <div className="px-4 sm:px-6 py-5 text-sm text-slate-600 dark:text-slate-300 leading-relaxed overflow-x-auto overscroll-x-contain">
+          <div className="mt-5">
+            <div className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed overflow-x-auto overscroll-x-contain">
               <MathJaxRenderer html={currentEntry.section.content} className="markdown-body" />
             </div>
           </div>
@@ -241,30 +271,31 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
             </div>
           )}
 
-          {/* ── Global Prev / Next Navigation ── */}
           {entries.length > 1 && (
-            <div className="flex items-center justify-between gap-4 pt-6 mt-2 border-t border-black/5 dark:border-white/5">
-              <button
-                onClick={() => goToEntry(currentIndex - 1)}
-                disabled={currentIndex === 0}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 hover:bg-black/8 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-                Previous
-              </button>
-              <span className="text-xs text-slate-400 dark:text-slate-500 font-mono select-none">
-                <b className="text-slate-700 dark:text-slate-300">{currentIndex + 1}</b>
-                <span className="mx-1 opacity-50">/</span>
-                {entries.length}
-              </span>
-              <button
-                onClick={() => goToEntry(currentIndex + 1)}
-                disabled={currentIndex >= entries.length - 1}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 hover:bg-black/8 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
-              >
-                Next
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+            <div className="flex items-center justify-center pt-6">
+              <div className="flex items-center rounded-full bg-white/50 dark:bg-white/[0.04] border border-black/8 dark:border-white/10 overflow-hidden backdrop-blur-md">
+                <button
+                  onClick={() => goToEntry(currentIndex - 1)}
+                  disabled={currentIndex === 0}
+                  className="px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed border-r border-black/8 dark:border-white/10"
+                  aria-label="Previous section"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="px-4 py-2 text-sm font-semibold font-mono text-slate-600 dark:text-slate-300 select-none">
+                  <b className="text-slate-900 dark:text-white">{currentIndex + 1}</b>
+                  <span className="text-slate-400 mx-1.5">/</span>
+                  {entries.length}
+                </span>
+                <button
+                  onClick={() => goToEntry(currentIndex + 1)}
+                  disabled={currentIndex >= entries.length - 1}
+                  className="px-3 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed border-l border-black/8 dark:border-white/10"
+                  aria-label="Next section"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
         </>
