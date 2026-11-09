@@ -1,7 +1,7 @@
 # Statika — UPSC ISS & UPHESC Statistics Portal
 
 > **Interactive revision portal for UPSC Indian Statistical Service (ISS) and UPHESC Assistant Professor (Statistics) aspirants.**  
-> ISS Papers I–IV · General English · General Studies · UPHESC 10-unit Statistics notes · UPHESC 6-unit GK notes · Official syllabi · Model answers · Light & dark themes · AI study assistant
+> ISS Papers I–IV · General English · General Studies · UPHESC notes and 50 practice questions per unit · Official syllabi · Model answers · Light & dark themes · AI study assistant
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## Overview
 
-Statika is a single-page study app with **light and dark** themes (persisted in `localStorage`) and a frosted glass UI. The header spans the full window. Its left menu button collapses the desktop sidebar, or opens the same navigation in a drawer on a phone. In the sidebar, **UPSC ISS** and **UPHESC** are underline tabs. Under UPHESC, **Statistics** and **General Knowledge** are separate rows. Filters, notes, and the syllabus modal stay scoped to the selected exam.
+Statika is a single-page study app with **light and dark** themes (persisted in `localStorage`) and a frosted glass UI. The header spans the full window. Its left menu button collapses the desktop sidebar, or opens the same navigation in a drawer on a phone. In the sidebar, **UPSC ISS** and **UPHESC** are underline tabs. Under UPHESC, **Statistics** and **General Knowledge** are separate rows, and each unit opens either its notes or a set of 50 practice questions. Filters, notes, questions, and the syllabus modal stay scoped to the selected exam.
 
 ### UPSC ISS
 
@@ -74,11 +74,11 @@ Unit-wise preparation notes aligned to the official U.P. Higher Education Servic
 | 9 | Multivariate Analysis |
 | 10 | Advance Probability Theory |
 
-Each unit includes syllabus-mapped sections, MathJax formulas, comparison tables, and exam tips / common pitfalls.
+Each unit includes syllabus-mapped sections, MathJax formulas, comparison tables, and exam tips / common pitfalls. The same unit also has 50 practice questions in `uphesc_practice.json`.
 
 #### General Knowledge — 30 Questions (Compulsory for All Disciplines)
 
-Six units covering the official GK syllabus (UPHESC notification). Content lives in `gk_notes.json` and is automatically merged into the `uphesc` notebook at runtime.
+Six units covering the official GK syllabus (UPHESC notification). Notes live in `gk_notes.json` and are merged into the `uphesc` notebook at runtime. Each GK unit also has 50 practice questions in `uphesc_practice.json`.
 
 | GK Unit | Title | Syllabus Sub-topics |
 |---------|-------|---------------------|
@@ -89,7 +89,9 @@ Six units covering the official GK syllabus (UPHESC notification). Content lives
 | GK-5 | Indian History & Geography | Indian culture, National Movement 1857–1950, Universe & Solar System, Indian physical geography |
 | GK-6 | Indian Constitution & Economy | Preamble/FRs/DPSP, Legislature/Executive/Judiciary, ECI & UPSC, Planning & economy, Agriculture & banking |
 
-Statistics and General Knowledge share the UPHESC **violet** accent. The sidebar shows one group at a time: **Statistics `(70 Qs)`** or **General Knowledge `(30 Qs)`**. The bracketed counts are the official question split. The `gk_` key prefix selects the General Knowledge list; it does not change the color. The in-app syllabus view matches the official notification (no ISS/UPHESC tab mixing).
+Statistics and General Knowledge share the UPHESC **violet** accent. The sidebar shows one group at a time: **Statistics `(70 Qs)`** or **General Knowledge `(30 Qs)`**. The bracketed counts are the official paper split, not the size of the practice set. Under those rows, **Notes** and **Questions** switch the open unit between the note and its 50 questions. The `gk_` key prefix selects the General Knowledge list; it does not change the color. The in-app syllabus view matches the official notification (no ISS/UPHESC tab mixing).
+
+Practice questions are written for that unit. They are model-answer items (`options` is empty), shown with **Show Answer**, not four-option MCQs. GK items use the same checked 2024–2026 facts as the notes. The set does not state one FY 2025-26 GDP growth rate, and it does not state a repo rate.
 
 ---
 
@@ -99,11 +101,11 @@ Statistics and General Knowledge share the UPHESC **violet** accent. The sidebar
 - Header menu collapses the desktop sidebar to a narrow rail, or opens a drawer on a phone. The icon stays on the left of the full-width header
 - Exam switcher: underline tabs **UPSC ISS** (indigo) and **UPHESC** (violet). These are separate from the subject rows below them
 - Under UPHESC, left-accent rows **Statistics `(70 Qs)`** and **General Knowledge `(30 Qs)`** — one unit list at a time. The collapsed rail keeps shortcuts `U1`–`U10` and `G1`–`G6`; choosing one expands the sidebar
-- The open unit lists its sections in the sidebar. The same sections sit in a sticky horizontal scroller above the note, with a `‹ n / total ›` pager
+- The open unit lists its sections in the sidebar while Notes is selected. The same sections sit in a sticky horizontal scroller above the note, with a `‹ n / total ›` pager
 - ISS mode: PYQs + revision notes + ISS syllabus
-- UPHESC mode: 10-unit Statistics notes + 6-unit GK notes + UPHESC syllabus only
+- UPHESC mode: **Notes** or **Questions** for the selected unit, plus the UPHESC syllabus. Questions are 50 per statistics unit and 50 per GK unit (800 in all), ten to a page, with the same pager as the ISS bank
 - The reading column uses the width beside the sidebar. Note text is not boxed in a card
-- Filter chips and URL params (`mode`, paper, section, year, notes) stay consistent with the selected exam
+- Filter chips and URL params (`mode`, `tab`, paper, section, year, `notesSection`) stay consistent with the selected exam. UPHESC questions use `?mode=uphesc&tab=pyq&notesSection=unit1` (or a `gk_unit` key)
 
 ### Theme
 - **Light / dark** toggle in the header (moon / sun)
@@ -119,6 +121,12 @@ Statistics and General Knowledge share the UPHESC **violet** accent. The sidebar
 - Collapsible **draft answer** box for subjective papers (localStorage)
 - **Ask AI** opens a context-aware study chat
 - Progress tracking across the bank
+
+### UPHESC practice questions
+- One set of **50** for each statistics unit (`unit1`–`unit10`) and each GK unit (`gk_unit1`–`gk_unit6`)
+- Same question card as the ISS bank. The badge is violet. **Show Answer** opens **Model Solution**
+- A short topic chip appears when the item has one. The storage year `2026` is only the explanation key and is not shown
+- Choosing a unit keeps the current Notes or Questions mode. Switching to UPHESC from the exam tab opens Notes
 
 ### Revision notes
 - ISS: formula sheets and proofs for Papers I–IV
@@ -193,6 +201,7 @@ Statistics and General Knowledge share the UPHESC **violet** accent. The sidebar
 │       ├── notes.json               # ISS revision notes (Papers I–IV)
 │       ├── uphesc_notes.json        # UPHESC Statistics notes (Units 1–10)
 │       ├── gk_notes.json            # UPHESC GK notes (Units 1–6, 30 Qs)
+│       ├── uphesc_practice.json     # UPHESC practice questions, 50 per unit
 │       ├── gen_papers_questions.json    # General English + Studies questions
 │       └── gen_papers_explanations.json # GE/GS model answers
 │
@@ -257,6 +266,17 @@ notes = {
 ```
 
 Keys prefixed `gk_` are the General Knowledge group. Every UPHESC note uses **violet**; ISS notes use **indigo**. The sidebar shows only the book for the active exam, and UPHESC shows one subject group at a time.
+
+### UPHESC practice — `uphesc_practice.json`
+
+```ts
+{
+  questions: Question[],       // paper: "uphesc"; section: "unit1"…"unit10" | "gk_unit1"…"gk_unit6"
+  explanations: ExplanationKey // uphesc → section → "2026" → number
+}
+```
+
+`App.tsx` appends these questions to the ISS bank and deep-merges the explanations. Each unit has questions `1`–`50`. `options` is empty, so the card treats them as subjective. `year: 2026` is the explanation key only. The admin save path still writes `questions.json` for ISS items; a practice item that is not in that file is not written back over it.
 
 ---
 
@@ -363,6 +383,13 @@ python3 gs_answers_2021_2026.py
 3. Wide tables should be Markdown tables — the renderer wraps them for mobile scroll.
 4. Or use the Admin Panel **Edit Note** flow while in UPHESC mode.
 
+### UPHESC practice questions
+1. Edit `src/data/uphesc_practice.json`.
+2. Keep `paper: "uphesc"` and set `section` to the note key (`unit3`, `gk_unit6`, …).
+3. Number questions `1`–`50` inside that section. Put the model solution at `explanations.uphesc[section]["2026"][number]`.
+4. Leave `options` empty. These are written answers, not invented A–D choices.
+5. For a GK fact, name the source and the date in the solution. Do not add a GDP growth rate or a repo rate unless it comes from one official page.
+
 ### UPHESC GK notes
 1. Edit `src/data/gk_notes.json` under the relevant `gk_unitN` key.
 2. GK content is plain Markdown (no LaTeX needed); use tables, bullet lists, and blockquotes.
@@ -388,7 +415,7 @@ Set `GEMINI_API_KEY` (and any admin secrets) as environment variables on the hos
 
 1. **Statistics explanations:** Rigorous derivations; cite standard texts; keep MathJax-friendly markup.
 2. **GE/GS model answers:** Structured UPSC style; prefer verifiable facts (Articles, Acts, official scheme names). Do not invent statistics or case citations.
-3. **UPHESC notes:** Stay aligned to the official Code-77 syllabus wording; keep ISS and UPHESC JSON separate.
+3. **UPHESC notes and practice questions:** Stay aligned to the official Code-77 syllabus wording; keep ISS and UPHESC JSON separate. Practice items belong in `uphesc_practice.json`, not in `questions.json`.
 4. **Bug fixes / features:** Clear PRs; discuss large features in an issue first.
 5. Do not commit `.env`, `.env.local`, or `__pycache__/`.
 
@@ -402,6 +429,7 @@ Set `GEMINI_API_KEY` (and any admin secrets) as environment variables on the hos
 
 | Version | What changed |
 |---------|-------------|
-| **Latest** | Collapsible full-width shell: header menu, underline exam tabs, Statistics `(70 Qs)` / General Knowledge `(30 Qs)` rows, borderless notes. UPHESC accent is violet for both groups |
-| Previous | UPHESC GK notes (6 units); GK current-affairs and economy sections updated to verified 2024–26 figures |
+| **Latest** | UPHESC practice sets: 50 model-answer questions for each statistics unit and each GK unit, opened from Notes / Questions on the unit list |
+| Previous | Collapsible full-width shell: header menu, underline exam tabs, Statistics `(70 Qs)` / General Knowledge `(30 Qs)` rows, borderless notes. UPHESC accent is violet for both groups |
+| Earlier | UPHESC GK notes (6 units); GK current-affairs and economy sections updated to verified 2024–26 figures |
 | Initial | UPSC ISS Papers I–IV PYQs with answers, explanations, AI assistant |

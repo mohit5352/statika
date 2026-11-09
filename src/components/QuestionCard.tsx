@@ -168,7 +168,9 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
     question.paper === 'paper3' ||
     question.paper === 'paper4' ||
     question.paper === 'general_english' ||
-    question.paper === 'general_studies';
+    question.paper === 'general_studies' ||
+    question.paper === 'uphesc';
+  const isUphesc = question.paper === 'uphesc';
   const storageKey = `draft_${question.paper}_${question.section}_${question.year}_${question.number}`;
   const [userDraft, setUserDraft] = useState(() => localStorage.getItem(storageKey) || '');
 
@@ -243,7 +245,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
       <div className="flex flex-col gap-2 pb-3 border-b border-black/8 dark:border-white/10">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-            <span className="bg-indigo-500/10 dark:bg-indigo-500/25 text-indigo-600 dark:text-indigo-300 border border-indigo-400/30 dark:border-indigo-500/25 text-xs font-bold px-2.5 py-1 rounded-lg font-mono tracking-wide">
+            <span className={`text-xs font-bold px-2.5 py-1 rounded-lg font-mono tracking-wide border ${isUphesc ? 'bg-violet-500/10 dark:bg-violet-500/25 text-violet-700 dark:text-violet-200 border-violet-400/30 dark:border-violet-500/25' : 'bg-indigo-500/10 dark:bg-indigo-500/25 text-indigo-600 dark:text-indigo-300 border-indigo-400/30 dark:border-indigo-500/25'}`}>
               Q{question.number}
             </span>
             {question.marks && (
@@ -251,9 +253,16 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
                 {question.marks}M
               </span>
             )}
-            <span className="bg-black/8 dark:bg-white/8 text-slate-600 dark:text-slate-300 border border-black/10 dark:border-white/12 text-xs font-semibold px-2.5 py-1 rounded-lg font-mono">
-              {question.year}
-            </span>
+            {!isUphesc && (
+              <span className="bg-black/8 dark:bg-white/8 text-slate-600 dark:text-slate-300 border border-black/10 dark:border-white/12 text-xs font-semibold px-2.5 py-1 rounded-lg font-mono">
+                {question.year}
+              </span>
+            )}
+            {isUphesc && question.topic && !['Paper', 'Pattern', 'Syllabus'].includes(question.topic) && (
+              <span className="bg-black/8 dark:bg-white/8 text-slate-600 dark:text-slate-300 border border-black/10 dark:border-white/12 text-xs font-semibold px-2.5 py-1 rounded-lg">
+                {question.topic}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
@@ -302,7 +311,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           </div>
         </div>
 
-        {question.topic && (
+        {question.topic && !isUphesc && (
           <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium leading-snug pl-0.5">
             {question.topic}
           </p>

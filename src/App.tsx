@@ -22,6 +22,7 @@ import explanationsRaw from './data/explanations.json';
 import notesRaw from './data/notes.json';
 import uphescNotesRaw from './data/uphesc_notes.json';
 import gkNotesRaw from './data/gk_notes.json';
+import uphescPracticeRaw from './data/uphesc_practice.json';
 import genQuestionsRaw from './data/gen_papers_questions.json';
 import genExplanationsRaw from './data/gen_papers_explanations.json';
 
@@ -97,17 +98,22 @@ export default function App() {
   // Application modes: 'pyq' (Objective Question Bank) or 'notes' (Revision Notes)
   const [activeTab, setActiveTab] = useState<'pyq' | 'notes'>(() => {
     const v = _initParams.get('tab');
-    return v === 'notes' ? 'notes' : 'pyq';
+    if (v === 'notes' || v === 'pyq') return v;
+    return _initParams.get('mode') === 'uphesc' ? 'notes' : 'pyq';
   });
   
   // Database States (loaded from JSON, updated reactively by Admin edits)
   const [questions, setQuestions] = useState<Question[]>([
     ...(questionsRaw as Question[]),
     ...(genQuestionsRaw as Question[]),
+    ...((uphescPracticeRaw as { questions: Question[] }).questions),
   ]);
   const [answers, setAnswers] = useState<AnswerKey>(answersRaw as AnswerKey);
   const [explanations, setExplanations] = useState<ExplanationKey>(
-    deepMerge(explanationsRaw as ExplanationKey, genExplanationsRaw)
+    deepMerge(
+      deepMerge(explanationsRaw as ExplanationKey, genExplanationsRaw),
+      (uphescPracticeRaw as { explanations: ExplanationKey }).explanations
+    )
   );
   const [notes, setNotes] = useState<NoteBook>({
     ...(notesRaw as NoteBook),
@@ -446,7 +452,7 @@ export default function App() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedSection, selectedYear, searchQuery]);
+  }, [selectedSection, selectedYear, searchQuery, activeNotesSectionKey, activeTab]);
 
   // Set default notes section when the visible notes paper changes, but preserve a valid URL-restored key.
   // UPHESC always reads the 'uphesc' notebook, even if the ISS paper selection is still the default.
@@ -469,40 +475,50 @@ export default function App() {
     setNavGroup(activeNotesSectionKey.startsWith('gk_') ? 'gk' : 'stats');
   }, [activeNotesSectionKey, examMode]);
 
-  // Filtered Questions list — newest year first, then paper section order, then Q number
-  const filteredQuestions = questions
-    .filter((q) => {
-      if (q.paper !== selectedPaper) return false;
-      if (selectedSection !== 'all' && q.section !== selectedSection) return false;
-      if (selectedYear !== 'all' && q.year.toString() !== selectedYear) return false;
+  const matchesSearch = (q: Question) => {
+    if (searchQuery.trim() === '') return true;
+    const query = searchQuery.toLowerCase();
+    return q.text.toLowerCase().includes(query)
+      || q.topic.toLowerCase().includes(query)
+      || (q.context ? q.context.toLowerCase().includes(query) : false);
+  };
 
-      if (searchQuery.trim() !== '') {
-        const query = searchQuery.toLowerCase();
-        const textMatches = q.text.toLowerCase().includes(query);
-        const topicMatches = q.topic.toLowerCase().includes(query);
-        const contextMatches = q.context ? q.context.toLowerCase().includes(query) : false;
-        return textMatches || topicMatches || contextMatches;
-      }
-
-      return true;
-    })
-    .sort((a, b) => {
-      if (a.year !== b.year) return b.year - a.year;
-      const secs = PAPER_SECTIONS[a.paper] ?? [];
-      const sectionDelta = secs.indexOf(a.section) - secs.indexOf(b.section);
-      if (sectionDelta !== 0) return sectionDelta;
-      return a.number - b.number;
-    });
+  // ISS bank is filtered by paper, section and year. UPHESC practice is the
+  // 50-question set for the unit open in the sidebar.
+  const filteredQuestions = (examMode === 'uphesc'
+    ? questions
+        .filter((q) => q.paper === 'uphesc' && !!activeNotesSectionKey && q.section === activeNotesSectionKey && matchesSearch(q))
+        .sort((a, b) => a.number - b.number)
+    : questions
+        .filter((q) => {
+          if (q.paper !== selectedPaper) return false;
+          if (selectedSection !== 'all' && q.section !== selectedSection) return false;
+          if (selectedYear !== 'all' && q.year.toString() !== selectedYear) return false;
+          return matchesSearch(q);
+        })
+        .sort((a, b) => {
+          if (a.year !== b.year) return b.year - a.year;
+          const secs = PAPER_SECTIONS[a.paper] ?? [];
+          const sectionDelta = secs.indexOf(a.section) - secs.indexOf(b.section);
+          if (sectionDelta !== 0) return sectionDelta;
+          return a.number - b.number;
+        })
+  );
 
   // Sync applied filter state to URL so page reload restores position
   useEffect(() => {
     const params = new URLSearchParams();
     if (examMode !== 'iss') params.set('mode', examMode);
-    if (activeTab !== 'pyq') params.set('tab', activeTab);
+    if (examMode === 'uphesc') {
+      if (activeTab === 'pyq') params.set('tab', 'pyq');
+      if (activeNotesSectionKey) params.set('notesSection', activeNotesSectionKey);
+    } else if (activeTab !== 'pyq') {
+      params.set('tab', activeTab);
+    }
     if (selectedPaper !== 'paper1') params.set('paper', selectedPaper);
     if (selectedSection !== 'all') params.set('section', selectedSection);
     if (selectedYear !== 'all') params.set('year', selectedYear);
-    if (activeTab === 'notes') {
+    if (examMode !== 'uphesc' && activeTab === 'notes') {
       if (selectedNotesPaper !== 'paper1') params.set('notesPaper', selectedNotesPaper);
       if (activeNotesSectionKey) params.set('notesSection', activeNotesSectionKey);
     }
@@ -925,6 +941,16 @@ export default function App() {
                         <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">(30 Qs)</span>
                       </button>
                     </div>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => setActiveTab('notes')}
+                        className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${activeTab === 'notes' ? 'bg-violet-600 text-white' : 'bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-black/8 dark:border-white/10'}`}
+                      >Notes</button>
+                      <button
+                        onClick={() => { setActiveTab('pyq'); setIsLeftDrawerOpen(false); }}
+                        className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${activeTab === 'pyq' ? 'bg-violet-600 text-white' : 'bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-black/8 dark:border-white/10'}`}
+                      >Questions</button>
+                    </div>
                     <div className="space-y-0.5">
                       {Object.entries(notes['uphesc'] || {})
                         .filter(([k]) => navGroup === 'gk' ? k.startsWith('gk_') : !k.startsWith('gk_'))
@@ -937,7 +963,6 @@ export default function App() {
                               onClick={() => {
                                 setActiveNotesSectionKey(key);
                                 setSelectedNotesPaper('uphesc');
-                                setActiveTab('notes');
                                 setRequestedSectionId(null);
                                 setIsLeftDrawerOpen(false);
                               }}
@@ -1103,6 +1128,16 @@ export default function App() {
                     <span className="text-[12.5px] font-medium">General Knowledge</span>
                     <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 shrink-0">(30 Qs)</span>
                   </button>
+                  <div className="flex gap-1 px-1 pt-2">
+                    <button
+                      onClick={() => setActiveTab('notes')}
+                      className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${activeTab === 'notes' ? 'bg-violet-600 text-white' : 'bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-black/8 dark:border-white/10 hover:text-slate-900 dark:hover:text-white'}`}
+                    >Notes</button>
+                    <button
+                      onClick={() => setActiveTab('pyq')}
+                      className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${activeTab === 'pyq' ? 'bg-violet-600 text-white' : 'bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-black/8 dark:border-white/10 hover:text-slate-900 dark:hover:text-white'}`}
+                    >Questions</button>
+                  </div>
                 </div>
               )}
             </div>
@@ -1135,7 +1170,6 @@ export default function App() {
                             onClick={() => {
                               setActiveNotesSectionKey(key);
                               setSelectedNotesPaper('uphesc');
-                              setActiveTab('notes');
                               setRequestedSectionId(null);
                               setSectionRequestTick((n) => n + 1);
                             }}
@@ -1143,7 +1177,7 @@ export default function App() {
                           >
                             {topic.title}
                           </button>
-                          {isActive && (
+                          {isActive && activeTab === 'notes' && (
                             <div className="ml-3 pl-2 border-l border-violet-400/30 mt-0.5 mb-1 space-y-0.5">
                               {topic.sections.map((sec: any, idx: number) => {
                                 const secActive = visibleNoteId === sec.id;
@@ -1328,7 +1362,7 @@ export default function App() {
                       const num = key.replace(/^(gk_)?unit/, '');
                       return (
                         <button key={key}
-                          onClick={() => { setActiveNotesSectionKey(key); setSelectedNotesPaper('uphesc'); setActiveTab('notes'); setSidebarCollapsed(false); }}
+                          onClick={() => { setActiveNotesSectionKey(key); setSelectedNotesPaper('uphesc'); setSidebarCollapsed(false); }}
                           title={key}
                           className={`w-9 h-9 rounded-lg flex items-center justify-center text-[10px] font-black transition-all cursor-pointer border ${isActive ? 'bg-violet-500/20 text-violet-800 dark:text-violet-100 border-violet-400/30' : 'bg-white/30 dark:bg-white/5 text-slate-500 border-transparent hover:text-slate-900 dark:hover:text-white'}`}
                         >
@@ -1410,7 +1444,22 @@ export default function App() {
             </b>
           </button>
 
-          {activeTab === 'pyq' ? (
+          {examMode === 'uphesc' ? (
+            activeNotesSectionKey && notes['uphesc']?.[activeNotesSectionKey] ? (
+              <button
+                onClick={() => setIsLeftDrawerOpen(true)}
+                className="px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/8 border border-black/8 dark:border-white/12 text-[11px] font-semibold shrink-0 cursor-pointer transition-colors text-left"
+              >
+                <span className="text-violet-700 dark:text-violet-300">
+                  {activeTab === 'pyq' ? 'Questions' : 'Notes'}
+                  <span className="text-slate-400 mx-1.5">/</span>
+                  {activeNotesSectionKey.startsWith('gk_') ? 'General Knowledge' : 'Statistics'}
+                </span>
+                <span className="text-slate-400 mx-1.5">/</span>
+                <b className="text-slate-800 dark:text-slate-100">{(notes['uphesc'][activeNotesSectionKey] as any).title}</b>
+              </button>
+            ) : null
+          ) : activeTab === 'pyq' ? (
             <>
               {/* Paper chip */}
               <button 
@@ -1452,19 +1501,6 @@ export default function App() {
                 </button>
               )}
             </>
-          ) : examMode === 'uphesc' ? (
-            activeNotesSectionKey && notes['uphesc']?.[activeNotesSectionKey] ? (
-              <button
-                onClick={() => setIsLeftDrawerOpen(true)}
-                className="px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/8 border border-black/8 dark:border-white/12 text-[11px] font-semibold shrink-0 cursor-pointer transition-colors text-left"
-              >
-                <span className="text-violet-700 dark:text-violet-300">
-                  {activeNotesSectionKey.startsWith('gk_') ? 'General Knowledge' : 'Statistics'}
-                </span>
-                <span className="text-slate-400 mx-1.5">/</span>
-                <b className="text-slate-800 dark:text-slate-100">{(notes['uphesc'][activeNotesSectionKey] as any).title}</b>
-              </button>
-            ) : null
           ) : (
             <>
               {/* ISS paper chip */}
@@ -1508,7 +1544,7 @@ export default function App() {
           
 
           {/* ==================== PYQ BOARD ==================== */}
-          {examMode === 'iss' && activeTab === 'pyq' && (
+          {activeTab === 'pyq' && (
             <div className="space-y-4" ref={questionsTopRef}>
 
               {/* Sticky range + page bar — same glass strip as the notes section bar */}
@@ -1566,6 +1602,15 @@ export default function App() {
 
               </div>
 
+              {examMode === 'uphesc' && notes['uphesc']?.[activeNotesSectionKey] && (
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-300">50 questions</p>
+                  <h2 className="text-xl font-semibold text-slate-900 dark:text-white tracking-tight mt-1">
+                    {(notes['uphesc'][activeNotesSectionKey] as any).title}
+                  </h2>
+                </div>
+              )}
+
               {/* Questions List */}
               <div className="flex flex-col gap-3">
                 {currentQuestions.length > 0 ? (
@@ -1592,7 +1637,9 @@ export default function App() {
                   <div className="bg-black/5 dark:bg-white/5 border border-black/8 dark:border-white/10 rounded-2xl p-12 text-center text-slate-500 dark:text-slate-400 backdrop-blur-xl">
                     <AlertCircle className="w-8 h-8 mx-auto mb-2 opacity-50 text-slate-400" />
                     <p className="text-sm font-medium text-slate-600 dark:text-slate-300">No questions match your filter criteria.</p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Try switching years or subject sections!</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                      {examMode === 'uphesc' ? 'Choose a unit in the sidebar.' : 'Try switching years or subject sections!'}
+                    </p>
                   </div>
                 )}
               </div>
@@ -1635,7 +1682,7 @@ export default function App() {
           )}
 
           {/* ==================== REVISION NOTES BOARD ==================== */}
-          {(examMode === 'uphesc' || (examMode === 'iss' && activeTab === 'notes')) && (
+          {activeTab === 'notes' && (
             <div className="space-y-6">
               <RevisionNotes
                 notesData={notes}
