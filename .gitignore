@@ -26,3 +26,7 @@ npm-debug.log*
 /tmp/
 package-lock.json
 **/__pycache__/
+
+# Local exam PDFs kept for reference, not part of the app
+*.pdf
+/temo-prof/
