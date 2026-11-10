@@ -151,7 +151,7 @@ export const RevisionNotes: React.FC<RevisionNotesProps> = ({
     paper === 'uphesc'
       ? isGKSection
         ? 'UPHESC A.P. · General Knowledge (30 Qs)'
-        : 'UPHESC A.P. · Statistics (70 Qs)'
+        : 'UPHESC A.P. · Statistics (90 Qs)'
       : `ISS · ${paper.replace('paper', 'Paper ')}`;
 
   return (

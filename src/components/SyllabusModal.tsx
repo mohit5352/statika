@@ -479,12 +479,12 @@ export const SyllabusModal: React.FC<SyllabusModalProps> = ({ isOpen, onClose, d
                       </span>
                       <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-1">{unit.title}</h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 max-w-2xl">
-                        Official UPHESC Statistics (Subject Code-77) topics for this unit.
+                        Official UPHESC Statistics (Subject Code-77) topics for this unit. Advt. 04/2026 written paper: 90 Statistics questions and 30 General Studies questions, 3 marks each, 1 mark deducted for a wrong answer.
                       </p>
                     </div>
                     <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 md:border-l border-black/8 dark:border-white/10 md:pl-4 py-1 font-mono flex items-center gap-2">
                       <GraduationCap className="w-4.5 h-4.5 text-violet-500 dark:text-violet-400" />
-                      <span>Subject Code-77</span>
+                      <span>120 Questions • 360 Marks • 2 Hours</span>
                     </div>
                   </div>
 

@@ -55,9 +55,9 @@ Paper IV sections include Demography & Vital Statistics, SQC, Operations Researc
 
 ### UPHESC Assistant Professor — Statistics (Subject Code-77)
 
-The exam is **100 MCQs × 2 marks = 200 marks** (2 hours, no negative marking) split into two sections:
+Under Advt. No. 04/2026 the written paper is **120 MCQs × 3 marks = 360 marks** (2 hours). A wrong answer deducts **1 mark**. The interview is 40 marks. The split is:
 
-#### Statistics — 70 Questions
+#### Statistics — 90 Questions (270 marks)
 
 Unit-wise preparation notes aligned to the official U.P. Higher Education Services Commission syllabus. Content lives in `uphesc_notes.json`.
 
@@ -76,9 +76,9 @@ Unit-wise preparation notes aligned to the official U.P. Higher Education Servic
 
 Each unit includes syllabus-mapped sections, MathJax formulas, comparison tables, and exam tips / common pitfalls. The same unit also has 50 practice questions in `uphesc_practice.json`.
 
-#### General Knowledge — 30 Questions (Compulsory for All Disciplines)
+#### General Studies — 30 Questions (90 marks)
 
-Six units covering the official GK syllabus (UPHESC notification). Notes live in `gk_notes.json` and are merged into the `uphesc` notebook at runtime. Each GK unit also has 50 practice questions in `uphesc_practice.json`.
+Six units of the compulsory General Studies section. The sidebar label is General Knowledge. Notes live in `gk_notes.json` and are merged into the `uphesc` notebook at runtime. Each GK unit also has 50 practice questions in `uphesc_practice.json`.
 
 | GK Unit | Title | Syllabus Sub-topics |
 |---------|-------|---------------------|
@@ -89,9 +89,9 @@ Six units covering the official GK syllabus (UPHESC notification). Notes live in
 | GK-5 | Indian History & Geography | Indian culture, National Movement 1857–1950, Universe & Solar System, Indian physical geography |
 | GK-6 | Indian Constitution & Economy | Preamble/FRs/DPSP, Legislature/Executive/Judiciary, ECI & UPSC, Planning & economy, Agriculture & banking |
 
-Statistics and General Knowledge share the UPHESC **violet** accent. The sidebar shows one group at a time: **Statistics `(70 Qs)`** or **General Knowledge `(30 Qs)`**. The bracketed counts are the official paper split, not the size of the practice set. Under those rows, **Notes** and **Questions** switch the open unit between the note and its 50 questions. The `gk_` key prefix selects the General Knowledge list; it does not change the color. The in-app syllabus view matches the official notification (no ISS/UPHESC tab mixing).
+Statistics and General Knowledge share the UPHESC **violet** accent. The sidebar shows one group at a time: **Statistics `(90 Qs)`** or **General Knowledge `(30 Qs)`**. Those counts are the Advt. 04/2026 paper split (90 subject questions and 30 General Studies questions), not the size of the practice set. Under those rows, **Notes** and **Questions** switch the open unit between the note and its 50 questions. The `gk_` key prefix selects the General Knowledge list; it does not change the color. The in-app syllabus view matches the official notification (no ISS/UPHESC tab mixing).
 
-Practice questions are written for that unit. They are model-answer items (`options` is empty), shown with **Show Answer**, not four-option MCQs. GK items use the same checked 2024–2026 facts as the notes. The set does not state one FY 2025-26 GDP growth rate, and it does not state a repo rate.
+Practice questions are four-option MCQs (`a`–`d`) for that unit, with the key and explanation in `uphesc_practice.json`. GK items use the same checked 2024–2026 facts as the notes. The set does not state one FY 2025-26 GDP growth rate, and it does not state a repo rate.
 
 ---
 
@@ -100,7 +100,7 @@ Practice questions are written for that unit. They are model-answer items (`opti
 ### Exam modes
 - Header menu collapses the desktop sidebar to a narrow rail, or opens a drawer on a phone. The icon stays on the left of the full-width header
 - Exam switcher: underline tabs **UPSC ISS** (indigo) and **UPHESC** (violet). These are separate from the subject rows below them
-- Under UPHESC, left-accent rows **Statistics `(70 Qs)`** and **General Knowledge `(30 Qs)`** — one unit list at a time. The collapsed rail keeps shortcuts `U1`–`U10` and `G1`–`G6`; choosing one expands the sidebar
+- Under UPHESC, left-accent rows **Statistics `(90 Qs)`** and **General Knowledge `(30 Qs)`** — one unit list at a time. The collapsed rail keeps shortcuts `U1`–`U10` and `G1`–`G6`; choosing one expands the sidebar
 - The open unit lists its sections in the sidebar while Notes is selected. The same sections sit in a sticky horizontal scroller above the note, with a `‹ n / total ›` pager
 - ISS mode: PYQs + revision notes + ISS syllabus
 - UPHESC mode: **Notes** or **Questions** for the selected unit, plus the UPHESC syllabus. Questions are 50 per statistics unit and 50 per GK unit (800 in all), ten to a page, with the same pager as the ISS bank
@@ -387,7 +387,7 @@ python3 gs_answers_2021_2026.py
 1. Edit `src/data/uphesc_practice.json`.
 2. Keep `paper: "uphesc"` and set `section` to the note key (`unit3`, `gk_unit6`, …).
 3. Number questions `1`–`50` inside that section. Put the model solution at `explanations.uphesc[section]["2026"][number]`.
-4. Leave `options` empty. These are written answers, not invented A–D choices.
+4. Each item has four options labelled `a`–`d`. Store the correct letter at `answers.uphesc[section]["2026"][number]`.
 5. For a GK fact, name the source and the date in the solution. Do not add a GDP growth rate or a repo rate unless it comes from one official page.
 
 ### UPHESC GK notes
@@ -429,7 +429,7 @@ Set `GEMINI_API_KEY` (and any admin secrets) as environment variables on the hos
 
 | Version | What changed |
 |---------|-------------|
-| **Latest** | UPHESC practice sets: 50 model-answer questions for each statistics unit and each GK unit, opened from Notes / Questions on the unit list |
-| Previous | Collapsible full-width shell: header menu, underline exam tabs, Statistics `(70 Qs)` / General Knowledge `(30 Qs)` rows, borderless notes. UPHESC accent is violet for both groups |
+| **Latest** | UPHESC written scheme updated to Advt. 04/2026: Statistics `(90 Qs)` and General Knowledge `(30 Qs)`, 120 questions, 360 marks, 1 mark deducted for a wrong answer |
+| Previous | UPHESC practice sets: 50 four-option questions for each statistics unit and each GK unit, opened from Notes / Questions on the unit list |
 | Earlier | UPHESC GK notes (6 units); GK current-affairs and economy sections updated to verified 2024–26 figures |
 | Initial | UPSC ISS Papers I–IV PYQs with answers, explanations, AI assistant |

@@ -164,13 +164,14 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   const [copiedQuestion, setCopiedQuestion] = useState(false);
   const [copiedAnswer, setCopiedAnswer] = useState(false);
 
-  const isSubjective =
-    question.paper === 'paper3' ||
-    question.paper === 'paper4' ||
-    question.paper === 'general_english' ||
-    question.paper === 'general_studies' ||
-    question.paper === 'uphesc';
   const isUphesc = question.paper === 'uphesc';
+  const isSubjective =
+    !isUphesc && (
+      question.paper === 'paper3' ||
+      question.paper === 'paper4' ||
+      question.paper === 'general_english' ||
+      question.paper === 'general_studies'
+    );
   const storageKey = `draft_${question.paper}_${question.section}_${question.year}_${question.number}`;
   const [userDraft, setUserDraft] = useState(() => localStorage.getItem(storageKey) || '');
 
@@ -349,8 +350,10 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 
             if (selectedOption) {
               if (isOptionCorrect) {
-                optionStyles = "bg-indigo-500/15 dark:bg-indigo-500/20 border-indigo-500/40 dark:border-indigo-500/50 text-indigo-700 dark:text-indigo-200 font-medium";
-                badgeStyles = "bg-indigo-500 text-white";
+                optionStyles = isUphesc
+                  ? "bg-violet-500/15 dark:bg-violet-500/20 border-violet-500/40 dark:border-violet-500/50 text-violet-800 dark:text-violet-100 font-medium"
+                  : "bg-indigo-500/15 dark:bg-indigo-500/20 border-indigo-500/40 dark:border-indigo-500/50 text-indigo-700 dark:text-indigo-200 font-medium";
+                badgeStyles = isUphesc ? "bg-violet-600 text-white" : "bg-indigo-500 text-white";
               } else if (isSelected) {
                 optionStyles = "bg-red-500/15 dark:bg-red-500/20 border-red-500/35 dark:border-red-500/40 text-red-700 dark:text-red-300";
                 badgeStyles = "bg-red-500 text-white";
@@ -449,7 +452,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           {selectedOption ? (
             <div className="flex items-center gap-1.5 text-xs">
               {isUserCorrect ? (
-                <span className="text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-1 bg-indigo-500/10 dark:bg-indigo-500/20 border border-indigo-400/30 dark:border-indigo-500/30 px-2.5 py-1 rounded-lg">
+                <span className={`font-semibold flex items-center gap-1 px-2.5 py-1 rounded-lg border ${isUphesc ? 'text-violet-700 dark:text-violet-300 bg-violet-500/10 dark:bg-violet-500/20 border-violet-400/30 dark:border-violet-500/30' : 'text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 dark:bg-indigo-500/20 border-indigo-400/30 dark:border-indigo-500/30'}`}>
                   <CheckCircle className="w-3.5 h-3.5" />
                   Correct! Answer is ({correctAnswer})
                 </span>
@@ -561,7 +564,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 
           <div className="px-3.5 py-3.5 text-sm font-sans text-slate-600 dark:text-slate-300 leading-relaxed space-y-2">
             {!isSubjective && (
-              <div className="font-semibold text-indigo-600 dark:text-indigo-400 text-sm mb-2">
+              <div className={`font-semibold text-sm mb-2 ${isUphesc ? 'text-violet-700 dark:text-violet-300' : 'text-indigo-600 dark:text-indigo-400'}`}>
                 Correct Answer Option: ({correctAnswer || 'Not Set'})
               </div>
             )}

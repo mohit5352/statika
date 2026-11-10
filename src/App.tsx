@@ -108,7 +108,12 @@ export default function App() {
     ...(genQuestionsRaw as Question[]),
     ...((uphescPracticeRaw as { questions: Question[] }).questions),
   ]);
-  const [answers, setAnswers] = useState<AnswerKey>(answersRaw as AnswerKey);
+  const [answers, setAnswers] = useState<AnswerKey>(
+    deepMerge(
+      answersRaw as AnswerKey,
+      (uphescPracticeRaw as { answers?: AnswerKey }).answers || {}
+    )
+  );
   const [explanations, setExplanations] = useState<ExplanationKey>(
     deepMerge(
       deepMerge(explanationsRaw as ExplanationKey, genExplanationsRaw),
@@ -931,7 +936,7 @@ export default function App() {
                         className={`flex items-baseline justify-between gap-3 py-1.5 text-left cursor-pointer border-l-2 pl-2 ${navGroup === 'stats' ? 'border-violet-400 text-violet-800 dark:text-violet-100' : 'border-transparent text-slate-500'}`}
                       >
                         <span className="text-[13px] font-medium">Statistics</span>
-                        <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">(70 Qs)</span>
+                        <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">(90 Qs)</span>
                       </button>
                       <button
                         onClick={() => setNavGroup('gk')}
@@ -1119,7 +1124,7 @@ export default function App() {
                     className={`flex items-baseline justify-between gap-3 px-1 py-1.5 text-left cursor-pointer border-l-2 ${navGroup === 'stats' ? 'border-violet-400 text-violet-800 dark:text-violet-100' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
                   >
                     <span className="text-[12.5px] font-medium">Statistics</span>
-                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 shrink-0">(70 Qs)</span>
+                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 shrink-0">(90 Qs)</span>
                   </button>
                   <button
                     onClick={() => setNavGroup('gk')}
